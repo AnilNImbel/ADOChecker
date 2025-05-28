@@ -20,8 +20,7 @@
             <tr>
                 <td>@project.id</td>
                 <td>@project.fields.SystemTitle</td>
-                @* <td>NA</td> *@
-                <td>@Html.Raw( @project.fields.MicrosoftVSTSCMMIImpactAssessmentHtml)</td>
+                <td class="@project.fields.IAAttached">@project.fields.IAAttached</td>
                 <td>@project.fields.CustomDevelopmentStatus</td>
                 <td>@project.fields.CustomQAStatus</td>
                 <td>@project.fields.SystemChangedBy</td>
