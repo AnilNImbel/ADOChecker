@@ -8,9 +8,142 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ADOAnalyser.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6fa;
+            color: #333;
+        }
+
+        .sidebar {
+            position: fixed;
+            width: 220px;
+            height: 100%;
+            background: #2a72d5;
+            color: #fff;
+            padding: 20px;
+        }
+
+            .sidebar h2 {
+                margin: 0 0 30px;
+                font-size: 20px;
+                text-align: center;
+            }
+
+            .sidebar ul {
+                list-style: none;
+                padding: 0;
+            }
+
+                .sidebar ul li {
+                    margin: 15px 0;
+                    cursor: pointer;
+                    padding: 8px 12px;
+                    border-radius: 6px;
+                    transition: background-color 0.3s;
+                }
+
+                    .sidebar ul li:hover,
+                    .sidebar ul li.active {
+                        background-color: #1e55b7;
+                    }
+
+        .main {
+            margin-left: 240px;
+            padding: 30px;
+        }
+
+        .header {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2a72d5;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            flex: 1 1 250px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+            .card h3 {
+                margin: 0 0 10px;
+                font-size: 16px;
+                color: #555;
+            }
+
+            .card p {
+                font-size: 22px;
+                margin: 0;
+                color: #2a72d5;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #2a72d5;
+            color: white;
+        }
+
+        .status-pass {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-fail {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <header>
+    <div class="sidebar">
+        <h2>Autospot Check</h2>
+        <ul id="menu">
+            <li data-section="dashboard" class="active"><a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li data-section="runChecks">Run Checks</li>
+            <li data-section="reports">Reports</li>
+            <li data-section="settings">Settings</li>
+        </ul>
+    </div>
+    <div class="main">
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <section id="dashboard" class="content-section">
+
+    </section>
+   @*  <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ADOAnalyser</a>
@@ -27,18 +160,7 @@
                 </div>
             </div>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - ADOAnalyser - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    </header> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
