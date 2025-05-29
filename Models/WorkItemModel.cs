@@ -33,6 +33,9 @@ namespace ADOAnalyser.Models
         [JsonProperty("System.Reason")]
         public string SystemReason { get; set; }
 
+        [JsonProperty("System.AssignedTo")]
+        public string SystemAssignedTo { get; set; }
+
         [JsonProperty("System.CreatedDate")]
         public DateTime SystemCreatedDate { get; set; }
 
@@ -60,92 +63,122 @@ namespace ADOAnalyser.Models
         [JsonProperty("Microsoft.VSTS.Common.StateChangeDate")]
         public DateTime MicrosoftVSTSCommonStateChangeDate { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.ValueArea")]
-        public string MicrosoftVSTSCommonValueArea { get; set; }
+        [JsonProperty("Microsoft.VSTS.Common.Priority")]
+        public int MicrosoftVSTSCommonPriority { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.Common.Severity")]
+        public string MicrosoftVSTSCommonSeverity { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.Common.StackRank")]
+        public double MicrosoftVSTSCommonStackRank { get; set; }
+
+        [JsonProperty("CivicaAgile.CallReference")]
+        public string CivicaAgileCallReference { get; set; }
+
+        [JsonProperty("CivicaAgile.Customer")]
+        public string CivicaAgileCustomer { get; set; }
+
+        [JsonProperty("CivicaAgile.Reproducible")]
+        public string CivicaAgileReproducible { get; set; }
+
+        [JsonProperty("CivicaAgile.VIEWFoundInDrop")]
+        public string CivicaAgileVIEWFoundInDrop { get; set; }
+
+        [JsonProperty("CivicaAgile.VisibletoCustomer")]
+        public string CivicaAgileVisibletoCustomer { get; set; }
+
+        [JsonProperty("CivicaAgile.VIEWCivicaAusVerified")]
+        public bool CivicaAgileVIEWCivicaAusVerified { get; set; }
+
+        [JsonProperty("CivicaAgile.VIEWStateVerified")]
+        public bool CivicaAgileVIEWStateVerified { get; set; }
+
+        [JsonProperty("CivicaAgile.VIEWTargetDate")]
+        public DateTime CivicaAgileVIEWTargetDate { get; set; }
+
+        [JsonProperty("CivicaAgile.VIEWTargetDrop")]
+        public string CivicaAgileVIEWTargetDrop { get; set; }
 
         [JsonProperty("CivicaAgile.VIEWCAP")]
         public bool CivicaAgileVIEWCAP { get; set; }
 
-        [JsonProperty("Custom.JiraKey")]
-        public string CustomJiraKey { get; set; }
+        [JsonProperty("CivicaAgile.VIEWDevelopmentOrderLocked")]
+        public bool CivicaAgileVIEWDevelopmentOrderLocked { get; set; }
 
-        [JsonProperty("Custom.JiraSync")]
-        public bool CustomJiraSync { get; set; }
+        [JsonProperty("CivicaAgile.VIEWFunctionalArea")]
+        public string CivicaAgileVIEWFunctionalArea { get; set; }
 
-        [JsonProperty("WEF_A799486F497940478970853F5B3EA295_Kanban.Column")]
-        public string WEF_A799486F497940478970853F5B3EA295_KanbanColumn { get; set; }
+        [JsonProperty("CivicaAgile.RootCauseAnalysis")]
+        public string CivicaAgileRootCauseAnalysis { get; set; }
 
-        [JsonProperty("WEF_A799486F497940478970853F5B3EA295_Kanban.Column.Done")]
-        public bool WEF_A799486F497940478970853F5B3EA295_KanbanColumnDone { get; set; }
+        [JsonProperty("WEF_EF1163EDF32B44FD8AB42CB9A846C39B_Kanban.Column")]
+        public string WEF_EF1163EDF32B44FD8AB42CB9A846C39B_KanbanColumn { get; set; }
 
-        [JsonProperty("System.Description")]
-        public string SystemDescription { get; set; }
+        [JsonProperty("WEF_EF1163EDF32B44FD8AB42CB9A846C39B_Kanban.Column.Done")]
+        public bool WEF_EF1163EDF32B44FD8AB42CB9A846C39B_KanbanColumnDone { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.AcceptanceCriteria")]
-        public string MicrosoftVSTSCommonAcceptanceCriteria { get; set; }
+        [JsonProperty("WEF_EF1163EDF32B44FD8AB42CB9A846C39B_Kanban.Lane")]
+        public string WEF_EF1163EDF32B44FD8AB42CB9A846C39B_KanbanLane { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.ActivatedDate")]
-        public DateTime? MicrosoftVSTSCommonActivatedDate { get; set; }
+        [JsonProperty("CivicaAgileCE.VIEWDataOCR")]
+        public string CivicaAgileCEVIEWDataOCR { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.ActivatedBy")]
-        public string MicrosoftVSTSCommonActivatedBy { get; set; }
+        [JsonProperty("CivicaAgileCE.CallCreatedDate")]
+        public DateTime CivicaAgileCECallCreatedDate { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.ResolvedDate")]
-        public DateTime? MicrosoftVSTSCommonResolvedDate { get; set; }
+        [JsonProperty("Custom.VIEWDefectPrioritised")]
+        public bool CustomVIEWDefectPrioritised { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.ResolvedBy")]
-        public string MicrosoftVSTSCommonResolvedBy { get; set; }
+        [JsonProperty("Custom.VIEWDefectPrioritisedByName")]
+        public string CustomVIEWDefectPrioritisedByName { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.ClosedDate")]
-        public DateTime? MicrosoftVSTSCommonClosedDate { get; set; }
+        [JsonProperty("Custom.VIEWDataFixRequired")]
+        public bool CustomVIEWDataFixRequired { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.ClosedBy")]
-        public string MicrosoftVSTSCommonClosedBy { get; set; }
+        [JsonProperty("Custom.VIEWLanDeskBreakDate")]
+        public DateTime CustomVIEWLanDeskBreakDate { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.Priority")]
-        public int? MicrosoftVSTSCommonPriority { get; set; }
+        [JsonProperty("WEF_FBE0420FA58B4F4FB191B6529535685E_Kanban.Column")]
+        public string WEF_FBE0420FA58B4F4FB191B6529535685E_KanbanColumn { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Common.StackRank")]
-        public double? MicrosoftVSTSCommonStackRank { get; set; }
+        [JsonProperty("WEF_FBE0420FA58B4F4FB191B6529535685E_Kanban.Column.Done")]
+        public bool WEF_FBE0420FA58B4F4FB191B6529535685E_KanbanColumnDone { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Scheduling.TargetDate")]
-        public DateTime? MicrosoftVSTSSchedulingTargetDate { get; set; }
+        [JsonProperty("Custom.RootCauseAnalysisDetail")]
+        public string CustomRootCauseAnalysisDetail { get; set; }
 
-        [JsonProperty("CivicaAgile.FunctionalArea")]
-        public string CivicaAgileFunctionalArea { get; set; }
+        [JsonProperty("WEF_D598F79C3D004AC1B346418A9456718C_Kanban.Column")]
+        public string WEF_D598F79C3D004AC1B346418A9456718C_KanbanColumn { get; set; }
 
-        [JsonProperty("Custom.VIEWPerformanceAnalysisComplete")]
-        public string CustomVIEWPerformanceAnalysisComplete { get; set; }
+        [JsonProperty("WEF_D598F79C3D004AC1B346418A9456718C_Kanban.Column.Done")]
+        public bool WEF_D598F79C3D004AC1B346418A9456718C_KanbanColumnDone { get; set; }
 
-        [JsonProperty("Custom.VIEWPerformanceSuiteUpdateRequired")]
-        public string CustomVIEWPerformanceSuiteUpdateRequired { get; set; }
+        [JsonProperty("Custom.RootCauseAnalysisWhy1")]
+        public string CustomRootCauseAnalysisWhy1 { get; set; }
 
-        [JsonProperty("Custom.VIEWPerformanceTestAdded")]
-        public string CustomVIEWPerformanceTestAdded { get; set; }
+        [JsonProperty("Custom.RootCauseAnalysisWhy2")]
+        public string CustomRootCauseAnalysisWhy2 { get; set; }
 
-        [JsonProperty("WEF_C73ED0D35FEC4159BB0D807A6B360EE6_Kanban.Column")]
-        public string WEF_C73ED0D35FEC4159BB0D807A6B360EE6_KanbanColumn { get; set; }
+        [JsonProperty("Custom.RootCauseAnalysisWhy3")]
+        public string CustomRootCauseAnalysisWhy3 { get; set; }
 
-        [JsonProperty("WEF_C73ED0D35FEC4159BB0D807A6B360EE6_Kanban.Column.Done")]
-        public bool? WEF_C73ED0D35FEC4159BB0D807A6B360EE6_KanbanColumnDone { get; set; }
+        [JsonProperty("Custom.RootCauseAnalysisRemediation")]
+        public string CustomRootCauseAnalysisRemediation { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.CMMI.ImpactAssessmentHtml")]
-        public string MicrosoftVSTSCMMIImpactAssessmentHtml { get; set; }
+        [JsonProperty("Custom.VIEWClosedinSprint")]
+        public string CustomVIEWClosedinSprint { get; set; }
 
-        [JsonProperty("System.Tags")]
-        public string SystemTags { get; set; }
+        [JsonProperty("Custom.ProjectZEROTrend")]
+        public string CustomProjectZEROTrend { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.Scheduling.StoryPoints")]
-        public double? MicrosoftVSTSSchedulingStoryPoints { get; set; }
-
-        [JsonProperty("Custom.StateUSStatus")]
-        public string CustomStateUSStatus { get; set; }
+        [JsonProperty("Custom.ProjectZEROAnalysisStatus")]
+        public string CustomProjectZEROAnalysisStatus { get; set; }
 
         [JsonProperty("Custom.VIEWPRFollowingVCPolicy")]
         public string CustomVIEWPRFollowingVCPolicy { get; set; }
 
         [JsonProperty("Custom.VIEWPRWorkItemCount")]
-        public int? CustomVIEWPRWorkItemCount { get; set; }
+        public int CustomVIEWPRWorkItemCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRExceeded50Files")]
         public string CustomVIEWPRExceeded50Files { get; set; }
@@ -157,31 +190,31 @@ namespace ADOAnalyser.Models
         public string CustomVIEWPRImpactsPerformance { get; set; }
 
         [JsonProperty("Custom.VIEWPRAcceptanceCriteriaCount")]
-        public int? CustomVIEWPRAcceptanceCriteriaCount { get; set; }
+        public int CustomVIEWPRAcceptanceCriteriaCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRSonarQubeClean")]
         public string CustomVIEWPRSonarQubeClean { get; set; }
 
         [JsonProperty("Custom.VIEWPRSQLMappedParamsCount")]
-        public int? CustomVIEWPRSQLMappedParamsCount { get; set; }
+        public int CustomVIEWPRSQLMappedParamsCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRImpactedSPCount")]
-        public int? CustomVIEWPRImpactedSPCount { get; set; }
+        public int CustomVIEWPRImpactedSPCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRManualUnitTestCount")]
-        public int? CustomVIEWPRManualUnitTestCount { get; set; }
+        public int CustomVIEWPRManualUnitTestCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRUITestCount")]
-        public int? CustomVIEWPRUITestCount { get; set; }
+        public int CustomVIEWPRUITestCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRMaskedDBINTUsed")]
         public string CustomVIEWPRMaskedDBINTUsed { get; set; }
 
         [JsonProperty("Custom.VIEWPRAutomatedUnitTestCount")]
-        public int? CustomVIEWPRAutomatedUnitTestCount { get; set; }
+        public int CustomVIEWPRAutomatedUnitTestCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRDBTestCount")]
-        public int? CustomVIEWPRDBTestCount { get; set; }
+        public int CustomVIEWPRDBTestCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRLegacyCode")]
         public string CustomVIEWPRLegacyCode { get; set; }
@@ -208,13 +241,13 @@ namespace ADOAnalyser.Models
         public string CustomVIEWPRFollowPG { get; set; }
 
         [JsonProperty("Custom.VIEWPRImpactAnalysisHours")]
-        public double? CustomVIEWPRImpactAnalysisHours { get; set; }
+        public double CustomVIEWPRImpactAnalysisHours { get; set; }
 
         [JsonProperty("Custom.VIEWPRPlannedEffortHours")]
-        public double? CustomVIEWPRPlannedEffortHours { get; set; }
+        public double CustomVIEWPRPlannedEffortHours { get; set; }
 
         [JsonProperty("Custom.VIEWPRActualEffortHours")]
-        public double? CustomVIEWPRActualEffortHours { get; set; }
+        public double CustomVIEWPRActualEffortHours { get; set; }
 
         [JsonProperty("Custom.VIEWPRPlannedvsActualGap")]
         public string CustomVIEWPRPlannedvsActualGap { get; set; }
@@ -226,7 +259,7 @@ namespace ADOAnalyser.Models
         public string CustomVIEWPRCompatibleDataTypes { get; set; }
 
         [JsonProperty("Custom.VIEWPRChecklistConfidence")]
-        public double? CustomVIEWPRChecklistConfidence { get; set; }
+        public double CustomVIEWPRChecklistConfidence { get; set; }
 
         [JsonProperty("Custom.DevelopmentStatus")]
         public string CustomDevelopmentStatus { get; set; }
@@ -237,20 +270,23 @@ namespace ADOAnalyser.Models
         [JsonProperty("Custom.VIEWPRImpactAssessmentCompleted")]
         public string CustomVIEWPRImpactAssessmentCompleted { get; set; }
 
+        [JsonProperty("Custom.SignedOffBy")]
+        public string CustomSignedOffBy { get; set; }
+
         [JsonProperty("WEF_439E363528544D1AA401EECA721CB80C_Kanban.Column")]
         public string WEF_439E363528544D1AA401EECA721CB80C_KanbanColumn { get; set; }
 
         [JsonProperty("WEF_439E363528544D1AA401EECA721CB80C_Kanban.Column.Done")]
-        public bool? WEF_439E363528544D1AA401EECA721CB80C_KanbanColumnDone { get; set; }
+        public bool WEF_439E363528544D1AA401EECA721CB80C_KanbanColumnDone { get; set; }
 
-        [JsonProperty("WEF_A5E90557CE584CF58671D0A68EE15CC4_Kanban.Column")]
-        public string WEF_A5E90557CE584CF58671D0A68EE15CC4_KanbanColumn { get; set; }
+        [JsonProperty("Microsoft.VSTS.TCM.ReproSteps")]
+        public string MicrosoftVSTSTCMReproSteps { get; set; }
 
-        [JsonProperty("WEF_A5E90557CE584CF58671D0A68EE15CC4_Kanban.Column.Done")]
-        public bool? WEF_A5E90557CE584CF58671D0A68EE15CC4_KanbanColumnDone { get; set; }
+        [JsonProperty("Microsoft.VSTS.CMMI.ImpactAssessmentHtml")]
+        public string MicrosoftVSTSCMMIImpactAssessmentHtml { get; set; }
 
-        [JsonProperty("CivicaAgile.VIEWTargetDate")]
-        public DateTime? CivicaAgileVIEWTargetDate { get; set; }
+        [JsonProperty("System.Tags")]
+        public string SystemTags { get; set; }
         public string IAAttached { get; set; }
     }
 
