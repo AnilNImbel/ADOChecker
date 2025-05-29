@@ -31,14 +31,31 @@ namespace ADOAnalyser.Controllers
         public IActionResult LoadPartial(string workType)
         {
             string project = TempData["projectType"].ToString();
-            var getWiql = _workItem.GetAllWiqlByType(project ,workType);
-            var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(getWiql);
-            var idList = wiqlData.workItems.Select(a => a.id).ToList();
-            var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(50)));
-            var workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-            CheckImpactAssessment(workData);
-            TempData["projectType"] = project.ToLower();
-            return PartialView("_WorkItemGrid", workData);
+            var iteration = _workItem.GetSprint(project);
+
+            if (iteration != null && iteration.Count > 0)
+            {
+                var getWiql = _workItem.GetAllWiqlByType(project, workType, iteration);
+                var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(getWiql);
+                var idList = wiqlData.workItems.Select(a => a.id).ToList();
+                if(idList != null && idList.Count > 0)
+                {
+
+                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
+                    var workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
+                    CheckImpactAssessment(workData);
+                    TempData["projectType"] = project.ToLower();
+                    return PartialView("_WorkItemGrid", workData);
+                }
+                else
+                {
+                    return PartialView("_WorkItemGrid", new WorkItemModel());
+                }
+            }
+            else
+            {
+                return PartialView("_WorkItemGrid", new WorkItemModel());
+            }
         }
 
         private void CheckImpactAssessment(WorkItemModel workData)
