@@ -2,28 +2,24 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-
-<div class="text-center">
-    <div class="container mt-5">
-        <div class="row">
-            @foreach (var project in Model.value)
-            {
-                <div class="col-md-4 mb-4">
-                    <a href="WorkType/Index?project=@project.name" style="text-decoration:none">
-                        <div class="card h-100 text-center">
-                            <div class="card-body d-flex flex-column align-items-start justify-content-start">
-                                <img class="icon-rect" src="@project.defaultTeamImageUrl" />
-                                <h5 class="card-title">@project.name</h5>
-                                <p class="card-text text-start">@project.description</p>
-                            </div>
+<section id="application" class="content-section">
+    <div class="row">
+        @foreach (var project in Model.value)
+        {
+            <div class="col-md-4 mb-4">
+                <a href="WorkType/Index?project=@project.name" style="text-decoration:none">
+                    <div class="card h-100 text-center">
+                        <div class="card-body d-flex flex-column align-items-start justify-content-start">
+                            <img class="icon-rect" src="@project.defaultTeamImageUrl" />
+                            <h5 class="card-title">@project.name</h5>
+                            <p class="card-text text-start">@project.description</p>
                         </div>
-                    </a>
-                </div>
-            }
-        </div>
+                    </div>
+                </a>
+            </div>
+        }
     </div>
-</div>
-
+</section>
 
 <style>
     .icon-rect {

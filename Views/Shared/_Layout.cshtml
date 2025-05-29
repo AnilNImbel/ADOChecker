@@ -133,27 +133,63 @@
             font-weight: bold;
         }
     </style>
+    <script>
+        const menuItems = document.querySelectorAll('.sidebar ul li');
+        const sections = document.querySelectorAll('.content-section');
+        debugger;
+        menuItems.forEach(item => {
+          item.addEventListener('click', () => {
+            // Remove active class from all menu items
+            menuItems.forEach(i => i.classList.remove('active'));
+            // Add active class to clicked menu item
+            item.classList.add('active');
+
+            // Hide all sections
+            sections.forEach(section => section.style.display = 'none');
+
+            // Show the selected section
+            const sectionId = item.getAttribute('data-section');
+            document.getElementById(sectionId).style.display = 'block';
+          });
+        });
+
+        // // Simulate Run Checks button
+        // const runChecksBtn = document.getElementById('runChecksBtn');
+        // const runChecksStatus = document.getElementById('runChecksStatus');
+
+        // if (runChecksBtn) {
+        //   runChecksBtn.addEventListener('click', () => {
+        //     runChecksStatus.textContent = 'Running checks...';
+        //     // Simulate backend check with timeout
+        //     setTimeout(() => {
+        //       runChecksStatus.innerHTML = `
+        //         <p>Check complete. Results:</p>
+        //         <ul>
+        //           <li>Item 12345: <span style="color:red;">Failed</span> (Impact Assessment missing)</li>
+        //           <li>Item 12346: <span style="color:green;">Passed</span></li>
+        //           <li>Item 12347: <span style="color:green;">Passed</span></li>
+        //         </ul>
+        //       `;
+        //     }, 2000);
+        //   });
+        // }
+    </script>
 </head>
 <body>
     <div class="sidebar">
         <h2>Autospot Check</h2>
         <ul id="menu">
-            <li data-section="dashboard" class="active"><a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Dashboard</a></li>
+            <li data-section="dashboard" class="active"><a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+            <li data-section="application"><a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Application</a></li>
             <li data-section="runChecks">Run Checks</li>
             <li data-section="reports">Reports</li>
             <li data-section="settings">Settings</li>
         </ul>
     </div>
     <div class="main">
-        <div class="container">
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-        </div>
+        @RenderBody()
     </div>
-    <section id="dashboard" class="content-section">
-
-    </section>
+   
    @*  <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
