@@ -4,21 +4,21 @@
 }
 
 <div class="row">
-@foreach (var project in Model)
-{
-    <div class="col-md-4 mb-4">
-        <a class="loadData" name="@project.workType" style="text-decoration:none;cursor:pointer">
-            <div class="card h-100 text-center">
-                <div class="card-body d-flex flex-row align-items-center justify-content-start">
-                    <i class="icon-rect @project.icon"></i>
-                    <h5 class="card-title" style="margin-bottom:0px">@project.workType</h5>
-                    <p class="card-text text-start"></p>
+    @foreach (var project in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <a class="loadData" name="@project.workType" style="text-decoration:none;cursor:pointer">
+                <div class="card h-100 text-center">
+                    <div class="card-body d-flex flex-row align-items-center justify-content-start">
+                        <i class="icon-rect @project.icon"></i>
+                        <h5 class="card-title" style="margin-bottom:0px">@project.workType</h5>
+                        <p class="card-text text-start"></p>
+                    </div>
                 </div>
-            </div>
-        </a>
-    </div>
-}
-    </div>
+            </a>
+        </div>
+    }
+</div>
 <div id="loader" style="display: none;justify-items:center">
     <div class="spinner"></div>
 </div>
@@ -90,13 +90,14 @@
         height: 80px;
         animation: spin 1s linear infinite;
     }
+
     @@keyframes spin {
-        0%{
-        transform: rotate(0deg);
+        0% {
+            transform: rotate(0deg);
         }
 
         100% {
-        transform: rotate(360deg);
+            transform: rotate(360deg);
         }
     }
 
