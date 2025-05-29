@@ -48,11 +48,11 @@ namespace ADOAnalyser.Controllers
                 string data = workData.value[i].fields.MicrosoftVSTSCMMIImpactAssessmentHtml;
                 if (string.IsNullOrWhiteSpace(data))
                 {
-                    workData.value[i].fields.MicrosoftVSTSCMMIImpactAssessmentHtml = "Missing";
+                    workData.value[i].fields.IAAttached = "Missing";
                 }
                 else
                 {
-                    workData.value[i].fields.MicrosoftVSTSCMMIImpactAssessmentHtml = ImpactAssessmentRegex(data) ? "Attached" : "Missing";
+                    workData.value[i].fields.IAAttached = ImpactAssessmentRegex(data) ? "Attached" : "Missing";
                 }
             }
         }

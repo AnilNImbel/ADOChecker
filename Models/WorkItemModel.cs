@@ -251,6 +251,7 @@ namespace ADOAnalyser.Models
 
         [JsonProperty("CivicaAgile.VIEWTargetDate")]
         public DateTime? CivicaAgileVIEWTargetDate { get; set; }
+        public string IAAttached { get; set; }
     }
 
     public class Values
