@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ADOAnalyser</title>
+    <title>Autospot Check</title>
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ADOAnalyser.styles.css" asp-append-version="true" />
@@ -134,24 +134,31 @@
         }
     </style>
     <script>
-        const menuItems = document.querySelectorAll('.sidebar ul li');
-        const sections = document.querySelectorAll('.content-section');
-        debugger;
-        menuItems.forEach(item => {
-          item.addEventListener('click', () => {
-            // Remove active class from all menu items
-            menuItems.forEach(i => i.classList.remove('active'));
-            // Add active class to clicked menu item
-            item.classList.add('active');
 
-            // Hide all sections
-            sections.forEach(section => section.style.display = 'none');
+        document.addEventListener('DOMContentLoaded', () => {
+          const menuItems = document.querySelectorAll('.sidebar ul li');
+          const sections = document.querySelectorAll('.content-section');
 
-            // Show the selected section
-            const sectionId = item.getAttribute('data-section');
-            document.getElementById(sectionId).style.display = 'block';
+          menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+              // Remove active class from all menu items
+              menuItems.forEach(i => i.classList.remove('active'));
+              // Add active class to clicked menu item
+              item.classList.add('active');
+
+              // Hide all sections
+              sections.forEach(section => section.style.display = 'none');
+
+              // Show the selected section
+              const sectionId = item.getAttribute('data-section');
+              const targetSection = document.getElementById(sectionId);
+              if (targetSection) {
+                targetSection.style.display = 'block';
+              }
+            });
           });
         });
+
 
         // // Simulate Run Checks button
         // const runChecksBtn = document.getElementById('runChecksBtn');

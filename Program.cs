@@ -1,4 +1,5 @@
 using ADOAnalyser;
+using ADOAnalyser.Common;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -28,6 +29,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IUtility, Utility>();
 builder.Services.AddScoped<IWorkItem, WorkItem>();
+builder.Services.AddScoped<AutoSpotCheck>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

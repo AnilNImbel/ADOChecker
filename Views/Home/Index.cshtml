@@ -4,19 +4,22 @@
 }
 <section id="application" class="content-section">
     <div class="row">
-        @foreach (var project in Model.value)
+        @if (Model.value.Count > 0)
         {
-            <div class="col-md-4 mb-4">
-                <a href="WorkType/Index?project=@project.name" style="text-decoration:none">
-                    <div class="card h-100 text-center">
-                        <div class="card-body d-flex flex-column align-items-start justify-content-start">
-                            <img class="icon-rect" src="@project.defaultTeamImageUrl" />
-                            <h5 class="card-title">@project.name</h5>
-                            <p class="card-text text-start">@project.description</p>
+            @foreach (var project in Model.value)
+            {
+                <div class="col-md-4 mb-4">
+                    <a href="WorkType/Index?project=@project.name" style="text-decoration:none">
+                        <div class="card h-100 text-center">
+                            <div class="card-body d-flex flex-column align-items-start justify-content-start">
+                                <img class="icon-rect" src="@project.defaultTeamImageUrl" />
+                                <h5 class="card-title">@project.name</h5>
+                                <p class="card-text text-start">@project.description</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
+            }
         }
     </div>
 </section>

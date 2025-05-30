@@ -1,31 +1,37 @@
 ﻿@model ADOAnalyser.Models.WorkItemModel
-<div class="row table-responsive">
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr class ="info">
-                <th style="width:10px">ID</th>
-                <th>Title</th>
-                <th>Impact Assessment</th>
-                
-                <th>Development Status</th>
-                <th>QA Status</th>
-                <th>Assinged</th>
-                <th>State Status</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-        @foreach (var project in Model.value)
-        {
-            <tr>
-                <td>@project.id</td>
-                <td>@project.fields.SystemTitle</td>
-                <td class="@project.fields.IAAttached">@project.fields.IAAttached</td>
-                <td>@project.fields.CustomDevelopmentStatus</td>
-                <td>@project.fields.CustomQAStatus</td>
-                <td>@project.fields.SystemChangedBy</td>
-                <td>@project.fields.SystemState</td>
-            </tr>
-        }
-    </table>
-</div>
+@if (Model.value.Count > 0)
+{
+    <div class="row table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>ID</th>
+                    <th>Impact Assessment</th>
+                    <th>Root Cause</th>
+                    <th>Project Zero</th>
+                    <th>PR Life-cycle</th>
+                    <th>Status Discrepancy</th>
+                    <th>Test Case Gaps</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            @foreach (var project in Model.value)
+            {
+                <tr>
+                    <td>@project.fields.SystemWorkItemType</td>
+                    <td>@project.id</td>
+                    <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
+                    <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
+                    <td class="@project.fields.ProjectZeroStatus">@project.fields.ProjectZeroStatus</td>
+                    <td class="@project.fields.PRLifeCycleStatus">@project.fields.PRLifeCycleStatus</td>
+                    <td class="@project.fields.StatusDiscrepancyStatus">@project.fields.PRLifeCycleStatus</td>
+                    <td class="@project.fields.TestCaseGapeStatus">@project.fields.PRLifeCycleStatus</td>
+                    <td>@project.fields.SystemState</td>
+                </tr>
+            }
+        </table>
+    </div>
+}

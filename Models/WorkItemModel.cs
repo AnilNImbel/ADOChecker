@@ -11,6 +11,13 @@ namespace ADOAnalyser.Models
     {
         public int count { get; set; }
         public List<Values> value { get; set; }
+
+        public int missingIACount { get; set; }
+        public int missingRootCauseCount { get; set; }
+        public int missingProjectZeroCount { get; set; }
+        public int missingPRLifeCycleCount { get; set; }
+        public int missingStatusDiscreCount { get; set; }
+        public int missingTestCaseCount { get; set; }
     }
 
     public class Fields
@@ -287,7 +294,18 @@ namespace ADOAnalyser.Models
 
         [JsonProperty("System.Tags")]
         public string SystemTags { get; set; }
-        public string IAAttached { get; set; }
+        public string IAStatus { get; set; }
+
+        public string RootCauseStatus { get; set; }
+        public string ProjectZeroStatus { get; set; }
+        public string PRLifeCycleStatus { get; set; }
+        public string StatusDiscrepancyStatus { get; set; }
+        public string TestCaseGapeStatus { get; set; }
+
+        public string DevMissingStatus{ get; set; }
+        public string QAMissingStatus{ get; set; }
+        public string VTDMissingStatus{ get; set; }
+        public string VLBDMissingStatus{ get; set; }
     }
 
     public class Values
