@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ADOAnalyser.Utility;
 
 namespace ADOAnalyser
 {
@@ -14,5 +15,7 @@ namespace ADOAnalyser
         Task<string> PostDataAsync(string URl, HttpContent content);
 
         string PostDataSync(string URl, HttpContent content);
+
+        List<IterationNodeWithPath> GetCurrentIterationAsync(string projectName);
     }
 }

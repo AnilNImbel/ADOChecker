@@ -1,8 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using NuGet.Packaging.Signing;
 using System;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using static ADOAnalyser.Utility;
 namespace ADOAnalyser
 {
 
@@ -15,6 +18,10 @@ namespace ADOAnalyser
             _Utility = Utility;
         }
 
+        public List<IterationNodeWithPath> GetSprint(string projectName)
+        {
+            return _Utility.GetCurrentIterationAsync(projectName);
+        }
 
         public string GetWorkItem(string projectName, string ids)
         {
@@ -47,9 +54,12 @@ namespace ADOAnalyser
             return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         }
 
-        public string GetAllWiqlByType(string projectName, string workItemType)
+        public string GetAllWiqlByType(string projectName, string workItemType, List<IterationNodeWithPath> iterationPath)
         {
             string Url = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", projectName);
+            var iterationFilter = string.Join(" OR ", iterationPath.Select(i =>
+       $"[System.IterationPath] = '{i.FullPath.Replace("'", "''")}'"));
+
             var query = new
             {
                 query = $@"Select [System.Id], [System.Title], [System.State] 
@@ -57,6 +67,7 @@ namespace ADOAnalyser
                      Where [System.WorkItemType] = '{workItemType}'
                         AND [System.AssignedTo] = ''
                         AND [System.TeamProject] = '{projectName}'
+                        AND ({iterationFilter})
                      order by [System.CreatedDate] desc"
             };
 
