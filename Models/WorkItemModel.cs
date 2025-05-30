@@ -18,6 +18,8 @@ namespace ADOAnalyser.Models
         public int missingPRLifeCycleCount { get; set; }
         public int missingStatusDiscreCount { get; set; }
         public int missingTestCaseCount { get; set; }
+        public int missingVTDCount { get; set; }
+        public int missingVLDBCount { get; set; }
     }
 
     public class Fields
@@ -305,7 +307,7 @@ namespace ADOAnalyser.Models
         public string DevMissingStatus{ get; set; }
         public string QAMissingStatus{ get; set; }
         public string VTDMissingStatus{ get; set; }
-        public string VLBDMissingStatus{ get; set; }
+        public string VLDBMissingStatus{ get; set; }
     }
 
     public class Values

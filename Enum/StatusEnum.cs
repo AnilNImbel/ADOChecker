@@ -7,7 +7,6 @@ namespace ADOAnalyser.Enum
         Missing,
         Attached,
         Completed,
-        Incompleted,
         Yes,
         No,
         Filled,

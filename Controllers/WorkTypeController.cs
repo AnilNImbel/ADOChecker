@@ -1,4 +1,5 @@
-﻿using ADOAnalyser.Models;
+﻿using ADOAnalyser.Common;
+using ADOAnalyser.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -11,9 +12,11 @@ namespace ADOAnalyser.Controllers
     {
         private readonly IWorkItem _workItem;
 
-        public WorkTypeController(IWorkItem workItem)
+        private readonly AutoSpotCheck autoSpotCheck;
+        public WorkTypeController(IWorkItem workItem, AutoSpotCheck autoSpotChecks)
         {
             _workItem = workItem;
+            autoSpotCheck = autoSpotChecks;
         }
 
         public IActionResult Index(string project)
@@ -43,7 +46,8 @@ namespace ADOAnalyser.Controllers
 
                     var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
                     var workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-                    CheckImpactAssessment(workData);
+                    CheckMissingData(workData);
+                    //SetCountForMissing(workData);
                     TempData["projectType"] = project.ToLower();
                     return PartialView("_WorkItemGrid", workData);
                 }
@@ -58,26 +62,31 @@ namespace ADOAnalyser.Controllers
             }
         }
 
-        private void CheckImpactAssessment(WorkItemModel workData)
+        private void CheckMissingData(WorkItemModel workData)
         {
             for (int i = 0; i < workData.value.Count; i++)
             {
-                string data = workData.value[i].fields.MicrosoftVSTSCMMIImpactAssessmentHtml;
-                if (string.IsNullOrWhiteSpace(data))
-                {
-                    workData.value[i].fields.IAAttached = "Missing";
-                }
-                else
-                {
-                    workData.value[i].fields.IAAttached = ImpactAssessmentRegex(data) ? "Attached" : "Missing";
-                }
+                autoSpotCheck.CheckImpactAssessment(workData.value[i].fields);
+                autoSpotCheck.CheckRootCause(workData.value[i].fields);
+                autoSpotCheck.CheckProjectZero(workData.value[i].fields);
+                autoSpotCheck.CheckPRLifeCycle(workData.value[i].fields);
+                autoSpotCheck.CheckStatusDiscre(workData.value[i].fields);
+                autoSpotCheck.CheckTestCaseGape(workData.value[i].fields);
+                autoSpotCheck.CheckVTDRequired(workData.value[i].fields);
+                autoSpotCheck.CheckVLDBRequired(workData.value[i].fields);
             }
         }
 
-        private bool ImpactAssessmentRegex(string data)
+        private void SetCountForMissing(WorkItemModel workData)
         {
-            string pattern = @"https?://[^""']*Assessment[^""']*\.xlsx";
-            return Regex.IsMatch(data, pattern, RegexOptions.IgnoreCase);
+            workData.missingIACount = autoSpotCheck.MissingImpactAssessmentCount(workData);
+            workData.missingRootCauseCount = autoSpotCheck.MissingRootCauseCount(workData);
+            workData.missingProjectZeroCount = autoSpotCheck.MissingProjectZeroCount(workData);
+            workData.missingPRLifeCycleCount = autoSpotCheck.MissingPRLifeCycleCount(workData);
+            workData.missingStatusDiscreCount = autoSpotCheck.MissingStatusDiscreCount(workData);
+            workData.missingTestCaseCount = autoSpotCheck.MissingTestCaseGapeCount(workData);
+            workData.missingVTDCount = autoSpotCheck.MissingVTDCount(workData);
+            workData.missingVLDBCount = autoSpotCheck.MissingVLDBCount(workData);
         }
     }
 }
