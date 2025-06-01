@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Autospot Check</title>
+    <title>@ViewData["Title"] - ADOAnalyser</title>
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ADOAnalyser.styles.css" asp-append-version="true" />
@@ -123,12 +123,12 @@
         }
 
 
-        .Attached, .Completed, .Filled,.No {
+        .Attached, .Completed, .Filled, .No {
             color: green !important;
             font-weight: bold;
         }
 
-        .Missing,.Yes {
+        .Missing, .Yes {
             color: red !important;
             font-weight: bold;
         }
@@ -186,6 +186,38 @@
         //   });
         // }
     </script>
+    <script>
+                document.addEventListener("DOMContentLoaded", function() {
+          var sprintFilter = document.getElementById("sprintFilter");
+          if (!sprintFilter) return;
+
+          sprintFilter.addEventListener("change", function() {
+            var selectedSprint = sprintFilter.value;
+
+            // Optional: if your workType is stored somewhere in the page or you want to keep using TempData on server, you can skip sending it here.
+            // If needed, append workType to query string.
+
+            // Example AJAX call using Fetch API
+            fetch(`/Worktype/LoadPartial?selectedSprint=${encodeURIComponent(selectedSprint)}`, {
+              method: "GET",
+              headers: {
+                "X-Requested-With": "XMLHttpRequest"
+              }
+            })
+              .then(response => {
+                if (!response.ok) throw new Error("Network response was not ok");
+                return response.text();
+              })
+              .then(html => {
+                // Replace partial container content with the new HTML
+                document.getElementById("yourPartialContainer").innerHTML = html;
+              })
+              .catch(error => {
+                console.error("Error loading partial:", error);
+              });
+          });
+        });
+    </script>
 </head>
 <body>
     <div class="sidebar">
@@ -193,7 +225,7 @@
         <ul id="menu">
             <li data-section="dashboard" class="active"><a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
             <li data-section="application"><a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Application</a></li>
-            <li data-section="runChecks">Run Checks</li>
+            <li data-section="runChecks"><a class="navbar-brand" asp-area="" asp-controller="RunChecks" asp-action="Index">Run Checks</a></li>
             <li data-section="reports">Reports</li>
             <li data-section="settings">Settings</li>
         </ul>

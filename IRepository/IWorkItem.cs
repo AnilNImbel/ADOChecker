@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using ADOAnalyser.Models;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,10 @@ namespace ADOAnalyser
         string GetProjects();
         string GetAllWiql(string projectName);
 
-        string GetAllWiqlByType(string projectName, string workItemType, List<IterationNodeWithPath> iterationPath);
+        IterationResult GetSprint(string projectName);
 
-        List<IterationNodeWithPath> GetSprint(string projectName);
+        string GetAllWiqlByType(string projectName, string workItemType, string iterationPath);
+
+        WorkItemModel GetAllWorkItemsByDateRange(DateTime fromDate, DateTime toDate);
     }
 }

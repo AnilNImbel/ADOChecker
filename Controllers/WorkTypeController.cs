@@ -31,35 +31,46 @@ namespace ADOAnalyser.Controllers
             return View(workTypeModel);
         }
 
-        public IActionResult LoadPartial(string workType)
+        public IActionResult LoadPartial(string workType, string? selectedSprint = null)
         {
-            string project = TempData["projectType"].ToString();
-            var iteration = _workItem.GetSprint(project);
+            string project = TempData["projectType"]?.ToString() ?? "DefaultProject";
 
-            if (iteration != null && iteration.Count > 0)
+            // Get sprint info (current + all)
+            var iterationData = _workItem.GetSprint(project); // your GetSprint returns IterationResult
+            var allSprints = iterationData.AllSprints;
+            var currentSprints = iterationData.CurrentSprints;
+
+            // Choose sprint: dropdown value or fallback to current sprint
+            string sprintToUse = selectedSprint ?? currentSprints.FirstOrDefault()?.FullPath;
+
+            var workData = new WorkItemModel();
+
+            if (!string.IsNullOrEmpty(sprintToUse))
             {
-                var getWiql = _workItem.GetAllWiqlByType(project, workType, iteration);
+                var getWiql = _workItem.GetAllWiqlByType(project, workType, sprintToUse);
                 var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(getWiql);
                 var idList = wiqlData.workItems.Select(a => a.id).ToList();
-                if(idList != null && idList.Count > 0)
-                {
 
-                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
-                    var workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-                    CheckMissingData(workData);
-                    //SetCountForMissing(workData);
-                    TempData["projectType"] = project.ToLower();
-                    return PartialView("_WorkItemGrid", workData);
-                }
-                else
+                if (idList != null && idList.Count > 0)
                 {
-                    return PartialView("_WorkItemGrid", new WorkItemModel());
+                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
+                    workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
+                    CheckMissingData(workData);
                 }
             }
-            else
+
+            TempData["projectType"] = project.ToLower();
+
+            // Create a view model to send sprint info + work items to partial
+            var viewModel = new SprintViewModel
             {
-                return PartialView("_WorkItemGrid", new WorkItemModel());
-            }
+                SelectedSprint = sprintToUse,
+                AllSprints = allSprints.Select(i => i.FullPath).ToList(),
+                WorkItemData = workData
+            };
+
+            TempData["worktype"] = workType;
+            return PartialView("_WorkItemGrid", viewModel);
         }
 
         private void CheckMissingData(WorkItemModel workData)

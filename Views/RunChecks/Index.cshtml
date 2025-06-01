@@ -1,0 +1,114 @@
+﻿@model ADOAnalyser.Models.WorkItemModel
+
+@{
+    ViewBag.Title = "Run Checks";
+    bool hasResults = Model?.value != null && Model.value.Any();
+    bool formSubmitted = ViewBag.FromDate != null && ViewBag.ToDate != null;
+}
+
+<h2 class="mt-4">Run Checks</h2>
+
+<p>Click the button below to start verification checks on ADO items, for last update date.</p>
+
+<form id="runCheckForm" asp-controller="RunChecks" asp-action="Index" method="post" onsubmit="return validateDateRange()">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label for="fromDate" class="form-label">From</label>
+            <input type="date" class="form-control form-control-sm" id="fromDate" name="fromDate" min="2000-01-01" required value="@ViewBag.FromDate" />
+        </div>
+
+        <div class="col-md-3">
+            <label for="toDate" class="form-label">To</label>
+            <input type="date" class="form-control form-control-sm" id="toDate" name="toDate" min="2000-01-01" required value="@ViewBag.ToDate" />
+        </div>
+
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary btn-sm mt-2">Run Checks</button>
+        </div>
+    </div>
+</form>
+
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success mt-4">@ViewBag.Message</div>
+}
+
+<div id="loader" style="display:none; text-align:center; margin-top:20px;">
+    <img src="~/Image/loader.gif" alt="Loading..." width="50" />
+    <p>Loading work items, please wait...</p>
+</div>
+
+<div id="noRecordsMessage" class="alert alert-warning mt-4" style="display: @(formSubmitted && !hasResults ? "block" : "none");">
+    No work items found for the selected date range.
+</div>
+
+<div id="result" style="display:@(hasResults ? "block" : "none");" class="mt-4">
+    @if (hasResults)
+    {
+        <div class="row table-responsive">
+            <table class="table table-bordered table-hover" id="workItemsTable">
+                <thead>
+                    <tr>
+                        <th style="width:10px">ADO Item ID</th>
+                        <th>Impact Assessment</th>
+                        <th>Root Cause</th>
+                        <th>Project Zero</th>
+                        <th>PR Life-cycle</th>
+                        <th>Status Discrepancy</th>
+                        <th>VTD</th>
+                        <th>VLTB</th>
+                        <th>State Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var project in Model.value)
+                    {
+                        <tr>
+                            <td>@project.id</td>
+                            <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
+                            <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
+                            <td class="@project.fields.ProjectZeroStatus">@project.fields.ProjectZeroStatus</td>
+                            <td class="@project.fields.PRLifeCycleStatus">@project.fields.PRLifeCycleStatus</td>
+                            <td class="@project.fields.StatusDiscrepancyStatus">@project.fields.StatusDiscrepancyStatus</td>
+                            <td class="@project.fields.VTDMissingStatus">@project.fields.VTDMissingStatus</td>
+                            <td class="@project.fields.VLDBMissingStatus">@project.fields.VLDBMissingStatus</td>
+                            <td>@project.fields.SystemState</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<script>
+    function validateDateRange() {
+        const fromDateInput = document.getElementById("fromDate");
+        const toDateInput = document.getElementById("toDate");
+
+        if (!fromDateInput.value || !toDateInput.value) {
+            alert("Please select both From and To dates.");
+            return false;
+        }
+
+        const fromDate = new Date(fromDateInput.value);
+        const toDate = new Date(toDateInput.value);
+
+        if (isNaN(fromDate) || isNaN(toDate)) {
+            alert("Invalid date format.");
+            return false;
+        }
+
+        if (fromDate > toDate) {
+            alert("From Date cannot be greater than To Date.");
+            return false;
+        }
+
+        // Show loader, hide result and no-records message
+        document.getElementById("loader").style.display = "block";
+        document.getElementById("result").style.display = "none";
+        document.getElementById("noRecordsMessage").style.display = "none";
+
+        return true;
+    }
+</script>

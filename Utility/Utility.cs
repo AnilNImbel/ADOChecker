@@ -122,9 +122,9 @@ namespace ADOAnalyser
         }
 
 
-        public List<IterationNodeWithPath> GetCurrentIterationAsync(string projectName)
+        public IterationResult GetCurrentIterationAsync(string projectName)
         {
-            var currentSprint = new List<IterationNodeWithPath>();
+            var result = new IterationResult();
 
             var expectedPaths = new List<string>
                                 {
@@ -148,18 +148,23 @@ namespace ADOAnalyser
                 var allIterations = FlattenIterationsWithPath(root.children, projectName.ToUpper());
                 var today = DateTime.UtcNow.Date;
 
-                currentSprint = allIterations
-                                      .Where(i =>
-                                          i.Attributes?.StartDate <= today &&
-                                          i.Attributes?.FinishDate >= today &&
-                                          normalizedPaths.Any(p => NormalizePath(i.FullPath).StartsWith(p)))
-                                      .OrderByDescending(i => i.Attributes.StartDate).ToList();
+                result.AllSprints = allIterations
+                                      .Where(i => normalizedPaths.Any(p => NormalizePath(i.FullPath).StartsWith(p)))
+                                      .OrderByDescending(i => i.Attributes.StartDate)
+                                      .ToList();
 
-                return currentSprint;
+                result.CurrentSprints = result.AllSprints
+                                       .Where(i =>
+                                           i.Attributes?.StartDate <= today &&
+                                           i.Attributes?.FinishDate >= today)
+                                       .OrderByDescending(i => i.Attributes.StartDate)
+                                       .ToList();
+
+                return result;
             }
             else
             {
-                return currentSprint;
+                return result;
             }
         }
 

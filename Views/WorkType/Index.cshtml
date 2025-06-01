@@ -28,14 +28,15 @@
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+         let currentWorkType = '';
           $('.loadData').click(function () {
             $('#partialContainer').html("");
             $("#loader").show();
-             var myData = $(this).attr('name');
+            currentWorkType = $(this).attr('name');
              $.ajax({
                  url: '/WorkType/LoadPartial',
                  type: 'GET',
-                 data: { workType: myData },
+                 data: { workType: currentWorkType  },
                  success: function (result) {
                      $('#partialContainer').html(result);
                  },
@@ -49,6 +50,24 @@
              });
         });
 
+        $(document).on('change', '#sprintFilter', function () {
+            const selectedSprint = $(this).val();
+
+            $.ajax({
+                url: '/WorkType/LoadPartial',
+                type: 'GET',
+                data: {
+                    workType: currentWorkType,
+                    selectedSprint: selectedSprint
+                },
+                success: function (result) {
+                    $('#partialContainer').html(result);
+                },
+                error: function () {
+                    alert('Error loading sprint data.');
+                }
+            });
+        });
     </script>
     }
 

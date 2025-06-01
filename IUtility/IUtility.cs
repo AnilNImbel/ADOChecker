@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ADOAnalyser.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,6 +17,6 @@ namespace ADOAnalyser
 
         string PostDataSync(string URl, HttpContent content);
 
-        List<IterationNodeWithPath> GetCurrentIterationAsync(string projectName);
+        IterationResult GetCurrentIterationAsync(string projectName);
     }
 }
