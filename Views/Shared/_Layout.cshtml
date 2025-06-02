@@ -223,10 +223,22 @@
     <div class="sidebar">
         <h2>Autospot Check</h2>
         <ul id="menu">
-            <li data-section="dashboard" class="active"><a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
-            <li data-section="application"><a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Application</a></li>
-            <li data-section="runChecks"><a class="navbar-brand" asp-area="" asp-controller="RunChecks" asp-action="Index">Run Checks</a></li>
-            <li data-section="reports">Reports</li>
+            @{
+                var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+            }
+
+            <li data-section="dashboard" class="@(currentController == "Dashboard" ? "active" : "")">
+                <a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+            </li>
+            <li data-section="application" class="@(currentController == "Home" ? "active" : "")">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Application</a>
+            </li>
+            <li data-section="runChecks" class="@(currentController == "RunChecks" ? "active" : "")">
+                <a class="navbar-brand" asp-area="" asp-controller="RunChecks" asp-action="Index">Run Checks</a>
+            </li>
+            <li data-section="reports" class="@(currentController == "Reports" ? "active" : "")">
+                <a class="navbar-brand" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
+            </li>
             <li data-section="settings">Settings</li>
         </ul>
     </div>

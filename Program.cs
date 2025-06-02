@@ -1,5 +1,8 @@
 using ADOAnalyser;
 using ADOAnalyser.Common;
+using ADOAnalyser.DBContext;
+using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
@@ -31,6 +34,8 @@ builder.Services.AddScoped<IUtility, Utility>();
 builder.Services.AddScoped<IWorkItem, WorkItem>();
 builder.Services.AddScoped<AutoSpotCheck>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 

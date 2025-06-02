@@ -1,0 +1,67 @@
+﻿@model List<ADOAnalyser.Models.TestRunResult>
+@{
+    ViewBag.Title = "Test Run Reports";
+}
+
+<h2>Test Run History</h2>
+
+<table class="table table-bordered table-hover mt-4">
+    <thead>
+        <tr>
+            <th>Run Date</th>
+            <th>Date Range</th>
+            <th>Summary</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var run in Model)
+        {
+            <tr>
+                <td>@run.RunDate</td>
+                <td>@run.StartDate?.ToShortDateString() - @run.EndDate?.ToShortDateString()</td>
+                <td>@run.ResultSummary</td>
+                <td>
+                    <a asp-controller="Reports" asp-action="DownloadCsv" asp-route-runId="@run.RunId" class="btn btn-primary btn-sm mt-2">
+                        Download CSV
+                    </a>
+                    <div class="spinner-border text-primary csv-loader" style="display:none; width: 1rem; height: 1rem;" role="status"></div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    document.querySelectorAll('.download-csv').forEach(button => {
+        button.addEventListener('click', function () {
+            const runId = this.getAttribute('data-run-id');
+            const loader = this.nextElementSibling;
+
+            this.disabled = true;
+            loader.style.display = 'inline-block';
+
+            fetch(`/Reports/DownloadCsv?runId=${runId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Failed to download CSV");
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `report_${runId}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                })
+                .catch(err => alert("Error: " + err.message))
+                .finally(() => {
+                    loader.style.display = 'none';
+                    this.disabled = false;
+                });
+        });
+    });
+</script>
