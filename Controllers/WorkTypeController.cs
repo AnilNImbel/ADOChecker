@@ -34,7 +34,7 @@ namespace ADOAnalyser.Controllers
         public IActionResult LoadPartial(string workType, string? selectedSprint = null)
         {
             string project = TempData["projectType"]?.ToString() ?? "DefaultProject";
-
+            List<string> workItemType = new List<string> { workType };
             // Get sprint info (current + all)
             var iterationData = _workItem.GetSprint(project); // your GetSprint returns IterationResult
             var allSprints = iterationData.AllSprints;
@@ -47,7 +47,7 @@ namespace ADOAnalyser.Controllers
 
             if (!string.IsNullOrEmpty(sprintToUse))
             {
-                var getWiql = _workItem.GetAllWiqlByType(project, workType, sprintToUse);
+                var getWiql = _workItem.GetAllWiqlByType(project, workItemType, sprintToUse);
                 var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(getWiql);
                 var idList = wiqlData.workItems.Select(a => a.id).ToList();
 
@@ -55,7 +55,11 @@ namespace ADOAnalyser.Controllers
                 {
                     var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
                     workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-                    CheckMissingData(workData);
+                    if (workData != null)
+                    {
+                        CheckMissingData(workData);
+                        SetCountForMissing(workData);
+                    }
                 }
             }
 
@@ -70,7 +74,7 @@ namespace ADOAnalyser.Controllers
             };
 
             TempData["worktype"] = workType;
-            return PartialView("_WorkItemGrid", viewModel);
+            return PartialView("_WorkItemGridApplication", viewModel);
         }
 
         private void CheckMissingData(WorkItemModel workData)

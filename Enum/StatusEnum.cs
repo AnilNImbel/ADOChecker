@@ -11,8 +11,7 @@ namespace ADOAnalyser.Enum
         No,
         Filled,
         Pending,
-        [Description("Not Applicable")]
-        NotApplicable
+        NA
     }
 
     enum StateStatusEnum
@@ -22,23 +21,5 @@ namespace ADOAnalyser.Enum
         New,
         Test,
         Active
-    }
-
-    enum DevelopmentStatusEnum
-    {
-
-        [Description("In Development")]
-        InDevelopment,
-
-    }
-
-    enum WorkTypeEnum
-    {
-        [Description("User Story")]
-        UserStory,
-        [Description("Bug")]
-        Bug,
-        [Description("Production Defect")]
-        ProductionDefect,
     }
 }

@@ -48,7 +48,7 @@ namespace ADOAnalyser
                 query = @"
                 SELECT [System.Id], [System.Title]
                 FROM WorkItems
-                WHERE [System.WorkItemType] = 'Task'
+                WHERE [System.WorkItemType] IN ('Production Defect', 'Bug', 'user story')
                   AND [System.AssignedTo] = ''"
             };
 
@@ -56,8 +56,10 @@ namespace ADOAnalyser
             var result = _Utility.PostDataSync(Url, content);
             return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         }
-        public string GetAllWiqlByType(string projectName, string workItemType, string iterationPath)
+        public string GetAllWiqlByType(string projectName, List<string> workItemType, string iterationPath)
         {
+
+            string types = string.Join(",", workItemType.Select(t => $"'{t}'"));
             string Url = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", projectName);
             var iterationFilter = string.Join(" OR ", iterationPath.Select(i =>
        $"[System.IterationPath] = '{iterationPath.Replace("'", "''")}'"));
@@ -66,7 +68,7 @@ namespace ADOAnalyser
             {
                 query = $@"Select [System.Id], [System.Title], [System.State] 
                      From WorkItems
-                     Where [System.WorkItemType] = '{workItemType}'
+                     Where [System.WorkItemType] IN ({types})
                         AND [System.TeamProject] = '{projectName}'
                         AND ({iterationFilter})
                      order by [System.CreatedDate] desc"
@@ -77,7 +79,61 @@ namespace ADOAnalyser
         }
 
         public WorkItemModel GetAllWorkItemsByDateRange(DateTime fromDate, DateTime toDate)
-         {
+        {
+            var projectList = new List<string> { "CE", "ConnectALL", "VIEW-Portal" };
+            var allValues = new List<Values>();
+            string from = fromDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
+            string to = toDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
+
+            foreach (var project in projectList)
+            {
+                // Step 1: WIQL Query for each project
+                string wiqlUrl = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", project);
+
+                string wiqlQuery = $@"
+            SELECT [System.Id], [System.Title], [System.State] 
+            FROM WorkItems
+            WHERE 
+             [System.TeamProject] = '{project}' AND
+            [System.ChangedDate] > '{from}'
+            AND [System.ChangedDate] < '{to}'
+            AND [System.WorkItemType] IN ('Production Defect', 'Bug', 'user story')
+            ORDER BY [System.ChangedDate] DESC";
+
+                var queryPayload = new { query = wiqlQuery };
+                var content = new StringContent(JsonConvert.SerializeObject(queryPayload), Encoding.UTF8, "application/json");
+
+                var wiqlResponse = _Utility.PostDataSync(wiqlUrl, content);
+                var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(wiqlResponse);
+
+                var idList = wiqlData?.workItems?.Select(w => w.id).ToList();
+                if (idList != null && idList.Count > 0)
+                {
+                    // Azure DevOps limits the batch to 200 work items per call
+                    const int batchSize = 200;
+                    for (int i = 0; i < idList.Count; i += batchSize)
+                    {
+                        var batchIds = idList.Skip(i).Take(batchSize);
+                        string idListCsv = string.Join(",", batchIds);
+                        var workItemJson = GetWorkItem(project, idListCsv);
+                        var workItemData = JsonConvert.DeserializeObject<WorkItemModel>(workItemJson);
+
+                        if (workItemData?.value != null)
+                        {
+                            allValues.AddRange(workItemData.value);
+                        }
+                    }
+                }
+            }
+
+            return new WorkItemModel
+            {
+                value = allValues
+            };
+        }
+
+        public WorkItemModel GetAllWorkItems(DateTime fromDate, DateTime toDate)
+        {
             var projectList = new List<string> { "CE", "ConnectALL", "VIEW-Portal" };
             var allValues = new List<Values>();
             string from = fromDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");

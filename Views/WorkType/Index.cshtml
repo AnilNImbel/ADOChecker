@@ -52,7 +52,6 @@
 
         $(document).on('change', '#sprintFilter', function () {
             const selectedSprint = $(this).val();
-
             $.ajax({
                 url: '/WorkType/LoadPartial',
                 type: 'GET',

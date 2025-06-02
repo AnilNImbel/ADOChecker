@@ -5,12 +5,12 @@ using Newtonsoft.Json;
 
 namespace ADOAnalyser.Controllers
 {
-    public class HomeController : Controller
+    public class ApplicationController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<ApplicationController> _logger;
         private readonly IWorkItem _workItem;
 
-        public HomeController(ILogger<HomeController> logger, IWorkItem workItem)
+        public ApplicationController(ILogger<ApplicationController> logger, IWorkItem workItem)
         {
             _logger = logger;
             _workItem = workItem;

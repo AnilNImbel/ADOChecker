@@ -304,8 +304,6 @@ namespace ADOAnalyser.Models
         public string StatusDiscrepancyStatus { get; set; }
         public string TestCaseGapeStatus { get; set; }
 
-        public string DevMissingStatus{ get; set; }
-        public string QAMissingStatus{ get; set; }
         public string VTDMissingStatus{ get; set; }
         public string VLDBMissingStatus{ get; set; }
     }

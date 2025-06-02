@@ -1,59 +1,158 @@
-﻿<section id="dashboard" class="content-section">
+﻿@model ADOAnalyser.Models.SprintViewModel
+<section id="dashboard" class="content-section">
     <div class="header">DevOps ADO Item Verification Dashboard</div>
 
-    <div class="cards">
-        <div class="card"><h3>Impact Assessment Issues</h3><p>12</p></div>
-        <div class="card"><h3>Root Cause Missing</h3><p>7</p></div>
-        <div class="card"><h3>Project Zero Not Filled</h3><p>5</p></div>
-        <div class="card"><h3>PR Life-cycle Incomplete</h3><p>9</p></div>
-        <div class="card"><h3>Status Discrepancies</h3><p>15</p></div>
-        <div class="card"><h3>Test Case Gaps</h3><p>8</p></div>
+
+    <div class="row mb-3">
+
+        <div class="col-md-12 d-flex flex-row">
+            <select id="sprintFilter" class="selectpicker form-control">
+                @foreach (var sprint in Model.AllSprints)
+                {
+                    <option value="@sprint" selected="@(sprint == Model.SelectedSprint ? "selected" : null)">
+                        @sprint
+                    </option>
+                }
+            </select>
+        </div>
+
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>ADO Item ID</th>
-                <th>Impact Assessment</th>
-                <th>Root Cause</th>
-                <th>Project Zero</th>
-                <th>PR Life-cycle</th>
-                <th>Status Discrepancy</th>
-                <th>Test Case Gaps</th>
-                <th>Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>12345</td>
-                <td class="status-fail">Missing</td>
-                <td class="status-pass">Completed</td>
-                <td class="status-pass">Filled</td>
-                <td class="status-pass">Completed</td>
-                <td class="status-fail">No</td>
-                <td class="status-fail">Automation Status missing</td>
-                <td>Needs update</td>
-            </tr>
-            <tr>
-                <td>12346</td>
-                <td class="status-pass">Attached</td>
-                <td class="status-fail">Missing</td>
-                <td class="status-pass">Filled</td>
-                <td class="status-fail">Incomplete</td>
-                <td class="status-pass">Yes</td>
-                <td class="status-fail">Test Level missing</td>
-                <td>Follow-up required</td>
-            </tr>
-            <tr>
-                <td>12347</td>
-                <td class="status-pass">Attached</td>
-                <td class="status-pass">Completed</td>
-                <td class="status-fail">Missing</td>
-                <td class="status-pass">Completed</td>
-                <td class="status-pass">Yes</td>
-                <td class="status-pass">All fields filled</td>
-                <td>-</td>
-            </tr>
-        </tbody>
-    </table>
+    <div id="countLoad">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a class="loadData" name="IAStatus" style="text-decoration:none;cursor:pointer">
+                        <div class="card-body"><h3>Impact Assessment Issues</h3><p class="badge">@Model.WorkItemData.missingIACount</p></div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a class="loadData" name="RootCauseStatus" style="text-decoration:none;cursor:pointer">
+                        <div class="card-body"><h3>Root Cause Missing</h3><p class="badge">@Model.WorkItemData.missingRootCauseCount</p></div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a class="loadData" name="ProjectZeroStatus" style="text-decoration:none;cursor:pointer">
+                        <div class="card-body"><h3>Project Zero Not Filled</h3><p class="badge">@Model.WorkItemData.missingProjectZeroCount</p></div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a class="loadData" name="PRLifeCycleStatus" style="text-decoration:none;cursor:pointer">
+                        <div class="card-body"><h3>PR Life-cycle Incomplete</h3><p class="badge">@Model.WorkItemData.missingPRLifeCycleCount</p></div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a class="loadData" name="StatusDiscrepancyStatus" style="text-decoration:none;cursor:pointer">
+                        <div class="card-body"><h3>Status Discrepancies</h3><p class="badge">@Model.WorkItemData.missingStatusDiscreCount</p></div>
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <a class="loadData" name="TestCaseGapeStatus" style="text-decoration:none;cursor:pointer">
+                        <div class="card-body"><h3>Test Case Gaps</h3><p class="badge">@Model.WorkItemData.missingTestCaseCount</p></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="workItemsTable">
+    </div>
+
+    <div id="loader" style="display: none;justify-items:center">
+        <div class="spinner"></div>
+    </div>
+
 </section>
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        document.getElementById('sprintFilter').addEventListener('change', function () {
+                var selected = this.value;
+                window.location.href = '/Dashboard/Index?selectedSprint=' + selected;
+            });
+
+          $('.loadData').click(function () {
+            let currentWorkType = '';
+            $('#workItemsTable').html("");
+            $("#loader").show();
+            currentWorkType = $(this).attr('name');
+             $.ajax({
+                 url: '/DashBoard/GridLoad',
+                 type: 'GET',
+                 data:{ missingType: currentWorkType },
+                 success: function (result) {
+                     $('#workItemsTable').html(result);
+                 },
+                 error: function () {
+                     alert('Error loading partial view.');
+                 },
+                 complete: function () {
+                    // Hide the loader after the request completes
+                    $("#loader").hide();
+                }
+             });
+        });
+    </script>
+    }
+
+<style>
+
+    i {
+        font-size: 20px;
+        margin-right: 10px;
+    }
+
+    .fa-bug {
+        color: red;
+    }
+
+    .fa-book-open {
+        color: rgb(0, 156, 204);
+    }
+
+    .fa-exclamation-triangle {
+        color: orangered;
+    }
+
+    .icon-rect {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10%;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .spinner {
+        border: 10px solid #f3f3f3;
+        border-top: 10px solid #3498db;
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+</style>

@@ -163,30 +163,8 @@
             });
           });
         });
-
-
-        // // Simulate Run Checks button
-        // const runChecksBtn = document.getElementById('runChecksBtn');
-        // const runChecksStatus = document.getElementById('runChecksStatus');
-
-        // if (runChecksBtn) {
-        //   runChecksBtn.addEventListener('click', () => {
-        //     runChecksStatus.textContent = 'Running checks...';
-        //     // Simulate backend check with timeout
-        //     setTimeout(() => {
-        //       runChecksStatus.innerHTML = `
-        //         <p>Check complete. Results:</p>
-        //         <ul>
-        //           <li>Item 12345: <span style="color:red;">Failed</span> (Impact Assessment missing)</li>
-        //           <li>Item 12346: <span style="color:green;">Passed</span></li>
-        //           <li>Item 12347: <span style="color:green;">Passed</span></li>
-        //         </ul>
-        //       `;
-        //     }, 2000);
-        //   });
-        // }
     </script>
-    <script>
+@*     <script>
                 document.addEventListener("DOMContentLoaded", function() {
           var sprintFilter = document.getElementById("sprintFilter");
           if (!sprintFilter) return;
@@ -217,7 +195,7 @@
               });
           });
         });
-    </script>
+    </script> *@
 </head>
 <body>
     <div class="sidebar">
@@ -230,8 +208,8 @@
             <li data-section="dashboard" class="@(currentController == "Dashboard" ? "active" : "")">
                 <a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
             </li>
-            <li data-section="application" class="@(currentController == "Home" ? "active" : "")">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Application</a>
+            <li data-section="application" class="@(currentController == "Application" ? "active" : "")">
+                <a class="navbar-brand" asp-area="" asp-controller="Application" asp-action="Index">Application</a>
             </li>
             <li data-section="runChecks" class="@(currentController == "RunChecks" ? "active" : "")">
                 <a class="navbar-brand" asp-area="" asp-controller="RunChecks" asp-action="Index">Run Checks</a>

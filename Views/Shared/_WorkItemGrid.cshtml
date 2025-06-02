@@ -1,57 +1,46 @@
-﻿@model ADOAnalyser.Models.SprintViewModel
-
-<div class="row mb-3">
-    <div class="col-md-4">
-        <label for="sprintFilter">Select Sprint</label>
-        <select id="sprintFilter" class="form-control">
-            @foreach (var sprint in Model.AllSprints)
-            {
-                <option value="@sprint" selected="@(sprint == Model.SelectedSprint ? "selected" : null)">
-                    @sprint
-                </option>
-            }
-        </select>
-    </div>
-</div>
-<div class="row table-responsive">
-    <table class="table table-bordered table-hover" id="workItemsTable">
-        <thead>
-            <tr>
-                <th style="width:10px">ADO Item ID</th>
-                <th>Impact Assessment</th>
-                <th>Root Cause</th>
-                <th>Project Zero</th>
-                <th>PR Life-cycle</th>
-                <th>Status Discrepancy</th>
-                <th>VTD</th>
-                <th>VLTB</th>
-                <th>State Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Model.WorkItemData?.value != null && Model.WorkItemData.value.Any())
-            {
-                foreach (var project in Model.WorkItemData.value)
+﻿@model ADOAnalyser.Models.WorkItemModel
+<div class="row">
+    <div class="col-md-12">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:10px">ADO Item ID</th>
+                    <th>Impact Assessment</th>
+                    <th>Root Cause</th>
+                    <th>Project Zero</th>
+                    <th>PR Life-cycle</th>
+                    <th>Status Discrepancy</th>
+                    <th>VTD</th>
+                    <th>VLTB</th>
+                    <th>State Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.value != null && Model.value.Any())
+                {
+                    foreach (var project in Model.value)
+                    {
+                        <tr>
+                            <td>@project.id</td>
+                            <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
+                            <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
+                            <td class="@project.fields.ProjectZeroStatus">@project.fields.ProjectZeroStatus</td>
+                            <td class="@project.fields.PRLifeCycleStatus">@project.fields.PRLifeCycleStatus</td>
+                            <td class="@project.fields.StatusDiscrepancyStatus">@project.fields.StatusDiscrepancyStatus</td>
+                            <td class="@project.fields.VTDMissingStatus">@project.fields.VLDBMissingStatus</td>
+                            <td class="@project.fields.VLDBMissingStatus">@project.fields.VLDBMissingStatus</td>
+                            <td>@project.fields.SystemState</td>
+                        </tr>
+                    }
+                }
+                else
                 {
                     <tr>
-                        <td>@project.id</td>
-                        <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
-                        <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
-                        <td class="@project.fields.ProjectZeroStatus">@project.fields.ProjectZeroStatus</td>
-                        <td class="@project.fields.PRLifeCycleStatus">@project.fields.PRLifeCycleStatus</td>
-                        <td class="@project.fields.StatusDiscrepancyStatus">@project.fields.StatusDiscrepancyStatus</td>
-                        <td class="@project.fields.VTDMissingStatus">@project.fields.VLDBMissingStatus</td>
-                        <td class="@project.fields.VLDBMissingStatus">@project.fields.VLDBMissingStatus</td>
-                        <td>@project.fields.SystemState</td>
+                        <td colspan="9" class="text-center">No work items found for this sprint.</td>
                     </tr>
                 }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="7" class="text-center">No work items found for this sprint.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
+
 </div>
