@@ -1,7 +1,6 @@
 ﻿@model ADOAnalyser.Models.WorkItemModel
-
 @{
-    ViewBag.Title = "Run Checks";
+    ViewData["Title"] = "Run Checks";
     bool hasResults = Model?.value != null && Model.value.Any();
     bool formSubmitted = ViewBag.FromDate != null && ViewBag.ToDate != null;
 }
@@ -45,38 +44,40 @@
 <div id="result" style="display:@(hasResults ? "block" : "none");" class="mt-4">
     @if (hasResults)
     {
-        <div class="row table-responsive">
-            <table class="table table-bordered table-hover" id="workItemsTable">
-                <thead>
-                    <tr>
-                        <th style="width:10px">ADO Item ID</th>
-                        <th>Impact Assessment</th>
-                        <th>Root Cause</th>
-                        <th>Project Zero</th>
-                        <th>PR Lifecycle</th>
-                        <th>Status Discrepancy</th>
-                        <th>VTD</th>
-                        <th>VLBD</th>
-                        <th>ADO State</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var project in Model.value)
-                    {
+        <div class="row">
+            <div class="col-md-12 table-responsive">
+                <table id="workItemsTable">
+                    <thead>
                         <tr>
-                            <td>@project.id</td>
-                            <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
-                            <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
-                            <td class="@project.fields.ProjectZeroStatus">@project.fields.ProjectZeroStatus</td>
-                            <td class="@project.fields.PRLifeCycleStatus">@project.fields.PRLifeCycleStatus</td>
-                            <td class="@project.fields.StatusDiscrepancyStatus">@project.fields.StatusDiscrepancyStatus</td>
-                            <td class="@project.fields.VTDMissingStatus">@project.fields.VTDMissingStatus</td>
-                            <td class="@project.fields.VLDBMissingStatus">@project.fields.VLDBMissingStatus</td>
-                            <td>@project.fields.SystemState</td>
+                            <th style="width:10px">ADO Item ID</th>
+                            <th>Impact Assessment</th>
+                            <th>Root Cause</th>
+                            <th>Project Zero</th>
+                            <th>PR Lifecycle</th>
+                            <th>Status Discrepancy</th>
+                            <th>VTD</th>
+                            <th>VLBD</th>
+                            <th>ADO State</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var project in Model.value)
+                        {
+                            <tr>
+                                <td>@project.id</td>
+                                <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
+                                <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
+                                <td class="@project.fields.ProjectZeroStatus">@project.fields.ProjectZeroStatus</td>
+                                <td class="@project.fields.PRLifeCycleStatus">@project.fields.PRLifeCycleStatus</td>
+                                <td class="@project.fields.StatusDiscrepancyStatus">@project.fields.StatusDiscrepancyStatus</td>
+                                <td class="@project.fields.VTDMissingStatus">@project.fields.VTDMissingStatus</td>
+                                <td class="@project.fields.VLDBMissingStatus">@project.fields.VLDBMissingStatus</td>
+                                <td>@project.fields.SystemState</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     }
 </div>

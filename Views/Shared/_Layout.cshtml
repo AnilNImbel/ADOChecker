@@ -164,38 +164,6 @@
           });
         });
     </script>
-@*     <script>
-                document.addEventListener("DOMContentLoaded", function() {
-          var sprintFilter = document.getElementById("sprintFilter");
-          if (!sprintFilter) return;
-
-          sprintFilter.addEventListener("change", function() {
-            var selectedSprint = sprintFilter.value;
-
-            // Optional: if your workType is stored somewhere in the page or you want to keep using TempData on server, you can skip sending it here.
-            // If needed, append workType to query string.
-
-            // Example AJAX call using Fetch API
-            fetch(`/Worktype/LoadPartial?selectedSprint=${encodeURIComponent(selectedSprint)}`, {
-              method: "GET",
-              headers: {
-                "X-Requested-With": "XMLHttpRequest"
-              }
-            })
-              .then(response => {
-                if (!response.ok) throw new Error("Network response was not ok");
-                return response.text();
-              })
-              .then(html => {
-                // Replace partial container content with the new HTML
-                document.getElementById("yourPartialContainer").innerHTML = html;
-              })
-              .catch(error => {
-                console.error("Error loading partial:", error);
-              });
-          });
-        });
-    </script> *@
 </head>
 <body>
     <div class="sidebar">
