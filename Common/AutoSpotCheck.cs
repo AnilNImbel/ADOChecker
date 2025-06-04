@@ -176,10 +176,11 @@ namespace ADOAnalyser.Common
 
         public void CheckVTDRequired(Fields fieldData)
         {
-            string vtd = fieldData.CivicaAgileVIEWTargetDate.Date.ToString();
+            DateTime? vtdDate = fieldData.CivicaAgileVIEWTargetDate;
+            string vtd = vtdDate.HasValue ? vtdDate.Value.ToString() : string.Empty;
             string state = fieldData.SystemState ?? string.Empty;
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
-            if ((state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) || state.Equals(StateStatusEnum.New.ToString())) && !devStatus.Equals(InAnalysis))
+            if ((state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) || state.Equals(StateStatusEnum.Test.ToString())) && !devStatus.Equals(InAnalysis))
             {
                 fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
             }
@@ -197,7 +198,8 @@ namespace ADOAnalyser.Common
         public void CheckVLDBRequired(Fields fieldData)
         {
             string VTDStatus = fieldData.VTDMissingStatus;
-            string vldb = fieldData.CustomVIEWLanDeskBreakDate.Date.ToString();
+            DateTime? vldbDate = fieldData.CustomVIEWLanDeskBreakDate;
+            string vldb = vldbDate.HasValue ? vldbDate.Value.ToString() : string.Empty;
             if (VTDStatus.Equals(ResultEnum.Missing) || VTDStatus.Equals(ResultEnum.Pending)){
                 fieldData.VLDBMissingStatus = ResultEnum.Pending.ToString();
             }

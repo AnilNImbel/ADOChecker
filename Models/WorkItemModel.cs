@@ -103,7 +103,7 @@ namespace ADOAnalyser.Models
         public bool CivicaAgileVIEWStateVerified { get; set; }
 
         [JsonProperty("CivicaAgile.VIEWTargetDate")]
-        public DateTime CivicaAgileVIEWTargetDate { get; set; }
+        public DateTime? CivicaAgileVIEWTargetDate { get; set; }
 
         [JsonProperty("CivicaAgile.VIEWTargetDrop")]
         public string CivicaAgileVIEWTargetDrop { get; set; }
@@ -145,7 +145,7 @@ namespace ADOAnalyser.Models
         public bool CustomVIEWDataFixRequired { get; set; }
 
         [JsonProperty("Custom.VIEWLanDeskBreakDate")]
-        public DateTime CustomVIEWLanDeskBreakDate { get; set; }
+        public DateTime? CustomVIEWLanDeskBreakDate { get; set; }
 
         [JsonProperty("WEF_FBE0420FA58B4F4FB191B6529535685E_Kanban.Column")]
         public string WEF_FBE0420FA58B4F4FB191B6529535685E_KanbanColumn { get; set; }
