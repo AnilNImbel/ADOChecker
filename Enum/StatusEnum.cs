@@ -11,7 +11,8 @@ namespace ADOAnalyser.Enum
         No,
         Filled,
         Pending,
-        NA
+        NA,
+        Updated
     }
 
     enum StateStatusEnum

@@ -36,8 +36,10 @@ namespace ADOAnalyser.Controllers
             CheckMissingData(workItemModel);
             ViewBag.FromDate = fromDate.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate.ToString("yyyy-MM-dd");
-
-            SaveTestRunResult(fromDate, toDate, workItemModel);
+            if (workItemModel?.value != null && workItemModel.value.Any())
+            {
+                SaveTestRunResult(fromDate, toDate, workItemModel);
+            }
             return View(workItemModel);
         }
 

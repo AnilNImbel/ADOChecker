@@ -12,6 +12,8 @@ namespace ADOAnalyser.Common
         private string UserStory = "User Story";
 
         private string InDevelopment = "03. In Development";
+
+        private string InAnalysis = "01. Analysis & Estimate";
         public void CheckImpactAssessment(Fields workData)
         {
             string iaData = workData.MicrosoftVSTSCMMIImpactAssessmentHtml ?? string.Empty;
@@ -82,7 +84,8 @@ namespace ADOAnalyser.Common
                 string why1 = fieldData.CustomRootCauseAnalysisWhy1;
                 string why2 = fieldData.CustomRootCauseAnalysisWhy2;
                 string why3 = fieldData.CustomRootCauseAnalysisWhy3;
-                if (string.IsNullOrEmpty(why1) || string.IsNullOrEmpty(why2) || string.IsNullOrEmpty(why3))
+                string owner = fieldData.CustomRemediationOwner;
+                if (string.IsNullOrEmpty(why1) || string.IsNullOrEmpty(why2) || string.IsNullOrEmpty(why3) || string.IsNullOrEmpty(owner))
                 {
                     fieldData.ProjectZeroStatus = ResultEnum.Missing.ToString();
                 }
@@ -176,12 +179,14 @@ namespace ADOAnalyser.Common
             string vtd = fieldData.CivicaAgileVIEWTargetDate.Date.ToString();
             string state = fieldData.SystemState ?? string.Empty;
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
-            if (state.Equals(StateStatusEnum.Active.ToString()) && devStatus.Equals(InDevelopment) && string.IsNullOrWhiteSpace(vtd))
+            if ((state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) || state.Equals(StateStatusEnum.New.ToString())) && !devStatus.Equals(InAnalysis))
             {
-                fieldData.VTDMissingStatus = ResultEnum.Missing.ToString();
+                fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
             }
-            string current = fieldData.VTDMissingStatus ?? string.Empty;
-            fieldData.VTDMissingStatus = !string.IsNullOrWhiteSpace(current) ? ResultEnum.Missing.ToString() : ResultEnum.No.ToString();
+            else
+            {
+                fieldData.VTDMissingStatus = ResultEnum.Pending.ToString();
+            }
         }
 
         public int MissingVTDCount(WorkItemModel workData)
@@ -191,16 +196,15 @@ namespace ADOAnalyser.Common
 
         public void CheckVLDBRequired(Fields fieldData)
         {
-            string vtd = fieldData.CivicaAgileVIEWTargetDate.Date.ToString();
+            string VTDStatus = fieldData.VTDMissingStatus;
             string vldb = fieldData.CustomVIEWLanDeskBreakDate.Date.ToString();
-            string state = fieldData.SystemState ?? string.Empty;
-            if ((state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Test.ToString())) && !string.IsNullOrWhiteSpace(vtd) && string.IsNullOrWhiteSpace(vldb))
-            {
-                fieldData.VLDBMissingStatus = ResultEnum.Missing.ToString();
+            if (VTDStatus.Equals(ResultEnum.Missing) || VTDStatus.Equals(ResultEnum.Pending)){
+                fieldData.VLDBMissingStatus = ResultEnum.Pending.ToString();
             }
             else
             {
-                fieldData.VLDBMissingStatus = ResultEnum.No.ToString();
+                
+                fieldData.VLDBMissingStatus = string.IsNullOrWhiteSpace(vldb) ? ResultEnum.Pending.ToString() :  ResultEnum.Updated.ToString();
             }
         }
 

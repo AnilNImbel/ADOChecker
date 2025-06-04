@@ -12,12 +12,12 @@
 <form id="runCheckForm" asp-controller="RunChecks" asp-action="Index" method="post" onsubmit="return validateDateRange()">
     <div class="row g-2 align-items-end">
         <div class="col-md-3">
-            <label for="fromDate" class="form-label">From</label>
+            <label for="fromDate" class="form-label">Last update date from</label>
             <input type="date" class="form-control form-control-sm" id="fromDate" name="fromDate" min="2000-01-01" required value="@ViewBag.FromDate" />
         </div>
 
         <div class="col-md-3">
-            <label for="toDate" class="form-label">To</label>
+            <label for="toDate" class="form-label">Last update date to</label>
             <input type="date" class="form-control form-control-sm" id="toDate" name="toDate" min="2000-01-01" required value="@ViewBag.ToDate" />
         </div>
 
@@ -49,6 +49,7 @@
                 <table id="workItemsTable">
                     <thead>
                         <tr>
+                            <th>Work Item</th>
                             <th style="width:10px">ADO Item ID</th>
                             <th>Impact Assessment</th>
                             <th>Root Cause</th>
@@ -64,6 +65,7 @@
                         @foreach (var project in Model.value)
                         {
                             <tr>
+                                <td>@project.fields.SystemWorkItemType</td>
                                 <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@project.id" target="_blank">@project.id</a></td>
                                 <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
                                 <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>

@@ -196,6 +196,7 @@ namespace ADOAnalyser
                 {
                     list.Add(new IterationNodeWithPath
                     {
+                        id = node.id,
                         Name = node.name,
                         FullPath = currentPath,
                         Attributes = node.Attributes
@@ -210,32 +211,6 @@ namespace ADOAnalyser
             }
 
             return list;
-        }
-
-        public class IterationRoot
-        {
-            public string name { get; set; }
-            public List<IterationNode> children { get; set; }
-        }
-
-        public class IterationNode
-        {
-            public string name { get; set; }
-            public IterationAttributes Attributes { get; set; }
-            public List<IterationNode> children { get; set; }
-        }
-
-        public class IterationAttributes
-        {
-            public DateTime? StartDate { get; set; }
-            public DateTime? FinishDate { get; set; }
-        }
-
-        public class IterationNodeWithPath
-        {
-            public string Name { get; set; }
-            public string FullPath { get; set; }
-            public IterationAttributes Attributes { get; set; }
         }
     }
 }

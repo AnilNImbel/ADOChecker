@@ -4,6 +4,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>Work Item</th>
                     <th style="width:10px">ADO Item ID</th>
                     <th>Impact Assessment</th>
                     <th>Root Cause</th>
@@ -21,6 +22,7 @@
                     foreach (var project in Model.value)
                     {
                         <tr>
+                            <td>@project.fields.SystemWorkItemType</td>
                             <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@project.id" target="_blank">@project.id</a></td>
                             <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
                             <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>

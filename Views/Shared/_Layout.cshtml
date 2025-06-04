@@ -176,7 +176,7 @@
             <li data-section="dashboard" class="@(currentController == "Dashboard" ? "active" : "")">
                 <a class="navbar-brand" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
             </li>
-            <li data-section="application" class="@(currentController == "Application" ? "active" : "")">
+            <li data-section="application" style="display:none" class="@(currentController == "Application" ? "active" : "")">
                 <a class="navbar-brand" asp-area="" asp-controller="Application" asp-action="Index">Application</a>
             </li>
             <li data-section="runChecks" class="@(currentController == "RunChecks" ? "active" : "")">
