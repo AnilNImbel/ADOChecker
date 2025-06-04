@@ -203,7 +203,6 @@ namespace ADOAnalyser.Common
             }
             else
             {
-                
                 fieldData.VLDBMissingStatus = string.IsNullOrWhiteSpace(vldb) ? ResultEnum.Pending.ToString() :  ResultEnum.Updated.ToString();
             }
         }
