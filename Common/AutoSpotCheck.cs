@@ -82,8 +82,7 @@ namespace ADOAnalyser.Common
                 string why1 = fieldData.CustomRootCauseAnalysisWhy1;
                 string why2 = fieldData.CustomRootCauseAnalysisWhy2;
                 string why3 = fieldData.CustomRootCauseAnalysisWhy3;
-                string owner = fieldData.CustomRootCauseAnalysisRemediation;
-                if (string.IsNullOrEmpty(why1) || string.IsNullOrEmpty(why2) || string.IsNullOrEmpty(why3) || string.IsNullOrEmpty(owner))
+                if (string.IsNullOrEmpty(why1) || string.IsNullOrEmpty(why2) || string.IsNullOrEmpty(why3))
                 {
                     fieldData.ProjectZeroStatus = ResultEnum.Missing.ToString();
                 }

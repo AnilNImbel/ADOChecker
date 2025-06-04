@@ -21,7 +21,7 @@ namespace ADOAnalyser.Controllers
 
         public IActionResult Index(string? selectedSprint = null)
         {
-            List<string> workItemType = new List<string> { "bug", "User Story", "Production Bug" };
+            List<string> workItemType = new List<string> { "Bug", "User Story", "Production Defect" };
             string project = "CE";
             // Get sprint info (current + all)
             var iterationData = _workItem.GetSprint(project); // your GetSprint returns IterationResult
