@@ -174,6 +174,15 @@ namespace ADOAnalyser.Models
         [JsonProperty("Custom.RootCauseAnalysisRemediation")]
         public string CustomRootCauseAnalysisRemediation { get; set; }
 
+        [JsonProperty("Custom.RootCauseAnalysisRemediationLead")]
+        public string CustomRootCauseAnalysisRemediationLead { get; set; }
+
+        [JsonProperty("Custom.RemediationOwner")]
+        public string CustomRemediationOwner { get; set; }
+
+        [JsonProperty("Custom.RemediationStatus")]
+        public string CustomRemediationStatus { get; set; }
+
         [JsonProperty("Custom.VIEWClosedinSprint")]
         public string CustomVIEWClosedinSprint { get; set; }
 

@@ -23,7 +23,6 @@ namespace ADOAnalyser.Controllers
         {
             List<string> workItemType = new List<string> { "bug", "User Story", "Production Bug" };
             string project = "CE";
-            TempData["workItemModel"] = null;
             // Get sprint info (current + all)
             var iterationData = _workItem.GetSprint(project); // your GetSprint returns IterationResult
             var allSprints = iterationData.AllSprints;
