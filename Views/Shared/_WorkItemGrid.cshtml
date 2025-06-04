@@ -21,7 +21,7 @@
                     foreach (var project in Model.value)
                     {
                         <tr>
-                            <td>@project.id</td>
+                            <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@project.id" target="_blank">@project.id</a></td>
                             <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
                             <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
                             <td class="@project.fields.ProjectZeroStatus">@project.fields.ProjectZeroStatus</td>
