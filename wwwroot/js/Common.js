@@ -1,6 +1,6 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
     const menuItems = document.querySelectorAll('.sidebar ul li');
-    const sections = document.querySelectorAll('.content-section');
+    const sections = document.querySelectorAll('.content');
 
     menuItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -21,6 +21,21 @@
         });
     });
 });
+
+function toggleSidebar() {
+
+    const sidebar = document.getElementById("sidebar");
+    const content = document.querySelector('.content')
+    sidebar.classList.toggle("collapsed");
+
+    if (sidebar.classList.contains("collapsed")) {
+        content.style.marginLeft = "100px";
+    } else {
+        content.style.marginLeft = "250px";
+    }
+}
+
+
 function validateDateRange() {
     const fromDateInput = document.getElementById("fromDate");
     const toDateInput = document.getElementById("toDate");
