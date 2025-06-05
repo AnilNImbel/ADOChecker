@@ -6,164 +6,11 @@
     <title>@ViewData["Title"] - ADOAnalyser</title>
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/ADOAnalyser.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f4f6fa;
-            color: #333;
-        }
-
-        .sidebar {
-            position: fixed;
-            width: 220px;
-            height: 100%;
-            background: #2a72d5;
-            color: #fff;
-            padding: 20px;
-        }
-
-            .sidebar h2 {
-                margin: 0 0 30px;
-                font-size: 20px;
-                text-align: center;
-            }
-
-            .sidebar ul {
-                list-style: none;
-                padding: 0;
-            }
-
-                .sidebar ul li {
-                    margin: 15px 0;
-                    cursor: pointer;
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                    transition: background-color 0.3s;
-                }
-
-                    .sidebar ul li:hover,
-                    .sidebar ul li.active {
-                        background-color: #1e55b7;
-                    }
-
-        .main {
-            margin-left: 240px;
-            padding: 30px;
-        }
-
-        .header {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #2a72d5;
-        }
-
-        .cards {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            flex: 1 1 250px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-            .card h3 {
-                margin: 0 0 10px;
-                font-size: 16px;
-                color: #555;
-            }
-
-            .card p {
-                font-size: 22px;
-                margin: 0;
-                color: #2a72d5;
-            }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        th, td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            background-color: #2a72d5;
-            color: white;
-        }
-
-        .status-pass {
-            color: green;
-            font-weight: bold;
-        }
-
-        .status-fail {
-            color: red;
-            font-weight: bold;
-        }
-
-
-        .Attached, .Completed, .Filled, .No, .Updated {
-            color: green !important;
-            font-weight: bold;
-        }
-
-        .Missing, .Yes {
-            color: red !important;
-            font-weight: bold;
-        }
-
-        .Pending {
-            color: darkorange !important;
-            font-weight: bold;
-        }
-    </style>
-    <script>
-
-        document.addEventListener('DOMContentLoaded', () => {
-          const menuItems = document.querySelectorAll('.sidebar ul li');
-          const sections = document.querySelectorAll('.content-section');
-
-          menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-              // Remove active class from all menu items
-              menuItems.forEach(i => i.classList.remove('active'));
-              // Add active class to clicked menu item
-              item.classList.add('active');
-
-              // Hide all sections
-              sections.forEach(section => section.style.display = 'none');
-
-              // Show the selected section
-              const sectionId = item.getAttribute('data-section');
-              const targetSection = document.getElementById(sectionId);
-              if (targetSection) {
-                targetSection.style.display = 'block';
-              }
-            });
-          });
-        });
-    </script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/css/dataTables.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.1/js/dataTables.min.js">
 </head>
 <body>
     <div class="sidebar">
@@ -194,6 +41,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Common.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

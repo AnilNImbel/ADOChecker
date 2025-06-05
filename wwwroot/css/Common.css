@@ -1,0 +1,177 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f6fa;
+    color: #333;
+}
+
+.sidebar {
+    position: fixed;
+    width: 220px;
+    height: 100%;
+    background: #2a72d5;
+    color: #fff;
+    padding: 20px;
+}
+
+    .sidebar h2 {
+        margin: 0 0 30px;
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+    }
+
+        .sidebar ul li {
+            margin: 15px 0;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+
+            .sidebar ul li:hover,
+            .sidebar ul li.active {
+                background-color: #1e55b7;
+            }
+
+.main {
+    margin-left: 240px;
+    padding: 30px;
+}
+
+.header {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #2a72d5;
+}
+
+.cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    flex: 1 1 250px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+    .card h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .card p {
+        font-size: 22px;
+        margin: 0;
+        color: #2a72d5;
+    }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background-color: #2a72d5;
+    color: white;
+}
+
+.status-pass {
+    color: green;
+    font-weight: bold;
+}
+
+.status-fail {
+    color: red;
+    font-weight: bold;
+}
+
+
+.Attached, .Completed, .Filled, .No, .Updated {
+    color: green !important;
+    font-weight: bold;
+}
+
+.Missing, .Yes {
+    color: red !important;
+    font-weight: bold;
+}
+
+.Pending {
+    color: darkorange !important;
+    font-weight: bold;
+}
+
+
+i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.fa-bug {
+    color: red;
+}
+
+.fa-book-open {
+    color: rgb(0, 156, 204);
+}
+
+.fa-exclamation-triangle {
+    color: orangered;
+}
+
+.icon-rect {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10%;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.spinner {
+    border: 10px solid #f3f3f3;
+    border-top: 10px solid #3498db;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+

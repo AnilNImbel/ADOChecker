@@ -2,7 +2,6 @@
 @{
     ViewData["Title"] = "Reports";
 }
-
 <h2>Test Run History</h2>
 <div class="row">
     <div class="col-md-12 table-responsive">
@@ -34,38 +33,3 @@
         </table>
     </div>
 </div>
-
-
-<script>
-    document.querySelectorAll('.download-csv').forEach(button => {
-        button.addEventListener('click', function () {
-            const runId = this.getAttribute('data-run-id');
-            const loader = this.nextElementSibling;
-
-            this.disabled = true;
-            loader.style.display = 'inline-block';
-
-            fetch(`/Reports/DownloadCsv?runId=${runId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Failed to download CSV");
-                    }
-                    return response.blob();
-                })
-                .then(blob => {
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `report_${runId}.csv`;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                })
-                .catch(err => alert("Error: " + err.message))
-                .finally(() => {
-                    loader.style.display = 'none';
-                    this.disabled = false;
-                });
-        });
-    });
-</script>
