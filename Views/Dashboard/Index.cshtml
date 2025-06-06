@@ -16,6 +16,12 @@
             </select>
         </div>
     </div>
+@*     <div class="row mb-3">
+        <div class="col-md-12 mb-12 ">
+            <i class="fa fa-bar-chart float-md-end"></i>
+            <i class="fa fa-table float-md-end"></i>
+        </div>
+    </div> *@
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="card">
@@ -60,7 +66,7 @@
             </div>
         </div>
     </div>
-
+@*     <div class="row" id="chartContainer"></div> *@
     <div id="workItemsTable">
     </div>
 
@@ -69,3 +75,30 @@
     </div>
 
 </section>
+@* <script>
+window.onload = function () {
+
+//Better to construct options first and then pass it as a parameter
+var options = {
+	title: {
+            text: "Verification Chart"
+        },
+	data: [              
+	{
+		// Change type to "doughnut", "line", "splineArea", etc.
+		type: "pie",
+		dataPoints: [
+                { label: "Impact Assessment Issues",  y: 10  },
+                { label: "Root Cause Missing", y: 15  },
+                { label: "Project Zero Not Filled", y: 25  },
+                { label: "PR Lifecycle Incomplete",  y: 30  },
+                { label: "Status Discrepancies",  y: 28  },
+                { label: "Test Case Gaps",  y: 28  }
+		]
+	}
+	]
+};
+
+$("#chartContainer").CanvasJSChart(options);
+}
+</script> *@

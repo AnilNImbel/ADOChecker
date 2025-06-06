@@ -164,7 +164,9 @@ th {
     color: green !important;
     font-weight: bold;
 }
-
+.NA {
+    font-weight: bold;
+}
 .Missing, .Yes {
     color: red !important;
     font-weight: bold;

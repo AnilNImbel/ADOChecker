@@ -48,7 +48,7 @@
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
                 </li>
-                <li data-section="settings" class="nav-item @(currentController == "Settings" ? "active" : "")">
+                <li data-section="settings" style="display:none" class="nav-item @(currentController == "Settings" ? "active" : "")">
                     <span class="menu-icon">
                         <i class="fas fa-gears"></i>
                     </span>
@@ -64,6 +64,8 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/Common.js" asp-append-version="true"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.canvasjs.com/jquery.canvasjs.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

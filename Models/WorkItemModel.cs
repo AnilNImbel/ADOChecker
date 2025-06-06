@@ -220,7 +220,7 @@ namespace ADOAnalyser.Models
         public int CustomVIEWPRImpactedSPCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRManualUnitTestCount")]
-        public int CustomVIEWPRManualUnitTestCount { get; set; }
+        public int? CustomVIEWPRManualUnitTestCount { get; set; }
 
         [JsonProperty("Custom.VIEWPRUITestCount")]
         public int CustomVIEWPRUITestCount { get; set; }
@@ -259,13 +259,13 @@ namespace ADOAnalyser.Models
         public string CustomVIEWPRFollowPG { get; set; }
 
         [JsonProperty("Custom.VIEWPRImpactAnalysisHours")]
-        public double CustomVIEWPRImpactAnalysisHours { get; set; }
+        public double? CustomVIEWPRImpactAnalysisHours { get; set; }
 
         [JsonProperty("Custom.VIEWPRPlannedEffortHours")]
         public double CustomVIEWPRPlannedEffortHours { get; set; }
 
         [JsonProperty("Custom.VIEWPRActualEffortHours")]
-        public double CustomVIEWPRActualEffortHours { get; set; }
+        public double? CustomVIEWPRActualEffortHours { get; set; }
 
         [JsonProperty("Custom.VIEWPRPlannedvsActualGap")]
         public string CustomVIEWPRPlannedvsActualGap { get; set; }

@@ -32,23 +32,31 @@ namespace ADOAnalyser.Controllers
             string sprintToUse = selectedSprint ?? currentSprints.FirstOrDefault()?.FullPath;
 
             var workData = new WorkItemModel();
-
             if (!string.IsNullOrEmpty(sprintToUse))
             {
                 var getWiql = _workItem.GetAllWiqlByType(project, workItemType, sprintToUse);
                 var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(getWiql);
-                var idList = wiqlData.workItems.Select(a => a.id).ToList();
-
-                if (idList != null && idList.Count > 0)
+                if(wiqlData != null && wiqlData.workItems.Count > 0)
                 {
-                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
-                    workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-                    if (workData != null)
+                    var idList = wiqlData.workItems.Select(a => a.id).ToList();
+
+                    if (idList != null && idList.Count > 0)
                     {
-                        CheckMissingData(workData);
-                        SetCountForMissing(workData);
+                        var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
+                        workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
+                        if (workData != null && workData.value.Count > 0)
+                        {
+                            workData.value = workData.value.Where(a => a.fields.SystemState != null && !a.fields.Equals(StateStatusEnum.New)).ToList();
+                            workData.value = workData.value.Where(a => a.fields.CivicaAgileReproducible == null || a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.CurrentCultureIgnoreCase)).ToList();
+                            if (workData.value.Count > 0)
+                            {
+                                CheckMissingData(workData);
+                                SetCountForMissing(workData);
+                            }
+                        }
                     }
                 }
+               
             }
 
             // Create a view model to send sprint info + work items to partial

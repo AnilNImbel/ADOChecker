@@ -21,6 +21,7 @@ namespace ADOAnalyser.Enum
         Resolved,
         New,
         Test,
-        Active
+        Active,
+        Approved
     }
 }

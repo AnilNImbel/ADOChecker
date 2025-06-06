@@ -14,6 +14,9 @@ namespace ADOAnalyser.Common
         private string InDevelopment = "03. In Development";
 
         private string InAnalysis = "01. Analysis & Estimate";
+
+        private string PRRaised = "11. PR Raised to DevOps";
+
         public void CheckImpactAssessment(Fields workData)
         {
             string iaData = workData.MicrosoftVSTSCMMIImpactAssessmentHtml ?? string.Empty;
@@ -107,22 +110,28 @@ namespace ADOAnalyser.Common
 
         public void CheckPRLifeCycle(Fields fieldData)
         {
-            //string state = fieldData.SystemState ?? string.Empty;
-            //int manualUnitTestCount = fieldData.CustomVIEWPRManualUnitTestCount;
-            //int demo = fieldData.CustomVIEWPRManualUnitTestCount;
-            //double iahours = fieldData.CustomVIEWPRImpactAnalysisHours;
-            //double prEffortHour = fieldData.CustomVIEWPRActualEffortHours;
-            //string signedOff = fieldData.CustomSignedOffBy;
+            string state = fieldData.SystemState ?? string.Empty;
+            string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
 
-            //if (state.Equals(StateStatusEnum.Test.ToString()))
-            //{
-            //    fieldData.PRLifeCycleStatus = ResultEnum.Missing.ToString();
-            //}
-            //else
-            //{
-            //    fieldData.PRLifeCycleStatus = ResultEnum.Completed.ToString();
-            //}
-            fieldData.PRLifeCycleStatus = string.Empty;
+            if ((state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString())))
+            {
+                fieldData.PRLifeCycleStatus = !CheckPRCheckList(fieldData) ? ResultEnum.Missing.ToString() : ResultEnum.Completed.ToString();
+            }
+            if(state.Equals(StateStatusEnum.Active.ToString()))
+            {
+                if (!devStatus.Equals(PRRaised))
+                {
+                    fieldData.PRLifeCycleStatus = ResultEnum.Pending.ToString();
+                }
+                else
+                {
+                    fieldData.PRLifeCycleStatus = !CheckPRCheckList(fieldData) ? ResultEnum.Missing.ToString() : ResultEnum.Completed.ToString();
+                }
+            }
+            if(state.Equals(StateStatusEnum.New.ToString()))
+            {
+                fieldData.PRLifeCycleStatus = ResultEnum.Pending.ToString();
+            }
         }
 
         public int MissingPRLifeCycleCount(WorkItemModel workData)
@@ -136,11 +145,18 @@ namespace ADOAnalyser.Common
             string state = fieldData.SystemState ?? string.Empty;
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
             string qaStatus = fieldData.CustomQAStatus ?? string.Empty;
-            if (state.Equals(StateStatusEnum.Test.ToString()) && string.IsNullOrWhiteSpace(qaStatus))
+            if ((state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()))
+                && string.IsNullOrWhiteSpace(devStatus))
             {
                 fieldData.StatusDiscrepancyStatus = ResultEnum.Yes.ToString();
             }
-            if ((state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Test.ToString())) && string.IsNullOrWhiteSpace(devStatus))
+            if ((state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()))
+                && (string.IsNullOrWhiteSpace(qaStatus) || string.IsNullOrWhiteSpace(devStatus)))
+            {
+                fieldData.StatusDiscrepancyStatus = ResultEnum.Yes.ToString();
+            }
+            if ((state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString())) && 
+                (!string.IsNullOrWhiteSpace(qaStatus) && !devStatus.Equals(PRRaised)))
             {
                 fieldData.StatusDiscrepancyStatus = ResultEnum.Yes.ToString();
             }
@@ -180,7 +196,12 @@ namespace ADOAnalyser.Common
             string vtd = vtdDate.HasValue ? vtdDate.Value.ToString() : string.Empty;
             string state = fieldData.SystemState ?? string.Empty;
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
-            if ((state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) || state.Equals(StateStatusEnum.Test.ToString())) && !devStatus.Equals(InAnalysis))
+            if (state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) 
+                || state.Equals(StateStatusEnum.Test.ToString()))
+            {
+                fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
+            }
+            if (state.Equals(StateStatusEnum.Active.ToString()) && !devStatus.Equals(InAnalysis))
             {
                 fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
             }
@@ -200,7 +221,8 @@ namespace ADOAnalyser.Common
             string VTDStatus = fieldData.VTDMissingStatus;
             DateTime? vldbDate = fieldData.CustomVIEWLanDeskBreakDate;
             string vldb = vldbDate.HasValue ? vldbDate.Value.ToString() : string.Empty;
-            if (VTDStatus.Equals(ResultEnum.Missing) || VTDStatus.Equals(ResultEnum.Pending)){
+            if (VTDStatus.Equals(ResultEnum.Missing) || VTDStatus.Equals(ResultEnum.Pending))
+            {
                 fieldData.VLDBMissingStatus = ResultEnum.Pending.ToString();
             }
             else
@@ -212,6 +234,23 @@ namespace ADOAnalyser.Common
         public int MissingVLDBCount(WorkItemModel workData)
         {
             return workData.value.Where(a => a.fields.VLDBMissingStatus.Equals(ResultEnum.Missing.ToString())).Count();
+        }
+
+        private bool CheckPRCheckList(Fields fieldData)
+        {
+            int? manualUnitTestCount = fieldData.CustomVIEWPRManualUnitTestCount;
+            string demo = fieldData.CustomVIEWPRCompletedDemo?? string.Empty;
+            double? iahours = fieldData.CustomVIEWPRImpactAnalysisHours;
+            double? prActualEffortHour = fieldData.CustomVIEWPRActualEffortHours;
+            string signedOff = fieldData.CustomSignedOffBy?? string.Empty;
+            if(string.IsNullOrEmpty(demo) || string.IsNullOrEmpty(signedOff) || manualUnitTestCount == null || iahours == null || prActualEffortHour == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }
