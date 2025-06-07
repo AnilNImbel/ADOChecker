@@ -323,5 +323,22 @@ namespace ADOAnalyser.Models
         public int rev { get; set; }
         public Fields fields { get; set; }
         public string url { get; set; }
+        public List<Relation> relations { get; set; }
+
+        public string TlPrReviewAssignedTo
+        {
+            get; set;
+        }
+    }
+
+    public class Relation
+    {
+        public string rel { get; set; }
+        public string url { get; set; }
+    }
+
+    public class WorkItemReference
+    {
+        public int id { get; set; }
     }
 }

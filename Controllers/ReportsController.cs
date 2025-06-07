@@ -54,7 +54,8 @@ namespace ADOAnalyser.Controllers
                        Escape(d.PRLifecycle ?? ""),
                        Escape(d.StatusDiscrepancy ?? ""),
                        Escape(d.TestCaseGap ?? ""),
-                       Escape(d.CurrentStatus ?? "")
+                       Escape(d.CurrentStatus ?? ""),
+                       Escape(d.TechnicalLeadName ?? "")
                     ));
             }
 

@@ -85,7 +85,7 @@ namespace ADOAnalyser.Controllers
                     StatusDiscrepancy = w.fields?.StatusDiscrepancyStatus,
                     TestCaseGap = string.Empty, // or combine with VLDB if needed
                     CurrentStatus = w.fields?.SystemState,
-                    TechnicalLeadName = string.Empty,
+                    TechnicalLeadName = w.TlPrReviewAssignedTo,
                     DevName = string.Empty,
                     WorkitemType = w.fields?.SystemWorkItemType
                 });

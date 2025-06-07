@@ -33,6 +33,12 @@ namespace ADOAnalyser
             //return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         }
 
+        public string GetWorkItemForReports(string projectName, string ids)
+        {
+            string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
+            return _Utility.GetDataSync(Url);
+        }
+
         public string GetProjects()
         {
             string Url = string.Format("_apis/projects?getDefaultTeamImageUrl=true");
@@ -80,57 +86,123 @@ namespace ADOAnalyser
 
         public WorkItemModel GetAllWorkItemsByDateRange(DateTime fromDate, DateTime toDate)
         {
+            WorkItemModel model = new WorkItemModel();
+            model.value = new List<Values>();
             var projectList = new List<string> { "CE", "ConnectALL", "VIEW-Portal" };
-            var allValues = new List<Values>();
+
             string from = fromDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
             string to = toDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
 
             foreach (var project in projectList)
             {
-                // Step 1: WIQL Query for each project
-                string wiqlUrl = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", project);
-
+                // 1. WIQL query for parent work items (Production Defect, Bug, User Story)
                 string wiqlQuery = $@"
-            SELECT [System.Id], [System.Title], [System.State] 
+            SELECT [System.Id] 
             FROM WorkItems
             WHERE 
-             [System.TeamProject] = '{project}' AND
-            [System.ChangedDate] > '{from}'
-            AND [System.ChangedDate] < '{to}'
-            AND [System.WorkItemType] IN ('Production Defect', 'Bug', 'user story')
+                [System.TeamProject] = '{project}' AND
+                [System.ChangedDate] > '{from}' AND 
+                [System.ChangedDate] < '{to}' AND 
+                [System.WorkItemType] IN ('Production Defect', 'Bug', 'User Story')
             ORDER BY [System.ChangedDate] DESC";
 
-                var queryPayload = new { query = wiqlQuery };
-                var content = new StringContent(JsonConvert.SerializeObject(queryPayload), Encoding.UTF8, "application/json");
+                var wiqlContent = new StringContent(JsonConvert.SerializeObject(new { query = wiqlQuery }), Encoding.UTF8, "application/json");
+                string wiqlUrl = $"{project}/_apis/wit/wiql?api-version=7.1-preview.2";
+                var wiqlResponse = _Utility.PostDataSync(wiqlUrl, wiqlContent);
+                var wiqlResult = JsonConvert.DeserializeObject<WiqlModel>(wiqlResponse);
 
-                var wiqlResponse = _Utility.PostDataSync(wiqlUrl, content);
-                var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(wiqlResponse);
+                if (wiqlResult?.workItems == null || !wiqlResult.workItems.Any())
+                    return model;
 
-                var idList = wiqlData?.workItems?.Select(w => w.id).ToList();
-                if (idList != null && idList.Count > 0)
+                var parentIds = wiqlResult.workItems.Select(w => w.id).ToList();
+                List<int> allChildIds = new List<int>();
+
+                // 2. Fetch parent items in batches of 200
+                const int batchSize = 200;
+                for (int i = 0; i < parentIds.Count; i += batchSize)
                 {
-                    // Azure DevOps limits the batch to 200 work items per call
-                    const int batchSize = 200;
-                    for (int i = 0; i < idList.Count; i += batchSize)
-                    {
-                        var batchIds = idList.Skip(i).Take(batchSize);
-                        string idListCsv = string.Join(",", batchIds);
-                        var workItemJson = GetWorkItem(project, idListCsv);
-                        var workItemData = JsonConvert.DeserializeObject<WorkItemModel>(workItemJson);
+                    var batchIds = parentIds.Skip(i).Take(batchSize);
+                    var idListCsv = string.Join(",", batchIds);
 
-                        if (workItemData?.value != null)
+                    string parentUrl = $"{project}/_apis/wit/workitems?ids={idListCsv}&$expand=relations&api-version=7.1-preview.2";
+
+                    string parentJson = _Utility.GetDataSync(parentUrl);
+                    WorkItemModel parentItemsModel = JsonConvert.DeserializeObject<WorkItemModel>(parentJson);
+
+                    if (parentItemsModel?.value != null)
+                    {
+                        model.value.AddRange(parentItemsModel.value);
+
+                        // Extract child item IDs from relations
+                        foreach (var parentItem in parentItemsModel.value)
                         {
-                            allValues.AddRange(workItemData.value);
+                            if (parentItem.relations == null) continue;
+
+                            foreach (var relation in parentItem.relations)
+                            {
+                                if (relation.rel == "System.LinkTypes.Hierarchy-Forward")
+                                {
+                                    var idPart = relation.url.Split('/').Last();
+                                    if (int.TryParse(idPart, out int childId))
+                                    {
+                                        allChildIds.Add(childId);
+                                    }
+                                }
+                            }
                         }
+                    }
+                }
+
+                // 3. Fetch child items in batches and filter TL PR Review
+                for (int i = 0; i < allChildIds.Count; i += batchSize)
+                {
+                    var childBatch = allChildIds.Skip(i).Take(batchSize);
+                    string childUrl = $"{project}/_apis/wit/workitems?ids={string.Join(",", childBatch)}&$expand=relations,fields&api-version=7.1-preview.2";
+
+                    string childJson = _Utility.GetDataSync(childUrl);
+                    WorkItemModel childItems = JsonConvert.DeserializeObject<WorkItemModel>(childJson);
+
+                    if (childItems?.value != null)
+                    {
+                        var tlReviewItems = childItems.value
+                            .Where(wi => wi.fields?.SystemTitle?.Equals("TL PR Review", StringComparison.OrdinalIgnoreCase) == true)
+                            .ToList();
+
+                        foreach (var tlReviewItem in tlReviewItems)
+                        {
+                            var assignedToObj = string.Empty;
+                            // Extract Assigned To name
+                            if (tlReviewItem.fields != null)
+                            {
+                                assignedToObj = tlReviewItem.fields?.SystemAssignedTo;
+                            }
+
+                            // Find the parent item for this TL PR Review child
+                            var parentItem = model.value.FirstOrDefault(parent =>
+                                parent.relations != null &&
+                                parent.relations.Any(r =>
+                                    r.rel == "System.LinkTypes.Hierarchy-Forward" &&
+                                    r.url.EndsWith($"/{tlReviewItem.id}")));
+
+                            if (parentItem != null)
+                            {
+                                parentItem.TlPrReviewAssignedTo = assignedToObj;
+                            }
+                        }
+
+                        // Optionally, add TL PR Review items themselves to model.value if needed:
+                        // model.value.AddRange(tlReviewItems);
                     }
                 }
             }
 
             return new WorkItemModel
             {
-                value = allValues
+                value = model.value,
+                count = model.value.Count
             };
         }
+
 
         public WorkItemModel GetAllWorkItems(DateTime fromDate, DateTime toDate)
         {
