@@ -1,6 +1,7 @@
 ﻿using ADOAnalyser.Common;
 using ADOAnalyser.Enum;
 using ADOAnalyser.Models;
+using ADOAnalyser.TestModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -13,6 +14,10 @@ namespace ADOAnalyser.Controllers
 
         private readonly AutoSpotCheck autoSpotCheck;
 
+        private string testRelation = "Microsoft.VSTS.Common.TestedBy-Forward";
+
+        private string project = "CE";
+
         public DashboardController(IWorkItem workItem, AutoSpotCheck autoSpotChecks)
         {
             _workItem = workItem;
@@ -22,7 +27,8 @@ namespace ADOAnalyser.Controllers
         public IActionResult Index(string? selectedSprint = null)
         {
             List<string> workItemType = new List<string> { "Bug", "User Story", "Production Defect" };
-            string project = "CE";
+            string filter = @"AND [System.State] <> 'New'";
+
             // Get sprint info (current + all)
             var iterationData = _workItem.GetSprint(project); // your GetSprint returns IterationResult
             var allSprints = iterationData.AllSprints;
@@ -34,29 +40,33 @@ namespace ADOAnalyser.Controllers
             var workData = new WorkItemModel();
             if (!string.IsNullOrEmpty(sprintToUse))
             {
-                var getWiql = _workItem.GetAllWiqlByType(project, workItemType, sprintToUse);
+                var getWiql = _workItem.GetAllWiqlByType(project, workItemType, sprintToUse, filter);
                 var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(getWiql);
-                if(wiqlData != null && wiqlData.workItems.Count > 0)
+                if (wiqlData?.workItems?.Any() == true)
                 {
-                    var idList = wiqlData.workItems.Select(a => a.id).ToList();
-
-                    if (idList != null && idList.Count > 0)
+                    var idList = wiqlData.workItems?.Select(r => r.id).ToList();
+                    if (idList?.Any() == true)
                     {
                         var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
                         workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-                        if (workData != null && workData.value.Count > 0)
+                        if (workData?.value?.Any() == true)
                         {
-                            workData.value = workData.value.Where(a => a.fields.SystemState != null && !a.fields.Equals(StateStatusEnum.New)).ToList();
-                            workData.value = workData.value.Where(a => a.fields.CivicaAgileReproducible == null || a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.CurrentCultureIgnoreCase)).ToList();
+                            workData.value = workData.value
+                                                     .Where(a =>
+                                                     (a.fields.CivicaAgileReproducible == null ||
+                                                     a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.CurrentCultureIgnoreCase))
+                                                     )
+                                                     .ToList();
                             if (workData.value.Count > 0)
                             {
+                                AddTestRelationFilterData(workData);
                                 CheckMissingData(workData);
                                 SetCountForMissing(workData);
                             }
                         }
                     }
                 }
-               
+
             }
 
             // Create a view model to send sprint info + work items to partial
@@ -106,6 +116,31 @@ namespace ADOAnalyser.Controllers
             // Do something with the product
         }
 
+        private void AddTestRelationFilterData(WorkItemModel workData)
+        {
+            for (int i = 0; i < workData.value.Count; i++)
+            {
+                var relationIds = workData.value[i].relations?
+                                  .Where(r => r.rel == testRelation)
+                                  .Select(r =>
+                                  {
+                                      var segments = r.url.Split('/');
+                                      return int.Parse(segments.Last());
+                                  })
+                                  .ToList();
+
+                if (relationIds?.Any() == true)
+                {
+                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", relationIds.Take(500)));
+                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                    if (testData?.value?.Any() == true)
+                    {
+                        AddTestByRelationField(testData, workData.value[i]);
+                    }
+                }
+            }
+        }
+
         private void CheckMissingData(WorkItemModel workData)
         {
             for (int i = 0; i < workData.value.Count; i++)
@@ -131,6 +166,21 @@ namespace ADOAnalyser.Controllers
             workData.missingTestCaseCount = autoSpotCheck.MissingTestCaseGapeCount(workData);
             workData.missingVTDCount = autoSpotCheck.MissingVTDCount(workData);
             workData.missingVLDBCount = autoSpotCheck.MissingVLDBCount(workData);
+        }
+
+        private void AddTestByRelationField(TestedByModel testData, ADOAnalyser.Models.Values value)
+        {
+            value.testByRelationField = testData.value
+             .Select(v => v.fields)
+             .Where(f => f != null)
+             .Select(f => new TestByRelationField
+             {
+                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
+                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
+                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
+                 CustomTestType = f.CustomTestType
+             })
+             .ToList();
         }
     }
 }

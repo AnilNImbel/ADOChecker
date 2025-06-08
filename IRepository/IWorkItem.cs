@@ -17,7 +17,7 @@ namespace ADOAnalyser
 
         IterationResult GetSprint(string projectName);
 
-        string GetAllWiqlByType(string projectName, List<string> workItemType, string iterationPath);
+        string GetAllWiqlByType(string projectName, List<string> workItemType, string iterationPath, string filter = "");
 
         WorkItemModel GetAllWorkItemsByDateRange(DateTime fromDate, DateTime toDate);
 

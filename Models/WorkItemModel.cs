@@ -324,6 +324,7 @@ namespace ADOAnalyser.Models
         public Fields fields { get; set; }
         public string url { get; set; }
         public List<Relation> relations { get; set; }
+        public List<TestByRelationField> testByRelationField { get; set; }
 
         public string TlPrReviewAssignedTo
         {
@@ -340,5 +341,20 @@ namespace ADOAnalyser.Models
     public class WorkItemReference
     {
         public int id { get; set; }
+    }
+
+    public class TestByRelationField
+    {
+        [JsonProperty("CivicaAgile.TestLevel")]
+        public string CivicaAgileTestLevel { get; set; }
+
+        [JsonProperty("CivicaAgile.TestPhase")]
+        public string CivicaAgileTestPhase { get; set; }
+
+        [JsonProperty("Custom.TestType")]
+        public string CustomTestType { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.TCM.AutomationStatus")]
+        public string MicrosoftVSTSTCMAutomationStatus { get; set; }
     }
 }

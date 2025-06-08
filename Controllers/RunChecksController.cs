@@ -71,7 +71,7 @@ namespace ADOAnalyser.Controllers
             _dbContext.TestRunResults.Add(runResult);
             _dbContext.SaveChanges(); // Generate RunId
 
-            if (workItemModel?.value != null && workItemModel.value.Any())
+            if (workItemModel?.value != null && workItemModel.value.Any() && runResult.RunId != 0)
             {
                 var detailRecords = workItemModel.value.Select(w => new TestRunDetail
                 {

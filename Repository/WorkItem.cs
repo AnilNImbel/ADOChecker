@@ -28,7 +28,7 @@ namespace ADOAnalyser
 
         public string GetWorkItem(string projectName, string ids)
         {
-            string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&api-version=7.1-preview.2", projectName, ids);
+            string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
             return _Utility.GetDataSync(Url);
             //return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         }
@@ -62,13 +62,15 @@ namespace ADOAnalyser
             var result = _Utility.PostDataSync(Url, content);
             return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         }
-        public string GetAllWiqlByType(string projectName, List<string> workItemType, string iterationPath)
+
+        public string GetAllWiqlByType(string projectName, List<string> workItemType, string iterationPath, string filter = "")
         {
 
             string types = string.Join(",", workItemType.Select(t => $"'{t}'"));
             string Url = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", projectName);
+
             var iterationFilter = string.Join(" OR ", iterationPath.Select(i =>
-       $"[System.IterationPath] = '{iterationPath.Replace("'", "''")}'"));
+             $"[System.IterationPath] = '{iterationPath.Replace("'", "''")}'"));
 
             var query = new
             {
@@ -77,6 +79,7 @@ namespace ADOAnalyser
                      Where [System.WorkItemType] IN ({types})
                         AND [System.TeamProject] = '{projectName}'
                         AND ({iterationFilter})
+                        {filter}
                      order by [System.CreatedDate] desc"
             };
 
