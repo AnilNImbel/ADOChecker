@@ -47,7 +47,7 @@ namespace ADOAnalyser.Controllers
                     var idList = wiqlData.workItems?.Select(r => r.id).ToList();
                     if (idList?.Any() == true)
                     {
-                        var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
+                        var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(200)));
                         workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
                         if (workData?.value?.Any() == true)
                         {
@@ -131,7 +131,7 @@ namespace ADOAnalyser.Controllers
 
                 if (relationIds?.Any() == true)
                 {
-                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", relationIds.Take(500)));
+                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", relationIds.Take(200)));
                     var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
                     if (testData?.value?.Any() == true)
                     {

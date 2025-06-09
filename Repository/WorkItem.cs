@@ -1,20 +1,26 @@
 ﻿using ADOAnalyser.Models;
+using ADOAnalyser.TestModel;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Packaging;
 using NuGet.Packaging.Signing;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using static ADOAnalyser.Utility;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace ADOAnalyser
 {
 
     public class WorkItem : IWorkItem
     {
         private readonly IUtility _Utility;
+
+        private string testRelation = "Microsoft.VSTS.Common.TestedBy-Forward";
 
         public WorkItem(IUtility Utility)
         {
@@ -30,7 +36,6 @@ namespace ADOAnalyser
         {
             string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
             return _Utility.GetDataSync(Url);
-            //return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         }
 
         public string GetWorkItemForReports(string projectName, string ids)
@@ -43,24 +48,6 @@ namespace ADOAnalyser
         {
             string Url = string.Format("_apis/projects?getDefaultTeamImageUrl=true");
             return _Utility.GetDataSync(Url);
-            //return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
-        }
-
-        public string GetAllWiql(string projectName)
-        {
-            string Url = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", projectName);
-            var query = new
-            {
-                query = @"
-                SELECT [System.Id], [System.Title]
-                FROM WorkItems
-                WHERE [System.WorkItemType] IN ('Production Defect', 'Bug', 'user story')
-                  AND [System.AssignedTo] = ''"
-            };
-
-            var content = new StringContent(JsonConvert.SerializeObject(query), Encoding.UTF8, "application/json");
-            var result = _Utility.PostDataSync(Url, content);
-            return JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         }
 
         public string GetAllWiqlByType(string projectName, List<string> workItemType, string iterationPath, string filter = "")
@@ -95,19 +82,20 @@ namespace ADOAnalyser
 
             string from = fromDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
             string to = toDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
-
+            int count = 0;
             foreach (var project in projectList)
             {
                 // 1. WIQL query for parent work items (Production Defect, Bug, User Story)
                 string wiqlQuery = $@"
-            SELECT [System.Id] 
-            FROM WorkItems
-            WHERE 
-                [System.TeamProject] = '{project}' AND
-                [System.ChangedDate] > '{from}' AND 
-                [System.ChangedDate] < '{to}' AND 
-                [System.WorkItemType] IN ('Production Defect', 'Bug', 'User Story')
-            ORDER BY [System.ChangedDate] DESC";
+                    SELECT [System.Id] 
+                    FROM WorkItems
+                    WHERE 
+                        [System.TeamProject] = '{project}' AND
+                        [System.ChangedDate] > '{from}' AND 
+                        [System.ChangedDate] < '{to}' AND 
+                        [System.WorkItemType] IN ('Production Defect', 'Bug', 'User Story') AND
+                        [System.State] <> 'New'
+                    ORDER BY [System.ChangedDate] DESC";
 
                 var wiqlContent = new StringContent(JsonConvert.SerializeObject(new { query = wiqlQuery }), Encoding.UTF8, "application/json");
                 string wiqlUrl = $"{project}/_apis/wit/wiql?api-version=7.1-preview.2";
@@ -134,6 +122,13 @@ namespace ADOAnalyser
 
                     if (parentItemsModel?.value != null)
                     {
+                        parentItemsModel.value = parentItemsModel.value
+                                                    .Where(a =>
+                                                    (a.fields.CivicaAgileReproducible == null ||
+                                                    a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.CurrentCultureIgnoreCase))
+                                                    )
+                                                    .ToList();
+
                         model.value.AddRange(parentItemsModel.value);
 
                         // Extract child item IDs from relations
@@ -153,6 +148,9 @@ namespace ADOAnalyser
                                 }
                             }
                         }
+                        count = count == 0 ? 0 : count;
+                        AddTestRelationFilterData(model, project, count);
+                        count = model.value.Count;
                     }
                 }
 
@@ -206,6 +204,49 @@ namespace ADOAnalyser
             };
         }
 
+        private void AddTestRelationFilterData(WorkItemModel workData, string project, int pickIndex)
+        {
+            //int batchSize = 200;
+            int start = pickIndex;
+             //count = start + batchSize;
+            int count = workData.value.Count;
+            for (int i = start; i < count; i++)
+            {
+                var relationIds = workData.value[i].relations?
+                                  .Where(r => r.rel == testRelation)
+                                  .Select(r =>
+                                  {
+                                      var segments = r.url.Split('/');
+                                      return int.Parse(segments.Last());
+                                  })
+                                  .ToList();
+
+                if (relationIds?.Any() == true)
+                {
+                    var getWorkItems = GetWorkItem(project, string.Join(", ", relationIds.Take(200)));
+                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                    if (testData?.value?.Any() == true)
+                    {
+                        AddTestByRelationField(testData, workData.value[i]);
+                    }
+                }
+            }
+        }
+
+        private void AddTestByRelationField(TestedByModel testData, ADOAnalyser.Models.Values value)
+        {
+            value.testByRelationField = testData.value
+             .Select(v => v.fields)
+             .Where(f => f != null)
+             .Select(f => new TestByRelationField
+             {
+                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
+                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
+                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
+                 CustomTestType = f.CustomTestType
+             })
+             .ToList();
+        }
 
         public WorkItemModel GetAllWorkItems(DateTime fromDate, DateTime toDate)
         {
@@ -260,6 +301,5 @@ namespace ADOAnalyser
                 value = allValues
             };
         }
-
     }
 }

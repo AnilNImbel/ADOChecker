@@ -13,7 +13,6 @@ namespace ADOAnalyser
         string GetWorkItem(string projectName, string ids);
 
         string GetProjects();
-        string GetAllWiql(string projectName);
 
         IterationResult GetSprint(string projectName);
 
