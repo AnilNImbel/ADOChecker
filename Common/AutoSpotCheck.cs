@@ -201,13 +201,16 @@ namespace ADOAnalyser.Common
             {
                 fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
             }
-            if (state.Equals(StateStatusEnum.Active.ToString()) && !devStatus.Equals(InAnalysis))
+            if (state.Equals(StateStatusEnum.Active.ToString()))
             {
-                fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
-            }
-            else
-            {
-                fieldData.VTDMissingStatus = ResultEnum.Pending.ToString();
+                if (!devStatus.Equals(InAnalysis))
+                {
+                    fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
+                }
+                else
+                {
+                    fieldData.VTDMissingStatus = ResultEnum.Pending.ToString();
+                }
             }
         }
 
