@@ -17,12 +17,13 @@
         </div>
     </div>
 @*     <div class="row mb-3">
-        <div class="col-md-12 mb-12 ">
-            <i class="fa fa-bar-chart float-md-end"></i>
-            <i class="fa fa-table float-md-end"></i>
+        <div class="col-md-12 mb-12" style="text-align:end">
+            <i class="fa fa-table icon-toggle active" tooltip="Table Chart" onclick="chartClick(this, 'table')"></I>
+            <i class="fa fa-bar-chart icon-toggle" tooltip="COLUMN chart" name="COLUMN" onclick="chartClick(this, 'column')"></i>
+            <i class="fa fa-pie-chart icon-toggle" tooltip="PIE Chart" name="PIE" onclick="chartClick(this, 'pie')"></i>
         </div>
     </div> *@
-    <div class="row">
+    <div class="row" id="tableChart">
         <div class="col-md-4 mb-4">
             <div class="card">
                 <a class="loadData" name="IAStatus" style="text-decoration:none;cursor:pointer">
@@ -66,39 +67,110 @@
             </div>
         </div>
     </div>
-@*     <div class="row" id="chartContainer"></div> *@
+@*     <div class="row  mb-3" id="allChart" style="display:none" >
+        <div class="col-md-12 mb-12">
+            <div id="chartContainer">
+            </div>
+        </div>
+    </div> *@
     <div id="workItemsTable">
     </div>
 
     <div id="loader" style="display: none;justify-items:center">
         <div class="spinner"></div>
     </div>
-
 </section>
-@* <script>
-window.onload = function () {
+@* <script type="text/javascript">
+    window.onload = function(){
+      const data = document.querySelectorAll('.canvasjs-chart-canvas');
+      const data1 = document.querySelectorAll('.canvasjs-chart-credit');
+      if(data.length != 0){
+          data[1].remove();
+      }
+     if(data1.length != 0){
+          data1[0].remove();
+      }
+    }
+  function chartClick(element,name) {
+            const icons = document.querySelectorAll('.icon-toggle');
+            icons.forEach(icon => icon.classList.remove('active'));
+             $('#workItemsTable').html("");
+            // Add 'active' class to the clicked icon
+            element.classList.add('active');
+            // $('#chartContainer').html("");
+            if (name == 'table') {
+                $("#tableChart").show();
+                $("#allChart").hide();
+            }
+            else {
+                $("#tableChart").hide();
+                $("#allChart").show();
+                 var chartName = $(this).attr('name');
+                    const chart = new CanvasJS.Chart("chartContainer",{
+                           title: {
+                                text: chartName + " Chart"
+                            },
+                            data: [
+                                {
+                                    type: name,
+                                    click:charColumnClick,
+                                    dataPoints: [
+                                        { label: "Impact Assessment Issues", y: @Model.WorkItemData.missingIACount },
+                                        { label: "Root Cause Missing", y: @Model.WorkItemData.missingRootCauseCount },
+                                        { label: "Project Zero Not Filled", y: @Model.WorkItemData.missingProjectZeroCount },
+                                        { label: "PR Lifecycle Incomplete", y: @Model.WorkItemData.missingPRLifeCycleCount },
+                                        { label: "Status Discrepancies", y: @Model.WorkItemData.missingStatusDiscreCount },
+                                        { label: "Test Case Gaps", y: @Model.WorkItemData.missingTestCaseCount }
+                                    ]
+                                }
+                            ]
+                    });
+                    chart.render();
+                     const data = document.querySelectorAll('.canvasjs-chart-canvas');
+                  if(data.length != 0){
+                      data[1].remove();
+                  }
+            }
+    }
 
-//Better to construct options first and then pass it as a parameter
-var options = {
-	title: {
-            text: "Verification Chart"
+  function charColumnClick(event){
+      let lable = '';
+      let currentWorkType = '';
+        $('#workItemsTable').html("");
+        $("#loader").show();
+        lable = event.dataPoint.label;
+        if(lable == "Impact Assessment Issues"){
+            currentWorkType = "IAStatus";
+        }
+        else if(lable == "Root Cause Missing"){
+            currentWorkType = "RootCauseStatus";
+        }
+        else if(lable == "Project Zero Not Filled"){
+            currentWorkType = "ProjectZeroStatus";
+        }
+        else if(lable == "PR Lifecycle Incomplete"){
+            currentWorkType = "PRLifeCycleStatus";
+        }
+        else if(lable == "Status Discrepancies"){
+            currentWorkType = "StatusDiscrepancyStatus";
+        }
+        else if(lable == "Test Case Gaps"){
+            currentWorkType = "TestCaseGapeStatus";
+        }
+    $.ajax({
+        url: '/DashBoard/GridLoad',
+        type: 'GET',
+        data: { missingType: currentWorkType },
+        success: function (result) {
+            $('#workItemsTable').html(result);
         },
-	data: [              
-	{
-		// Change type to "doughnut", "line", "splineArea", etc.
-		type: "pie",
-		dataPoints: [
-                { label: "Impact Assessment Issues",  y: 10  },
-                { label: "Root Cause Missing", y: 15  },
-                { label: "Project Zero Not Filled", y: 25  },
-                { label: "PR Lifecycle Incomplete",  y: 30  },
-                { label: "Status Discrepancies",  y: 28  },
-                { label: "Test Case Gaps",  y: 28  }
-		]
-	}
-	]
-};
-
-$("#chartContainer").CanvasJSChart(options);
-}
-</script> *@
+        error: function () {
+            alert('Error loading partial view.');
+        },
+        complete: function () {
+            // Hide the loader after the request completes
+            $("#loader").hide();
+        }
+    });
+  }
+</script>  *@

@@ -38,11 +38,22 @@ namespace ADOAnalyser
             string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
             return _Utility.GetDataSync(Url);
         }
+        public string GetWorkItem(string ids)
+        {
+            string Url = string.Format("/_apis/wit/workitems?ids={0}&$expand=relations&api-version=7.1-preview.2", ids);
+            return _Utility.GetDataSync(Url);
+        }
 
         public async Task<string> GetWorkItemAsync(string projectName, string ids)
         {
             string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
-            return  _Utility.GetDataSync(Url);
+            return _Utility.GetDataSync(Url);
+        }
+
+        public async Task<string> GetWorkItemAsync(string ids)
+        {
+            string Url = string.Format("/_apis/wit/workitems?ids={0}&$expand=relations&api-version=7.1-preview.2", ids);
+            return _Utility.GetDataSync(Url);
         }
 
         public string GetWorkItemForReports(string projectName, string ids)
@@ -156,7 +167,7 @@ namespace ADOAnalyser
                             }
                         }
                         count = count == 0 ? 0 : count;
-                        AddTestRelationFilterData(model, project, count);
+                        AddTestRelationFilterData(model, count);
                         count = model.value.Count;
                     }
                 }
@@ -211,7 +222,7 @@ namespace ADOAnalyser
             };
         }
 
-        private void AddTestRelationFilterData(WorkItemModel workData, string project, int pickIndex)
+        private void AddTestRelationFilterData(WorkItemModel workData, int pickIndex)
         {
             //int batchSize = 200;
             int start = pickIndex;
@@ -230,29 +241,23 @@ namespace ADOAnalyser
 
                 if (relationIds?.Any() == true)
                 {
-                    var getWorkItems = GetWorkItem(project, string.Join(", ", relationIds.Take(200)));
+                    var getWorkItems = GetWorkItem(string.Join(", ", relationIds.Take(200)));
                     var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
                     if (testData?.value?.Any() == true)
                     {
-                        AddTestByRelationField(testData, workData.value[i]);
+                        workData.value[i].testByRelationField = testData.value
+                                             .Select(v => v.fields)
+                                             .Where(f => f != null)
+                                             .Select(f => new TestByRelationField
+                                             {
+                                                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
+                                                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
+                                                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
+                                                 CustomTestType = f.CustomTestType
+                                             }).ToList();
                     }
                 }
             }
-        }
-
-        private void AddTestByRelationField(TestedByModel testData, ADOAnalyser.Models.Values value)
-        {
-            value.testByRelationField = testData.value
-             .Select(v => v.fields)
-             .Where(f => f != null)
-             .Select(f => new TestByRelationField
-             {
-                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
-                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
-                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
-                 CustomTestType = f.CustomTestType
-             })
-             .ToList();
         }
 
         public async Task<WorkItemModel> GetAllWorkItemsByDateRangeAsync(DateTime fromDate, DateTime toDate)
@@ -266,21 +271,22 @@ namespace ADOAnalyser
             cts.CancelAfter(new TimeSpan(24, 0, 9));
             var maxDegreeOfParallelism = 8;
 
-            var tasks = projectList.ForEachAsyncConcurrent(async projectList =>
+            var tasks = projectList.ForEachAsyncConcurrent(async project =>
             {
                 string wiqlQuery = $@"
                         SELECT [System.Id] 
                         FROM WorkItems
                         WHERE 
-                            [System.TeamProject] = '{projectList}' AND
+                            [System.TeamProject] = '{project}' AND
                             [System.ChangedDate] > '{from}' AND 
                             [System.ChangedDate] < '{to}' AND 
                             [System.WorkItemType] IN ('Production Defect', 'Bug', 'User Story') AND
-                            [System.State] <> 'New'
+                            [System.State] <> 'New' AND
+                            [System.State] <> 'Approved'
                         ORDER BY [System.ChangedDate] DESC";
 
                 var wiqlContent = new StringContent(JsonConvert.SerializeObject(new { query = wiqlQuery }), Encoding.UTF8, "application/json");
-                string wiqlUrl = $"{projectList}/_apis/wit/wiql?api-version=7.1-preview.2";
+                string wiqlUrl = $"{project}/_apis/wit/wiql?api-version=7.1-preview.2";
                 var wiqlResponse = await _Utility.PostDataAsync(wiqlUrl, wiqlContent);
                 var wiqlResult = JsonConvert.DeserializeObject<WiqlModel>(wiqlResponse);
 
@@ -291,38 +297,38 @@ namespace ADOAnalyser
                 var allChildIds = new ConcurrentBag<int>();
                 var localValues = new ConcurrentBag<Values>();
 
-                var parentTasks = parentIds
-                .Chunk(200)
-                .Select(async batch =>
+                var parentTasks = parentIds.Chunk(200).Select(async batch =>
                 {
                     var idListCsv = string.Join(",", batch);
-                    string parentUrl = $"{projectList}/_apis/wit/workitems?ids={idListCsv}&$expand=relations&api-version=7.1-preview.2";
+                    string parentUrl = $"{project}/_apis/wit/workitems?ids={idListCsv}&$expand=relations&api-version=7.1-preview.2";
                     string parentJson = await _Utility.GetDataAsync(parentUrl);
                     var parentItemsModel = JsonConvert.DeserializeObject<WorkItemModel>(parentJson);
 
                     if (parentItemsModel?.value != null)
                     {
                         var filtered = parentItemsModel.value
-                             .Where(a => a.fields.CivicaAgileReproducible == null ||
-                             a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.CurrentCultureIgnoreCase))
-                             .ToList();
+                         .Where(a => string.IsNullOrEmpty(a.fields.CivicaAgileReproducible) ||
+                         a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.OrdinalIgnoreCase)).ToList();
 
-                        foreach (var item in filtered)
-                        {
-                            localValues.Add(item);
-                            if (item.relations != null)
+                        Parallel.ForEach(filtered, item =>
                             {
-                                foreach (var relation in item.relations)
+                                localValues.Add(item);
+
+                                if (item.relations != null)
                                 {
-                                    if (relation.rel == "System.LinkTypes.Hierarchy-Forward")
+                                    foreach (var relation in item.relations)
                                     {
-                                        var idPart = relation.url.Split('/').Last();
-                                        if (int.TryParse(idPart, out int childId))
-                                            allChildIds.Add(childId);
+                                        if (relation.rel == "System.LinkTypes.Hierarchy-Forward")
+                                        {
+                                            var idPart = relation.url.Split('/').Last();
+                                            if (int.TryParse(idPart, out int childId))
+                                            {
+                                                allChildIds.Add(childId);
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
+                            });
                     }
                 });
 
@@ -330,7 +336,8 @@ namespace ADOAnalyser
 
                 // Add test relation data
                 var localList = localValues.ToList();
-                Task.Run(() => AddTestRelationFilterDataAsync(new WorkItemModel { value = localList }, projectList, 0));
+
+                await AddTestRelationFilterDataAsync(new WorkItemModel { value = localList });
 
                 // Add to main model
                 lock (model.value)
@@ -339,42 +346,41 @@ namespace ADOAnalyser
                 }
 
                 // Fetch child items
-                var childTasks = allChildIds
-                                     .Distinct()
-                                     .Chunk(200)
-                                     .Select(async batch =>
-                                     {
-                                         string childUrl = $"{projectList}/_apis/wit/workitems?ids={string.Join(",", batch)}&$expand=relations,fields&api-version=7.1-preview.2";
-                                         string childJson = await _Utility.GetDataAsync(childUrl);
-                                         var childItems = JsonConvert.DeserializeObject<WorkItemModel>(childJson);
+                var childTasks = allChildIds.Distinct().Chunk(200).Select(async batch =>
+                {
+                    string childUrl = $"{project}/_apis/wit/workitems?ids={string.Join(",", batch)}&$expand=relations,fields&api-version=7.1-preview.2";
+                    string childJson = await _Utility.GetDataAsync(childUrl);
+                    var childItems = JsonConvert.DeserializeObject<WorkItemModel>(childJson);
 
-                                         if (childItems?.value != null)
-                                         {
-                                             var tlReviewItems = childItems.value
-                                     .Where(wi => wi.fields?.SystemTitle?.Equals("TL PR Review", StringComparison.OrdinalIgnoreCase) == true)
-                                     .ToList();
 
-                                             foreach (var tlReviewItem in tlReviewItems)
-                                             {
-                                                 var assignedToObj = tlReviewItem.fields?.SystemAssignedTo;
-                                                 var parentItem = model.value.FirstOrDefault(parent =>
-                                                                         parent.relations != null &&
-                                                                         parent.relations.Any(r =>
-                                                                         r.rel == "System.LinkTypes.Hierarchy-Forward" &&
-                                                                         r.url.EndsWith($"/{tlReviewItem.id}")));
+                    if (childItems?.value != null)
+                    {
+                        var tlReviewItems = childItems.value
+                        .Where(wi => string.Equals(wi.fields?.SystemTitle, "TL PR Review", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
 
-                                                 if (parentItem != null)
-                                                 {
-                                                     parentItem.TlPrReviewAssignedTo = assignedToObj;
-                                                 }
-                                             }
-                                         }
-                                     });
+                        foreach (var tlReviewItem in tlReviewItems)
+                        {
+                            var assignedTo = tlReviewItem.fields?.SystemAssignedTo;
+
+                            var parentItem = model.value.FirstOrDefault(parent =>
+                            parent.relations?.Any(r =>
+                            r.rel == "System.LinkTypes.Hierarchy-Forward" &&
+                            r.url.EndsWith($"/{tlReviewItem.id}")) == true);
+
+                            if (parentItem != null)
+                            {
+                                parentItem.TlPrReviewAssignedTo = assignedTo;
+                            }
+                        }
+                    }
+
+                });
 
                 await Task.WhenAll(childTasks);
-            }, 
+            },
             cts.Token,
-             maxDegreeOfParallelism);
+            maxDegreeOfParallelism);
 
             await Task.WhenAll(tasks);
 
@@ -385,49 +391,51 @@ namespace ADOAnalyser
             };
         }
 
-        private Task AddTestByRelationFieldAsync(TestedByModel testData, ADOAnalyser.Models.Values value)
+        private async Task AddTestRelationFilterDataAsync(WorkItemModel workData)
         {
-            value.testByRelationField = testData.value
-            .Select(v => v.fields)
-            .Where(f => f != null)
-            .Select(f => new TestByRelationField
+            var tasks = new List<Task>();
+
+            foreach (var workItem in workData.value)
             {
-                MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
-                CivicaAgileTestLevel = f.CivicaAgileTestLevel,
-                CivicaAgileTestPhase = f.CivicaAgileTestPhase,
-                CustomTestType = f.CustomTestType
-            })
-            .ToList();
-
-            return Task.CompletedTask;
-        }
-
-        private async Task AddTestRelationFilterDataAsync(WorkItemModel workData, string project, int pickIndex)
-        {
-            int start = pickIndex;
-            int count = workData.value.Count;
-
-            for (int i = start; i < count; i++)
-            {
-                var relationIds = workData.value[i].relations?
+                var relationIds = workItem.relations?
                 .Where(r => r.rel == testRelation)
-                .Select(r =>
-                {
-                    var segments = r.url.Split('/');
-                    return int.Parse(segments.Last());
-                })
+                .Select(r => int.Parse(r.url.Split('/').Last()))
                 .ToList();
 
                 if (relationIds?.Any() == true)
                 {
-                    var getWorkItems = await GetWorkItemAsync(project, string.Join(",", relationIds.Take(200)));
-                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
-                    if (testData?.value?.Any() == true)
+                    var idsBatch = string.Join(",", relationIds.Take(200));
+
+                    tasks.Add(Task.Run(async () =>
                     {
-                      await  AddTestByRelationFieldAsync(testData, workData.value[i]);
-                    }
+                        try
+                        {
+                            var getWorkItems = await GetWorkItemAsync(idsBatch);
+                            var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+
+                            if (testData?.value?.Any() == true)
+                            {
+                                workItem.testByRelationField = testData.value
+                                    .Select(v => v.fields)
+                                    .Where(f => f != null)
+                                    .Select(f => new TestByRelationField
+                                    {
+                                        MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
+                                        CivicaAgileTestLevel = f.CivicaAgileTestLevel,
+                                        CivicaAgileTestPhase = f.CivicaAgileTestPhase,
+                                        CustomTestType = f.CustomTestType
+                                    }).ToList();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Optional: log or handle the error
+                        }
+                    }));
                 }
             }
+
+            await Task.WhenAll(tasks);
         }
     }
 }

@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Run Checks";
     bool hasResults = Model?.value != null && Model.value.Any();
+    int count = (Model?.value != null && Model.value.Any()) ? Model.value.Count() : 0;
     bool formSubmitted = ViewBag.FromDate != null && ViewBag.ToDate != null;
 }
 <section id="runChecks" class="content">
@@ -44,6 +45,11 @@
     <div id="result" style="display:@(hasResults ? "block" : "none");" class="mt-4">
         @if (hasResults)
         {
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <label class="form-label">Total Work Items : @count</label>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-12 table-responsive">
                     <table>

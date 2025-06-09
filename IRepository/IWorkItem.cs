@@ -12,6 +12,12 @@ namespace ADOAnalyser
     {
         string GetWorkItem(string projectName, string ids);
 
+        string GetWorkItem(string ids);
+
+        Task<string> GetWorkItemAsync(string ids);
+
+        Task<string> GetWorkItemAsync(string projectName, string ids);
+
         string GetProjects();
 
         IterationResult GetSprint(string projectName);

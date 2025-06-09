@@ -225,3 +225,17 @@ i {
     }
 }
 
+
+.icon-toggle {
+    cursor: pointer;
+    color: #888;
+    margin-left: 10px;
+}
+
+.icon-toggle.active {
+    color: #2a72d5; /* Highlight color */
+}
+
+.canvasjs-chart-canvas{
+    position:relative !important;
+}

@@ -5,6 +5,7 @@ using ADOAnalyser.TestModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ADOAnalyser.Controllers
 {
@@ -27,7 +28,7 @@ namespace ADOAnalyser.Controllers
         public IActionResult Index(string? selectedSprint = null)
         {
             List<string> workItemType = new List<string> { "Bug", "User Story", "Production Defect" };
-            string filter = @"AND [System.State] <> 'New'";
+            string filter = @"AND [System.State] <> 'New' AND [System.State] <> 'Approved'";
 
             // Get sprint info (current + all)
             var iterationData = _workItem.GetSprint(project); // your GetSprint returns IterationResult
@@ -52,11 +53,8 @@ namespace ADOAnalyser.Controllers
                         if (workData?.value?.Any() == true)
                         {
                             workData.value = workData.value
-                                                     .Where(a =>
-                                                     (a.fields.CivicaAgileReproducible == null ||
-                                                     a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.CurrentCultureIgnoreCase))
-                                                     )
-                                                     .ToList();
+                                             .Where(a => string.IsNullOrEmpty(a.fields.CivicaAgileReproducible) ||
+                                              a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.OrdinalIgnoreCase)).ToList();
                             if (workData.value.Count > 0)
                             {
                                 AddTestRelationFilterData(workData);
@@ -116,31 +114,6 @@ namespace ADOAnalyser.Controllers
             // Do something with the product
         }
 
-        private void AddTestRelationFilterData(WorkItemModel workData)
-        {
-            for (int i = 0; i < workData.value.Count; i++)
-            {
-                var relationIds = workData.value[i].relations?
-                                  .Where(r => r.rel == testRelation)
-                                  .Select(r =>
-                                  {
-                                      var segments = r.url.Split('/');
-                                      return int.Parse(segments.Last());
-                                  })
-                                  .ToList();
-
-                if (relationIds?.Any() == true)
-                {
-                    var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", relationIds.Take(200)));
-                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
-                    if (testData?.value?.Any() == true)
-                    {
-                        AddTestByRelationField(testData, workData.value[i]);
-                    }
-                }
-            }
-        }
-
         private void CheckMissingData(WorkItemModel workData)
         {
             for (int i = 0; i < workData.value.Count; i++)
@@ -168,19 +141,38 @@ namespace ADOAnalyser.Controllers
             workData.missingVLDBCount = autoSpotCheck.MissingVLDBCount(workData);
         }
 
-        private void AddTestByRelationField(TestedByModel testData, ADOAnalyser.Models.Values value)
+        private void AddTestRelationFilterData(WorkItemModel workData)
         {
-            value.testByRelationField = testData.value
-             .Select(v => v.fields)
-             .Where(f => f != null)
-             .Select(f => new TestByRelationField
-             {
-                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
-                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
-                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
-                 CustomTestType = f.CustomTestType
-             })
-             .ToList();
+            for (int i = 0; i < workData.value.Count; i++)
+            {
+                var relationIds = workData.value[i].relations?
+                                  .Where(r => r.rel == testRelation)
+                                  .Select(r =>
+                                  {
+                                      var segments = r.url.Split('/');
+                                      return int.Parse(segments.Last());
+                                  })
+                                  .ToList();
+
+                if (relationIds?.Any() == true)
+                {
+                    var getWorkItems = _workItem.GetWorkItem(string.Join(", ", relationIds.Take(200)));
+                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                    if (testData?.value?.Any() == true)
+                    {
+                        workData.value[i].testByRelationField = testData.value
+                             .Select(v => v.fields)
+                             .Where(f => f != null)
+                             .Select(f => new TestByRelationField
+                             {
+                                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
+                                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
+                                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
+                                 CustomTestType = f.CustomTestType
+                             }).ToList();
+                    }
+                }
+            }
         }
     }
 }
