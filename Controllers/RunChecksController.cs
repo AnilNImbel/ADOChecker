@@ -29,33 +29,41 @@ namespace ADOAnalyser.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(DateTime fromDate, DateTime toDate)
+        public async Task<IActionResult> IndexAsync(DateTime fromDate, DateTime toDate)
         {
-            var workItemModel = _workItem.GetAllWorkItemsByDateRange(fromDate, toDate);
+            //var workItemModel = _workItem.GetAllWorkItemsByDateRange(fromDate, toDate);
+            var workItemModel = await Task.Run(() => _workItem.GetAllWorkItemsByDateRangeAsync(fromDate, toDate));
 
-            CheckMissingData(workItemModel);
+            if (workItemModel?.value != null)
+            {
+                await CheckMissingDataAsync(workItemModel);
+            }
             ViewBag.FromDate = fromDate.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate.ToString("yyyy-MM-dd");
             if (workItemModel?.value != null && workItemModel.value.Any())
             {
-                SaveTestRunResult(fromDate, toDate, workItemModel);
+               await SaveTestRunResultAsync(fromDate, toDate, workItemModel);
             }
             return View(workItemModel);
         }
 
-        private void CheckMissingData(WorkItemModel workData)
+        private async Task CheckMissingDataAsync(WorkItemModel workData)
         {
-            for (int i = 0; i < workData.value.Count; i++)
+            await Task.Run(() =>
             {
-                autoSpotCheck.CheckImpactAssessment(workData.value[i].fields);
-                autoSpotCheck.CheckRootCause(workData.value[i].fields);
-                autoSpotCheck.CheckProjectZero(workData.value[i].fields);
-                autoSpotCheck.CheckPRLifeCycle(workData.value[i].fields);
-                autoSpotCheck.CheckStatusDiscre(workData.value[i].fields);
-                autoSpotCheck.CheckTestCaseGape(workData.value[i].fields);
-                autoSpotCheck.CheckVTDRequired(workData.value[i].fields);
-                autoSpotCheck.CheckVLDBRequired(workData.value[i].fields);
-            }
+                for (int i = 0; i < workData.value.Count; i++)
+                {
+                    autoSpotCheck.CheckImpactAssessment(workData.value[i].fields);
+                    autoSpotCheck.CheckRootCause(workData.value[i].fields);
+                    autoSpotCheck.CheckProjectZero(workData.value[i].fields);
+                    autoSpotCheck.CheckPRLifeCycle(workData.value[i].fields);
+                    autoSpotCheck.CheckStatusDiscre(workData.value[i].fields);
+                    autoSpotCheck.CheckTestCaseGape(workData.value[i].fields);
+                    autoSpotCheck.CheckVTDRequired(workData.value[i].fields);
+                    autoSpotCheck.CheckVLDBRequired(workData.value[i].fields);
+                }
+            });
+
         }
 
         private void SaveTestRunResult(DateTime fromDate, DateTime toDate, WorkItemModel workItemModel)
@@ -94,5 +102,44 @@ namespace ADOAnalyser.Controllers
                 _dbContext.SaveChanges();
             }
         }
+
+
+        private async Task SaveTestRunResultAsync(DateTime fromDate, DateTime toDate, WorkItemModel workItemModel)
+        {
+            var runResult = new TestRunResult
+            {
+                RunDate = DateTime.Now,
+                StartDate = fromDate,
+                EndDate = toDate,
+                ResultSummary = $"Run completed with {workItemModel.value?.Count ?? 0} work items."
+            };
+
+            await _dbContext.TestRunResults.AddAsync(runResult);
+            await _dbContext.SaveChangesAsync(); // Generate RunId
+
+            if (workItemModel?.value != null && workItemModel.value.Any() && runResult.RunId != 0)
+            {
+                var detailRecords = workItemModel.value.Select(w => new TestRunDetail
+                {
+                    RunId = runResult.RunId,
+                    AdoItemId = w.id.ToString(),
+                    CallReference = w.fields?.CivicaAgileCallReference,
+                    ImpactAssessment = w.fields?.IAStatus,
+                    RootCauseAnalysis = w.fields?.RootCauseStatus,
+                    ProjectZero = w.fields?.ProjectZeroStatus,
+                    PRLifecycle = w.fields?.PRLifeCycleStatus,
+                    StatusDiscrepancy = w.fields?.StatusDiscrepancyStatus,
+                    TestCaseGap = string.Empty,
+                    CurrentStatus = w.fields?.SystemState,
+                    TechnicalLeadName = w.TlPrReviewAssignedTo,
+                    DevName = string.Empty,
+                    WorkitemType = w.fields?.SystemWorkItemType
+                });
+
+                await _dbContext.TestRunDetails.AddRangeAsync(detailRecords);
+                await _dbContext.SaveChangesAsync();
+            }
+        }
+
     }
 }

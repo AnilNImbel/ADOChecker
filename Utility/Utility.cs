@@ -37,7 +37,8 @@ namespace ADOAnalyser
         {
             try
             {
-                var response = await client.GetAsync(URL);
+                string apiURL = $"{baseUrl}/{URL}";
+                var response = await client.GetAsync(apiURL);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -59,8 +60,8 @@ namespace ADOAnalyser
         {
             try
             {
-                URL = baseUrl + URL;
-                var response = client.GetAsync(URL).Result;
+                string apiURL = $"{baseUrl}/{URL}";
+                var response = client.GetAsync(apiURL).Result;
                 if (response.IsSuccessStatusCode)
                 {
                     var stringResponse = response.Content.ReadAsStringAsync().Result;
@@ -81,8 +82,8 @@ namespace ADOAnalyser
         {
             try
             {
-                URL = baseUrl + URL;
-                var response = await client.PostAsync(URL, content);
+                string apiURL = $"{baseUrl}/{URL}";
+                var response = await client.PostAsync(apiURL, content);
                 if (!response.IsSuccessStatusCode)
                 {
                     return @"{'Error':'Error'}";
@@ -103,8 +104,8 @@ namespace ADOAnalyser
         {
             try
             {
-                URL = baseUrl + URL;
-                var response = client.PostAsync(URL, content).Result;
+                string apiURL = $"{baseUrl}/{URL}";
+                var response = client.PostAsync(apiURL, content).Result;
                 if (!response.IsSuccessStatusCode)
                 {
                     return @"{'Error':'Error'}";

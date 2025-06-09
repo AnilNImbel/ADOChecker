@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using NuGet.Packaging;
 using NuGet.Packaging.Signing;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Security.Policy;
@@ -36,6 +37,12 @@ namespace ADOAnalyser
         {
             string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
             return _Utility.GetDataSync(Url);
+        }
+
+        public async Task<string> GetWorkItemAsync(string projectName, string ids)
+        {
+            string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
+            return  _Utility.GetDataSync(Url);
         }
 
         public string GetWorkItemForReports(string projectName, string ids)
@@ -208,7 +215,7 @@ namespace ADOAnalyser
         {
             //int batchSize = 200;
             int start = pickIndex;
-             //count = start + batchSize;
+            //count = start + batchSize;
             int count = workData.value.Count;
             for (int i = start; i < count; i++)
             {
@@ -248,58 +255,179 @@ namespace ADOAnalyser
              .ToList();
         }
 
-        public WorkItemModel GetAllWorkItems(DateTime fromDate, DateTime toDate)
+        public async Task<WorkItemModel> GetAllWorkItemsByDateRangeAsync(DateTime fromDate, DateTime toDate)
         {
+            var model = new WorkItemModel { value = new List<Values>() };
             var projectList = new List<string> { "CE", "ConnectALL", "VIEW-Portal" };
-            var allValues = new List<Values>();
             string from = fromDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
             string to = toDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
 
-            foreach (var project in projectList)
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(new TimeSpan(24, 0, 9));
+            var maxDegreeOfParallelism = 8;
+
+            var tasks = projectList.ForEachAsyncConcurrent(async projectList =>
             {
-                // Step 1: WIQL Query for each project
-                string wiqlUrl = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", project);
-
                 string wiqlQuery = $@"
-            SELECT [System.Id], [System.Title], [System.State] 
-            FROM WorkItems
-            WHERE 
-             [System.TeamProject] = '{project}' AND
-            [System.ChangedDate] > '{from}'
-            AND [System.ChangedDate] < '{to}'
-            AND [System.WorkItemType] IN ('Production Defect', 'Bug', 'user story')
-            ORDER BY [System.ChangedDate] DESC";
+                        SELECT [System.Id] 
+                        FROM WorkItems
+                        WHERE 
+                            [System.TeamProject] = '{projectList}' AND
+                            [System.ChangedDate] > '{from}' AND 
+                            [System.ChangedDate] < '{to}' AND 
+                            [System.WorkItemType] IN ('Production Defect', 'Bug', 'User Story') AND
+                            [System.State] <> 'New'
+                        ORDER BY [System.ChangedDate] DESC";
 
-                var queryPayload = new { query = wiqlQuery };
-                var content = new StringContent(JsonConvert.SerializeObject(queryPayload), Encoding.UTF8, "application/json");
+                var wiqlContent = new StringContent(JsonConvert.SerializeObject(new { query = wiqlQuery }), Encoding.UTF8, "application/json");
+                string wiqlUrl = $"{projectList}/_apis/wit/wiql?api-version=7.1-preview.2";
+                var wiqlResponse = await _Utility.PostDataAsync(wiqlUrl, wiqlContent);
+                var wiqlResult = JsonConvert.DeserializeObject<WiqlModel>(wiqlResponse);
 
-                var wiqlResponse = _Utility.PostDataSync(wiqlUrl, content);
-                var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(wiqlResponse);
+                if (wiqlResult?.workItems == null || !wiqlResult.workItems.Any())
+                    return;
 
-                var idList = wiqlData?.workItems?.Select(w => w.id).ToList();
-                if (idList != null && idList.Count > 0)
+                var parentIds = wiqlResult.workItems.Select(w => w.id).ToList();
+                var allChildIds = new ConcurrentBag<int>();
+                var localValues = new ConcurrentBag<Values>();
+
+                var parentTasks = parentIds
+                .Chunk(200)
+                .Select(async batch =>
                 {
-                    // Azure DevOps limits the batch to 200 work items per call
-                    const int batchSize = 200;
-                    for (int i = 0; i < idList.Count; i += batchSize)
-                    {
-                        var batchIds = idList.Skip(i).Take(batchSize);
-                        string idListCsv = string.Join(",", batchIds);
-                        var workItemJson = GetWorkItem(project, idListCsv);
-                        var workItemData = JsonConvert.DeserializeObject<WorkItemModel>(workItemJson);
+                    var idListCsv = string.Join(",", batch);
+                    string parentUrl = $"{projectList}/_apis/wit/workitems?ids={idListCsv}&$expand=relations&api-version=7.1-preview.2";
+                    string parentJson = await _Utility.GetDataAsync(parentUrl);
+                    var parentItemsModel = JsonConvert.DeserializeObject<WorkItemModel>(parentJson);
 
-                        if (workItemData?.value != null)
+                    if (parentItemsModel?.value != null)
+                    {
+                        var filtered = parentItemsModel.value
+                             .Where(a => a.fields.CivicaAgileReproducible == null ||
+                             a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.CurrentCultureIgnoreCase))
+                             .ToList();
+
+                        foreach (var item in filtered)
                         {
-                            allValues.AddRange(workItemData.value);
+                            localValues.Add(item);
+                            if (item.relations != null)
+                            {
+                                foreach (var relation in item.relations)
+                                {
+                                    if (relation.rel == "System.LinkTypes.Hierarchy-Forward")
+                                    {
+                                        var idPart = relation.url.Split('/').Last();
+                                        if (int.TryParse(idPart, out int childId))
+                                            allChildIds.Add(childId);
+                                    }
+                                }
+                            }
                         }
                     }
+                });
+
+                await Task.WhenAll(parentTasks);
+
+                // Add test relation data
+                var localList = localValues.ToList();
+                Task.Run(() => AddTestRelationFilterDataAsync(new WorkItemModel { value = localList }, projectList, 0));
+
+                // Add to main model
+                lock (model.value)
+                {
+                    model.value.AddRange(localList);
                 }
-            }
+
+                // Fetch child items
+                var childTasks = allChildIds
+                                     .Distinct()
+                                     .Chunk(200)
+                                     .Select(async batch =>
+                                     {
+                                         string childUrl = $"{projectList}/_apis/wit/workitems?ids={string.Join(",", batch)}&$expand=relations,fields&api-version=7.1-preview.2";
+                                         string childJson = await _Utility.GetDataAsync(childUrl);
+                                         var childItems = JsonConvert.DeserializeObject<WorkItemModel>(childJson);
+
+                                         if (childItems?.value != null)
+                                         {
+                                             var tlReviewItems = childItems.value
+                                     .Where(wi => wi.fields?.SystemTitle?.Equals("TL PR Review", StringComparison.OrdinalIgnoreCase) == true)
+                                     .ToList();
+
+                                             foreach (var tlReviewItem in tlReviewItems)
+                                             {
+                                                 var assignedToObj = tlReviewItem.fields?.SystemAssignedTo;
+                                                 var parentItem = model.value.FirstOrDefault(parent =>
+                                                                         parent.relations != null &&
+                                                                         parent.relations.Any(r =>
+                                                                         r.rel == "System.LinkTypes.Hierarchy-Forward" &&
+                                                                         r.url.EndsWith($"/{tlReviewItem.id}")));
+
+                                                 if (parentItem != null)
+                                                 {
+                                                     parentItem.TlPrReviewAssignedTo = assignedToObj;
+                                                 }
+                                             }
+                                         }
+                                     });
+
+                await Task.WhenAll(childTasks);
+            }, 
+            cts.Token,
+             maxDegreeOfParallelism);
+
+            await Task.WhenAll(tasks);
 
             return new WorkItemModel
             {
-                value = allValues
+                value = model.value,
+                count = model.value.Count
             };
+        }
+
+        private Task AddTestByRelationFieldAsync(TestedByModel testData, ADOAnalyser.Models.Values value)
+        {
+            value.testByRelationField = testData.value
+            .Select(v => v.fields)
+            .Where(f => f != null)
+            .Select(f => new TestByRelationField
+            {
+                MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
+                CivicaAgileTestLevel = f.CivicaAgileTestLevel,
+                CivicaAgileTestPhase = f.CivicaAgileTestPhase,
+                CustomTestType = f.CustomTestType
+            })
+            .ToList();
+
+            return Task.CompletedTask;
+        }
+
+        private async Task AddTestRelationFilterDataAsync(WorkItemModel workData, string project, int pickIndex)
+        {
+            int start = pickIndex;
+            int count = workData.value.Count;
+
+            for (int i = start; i < count; i++)
+            {
+                var relationIds = workData.value[i].relations?
+                .Where(r => r.rel == testRelation)
+                .Select(r =>
+                {
+                    var segments = r.url.Split('/');
+                    return int.Parse(segments.Last());
+                })
+                .ToList();
+
+                if (relationIds?.Any() == true)
+                {
+                    var getWorkItems = await GetWorkItemAsync(project, string.Join(",", relationIds.Take(200)));
+                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                    if (testData?.value?.Any() == true)
+                    {
+                      await  AddTestByRelationFieldAsync(testData, workData.value[i]);
+                    }
+                }
+            }
         }
     }
 }

@@ -20,7 +20,7 @@ CREATE TABLE [dbo].[TestRunDetails](
 	[StatusDiscrepancy] [nvarchar](10) NULL,
 	[TestCaseGap] [nvarchar](200) NULL,
 	[CurrentStatus] [nvarchar](20) NULL,
-	[TechnicalLeadName] [nvarchar](50) NULL,
+	[TechnicalLeadName] [nvarchar](100) NULL,
 	[DevName] [nvarchar](50) NULL,
 	[WorkitemType] [nvarchar](20) NULL,
 PRIMARY KEY CLUSTERED 

@@ -21,5 +21,7 @@ namespace ADOAnalyser
         WorkItemModel GetAllWorkItemsByDateRange(DateTime fromDate, DateTime toDate);
 
         string GetWorkItemForReports(string projectName, string ids);
+
+        Task<WorkItemModel> GetAllWorkItemsByDateRangeAsync(DateTime fromDate, DateTime toDate);
     }
 }
