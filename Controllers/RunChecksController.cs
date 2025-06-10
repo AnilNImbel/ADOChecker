@@ -36,7 +36,7 @@ namespace ADOAnalyser.Controllers
 
             if (workItemModel?.value != null)
             {
-                await CheckMissingDataAsync(workItemModel);
+                await autoSpotCheck.CheckMissingDataAsync(workItemModel);
             }
             ViewBag.FromDate = fromDate.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate.ToString("yyyy-MM-dd");
@@ -45,25 +45,6 @@ namespace ADOAnalyser.Controllers
                await SaveTestRunResultAsync(fromDate, toDate, workItemModel);
             }
             return View(workItemModel);
-        }
-
-        private async Task CheckMissingDataAsync(WorkItemModel workData)
-        {
-            await Task.Run(() =>
-            {
-                for (int i = 0; i < workData.value.Count; i++)
-                {
-                    autoSpotCheck.CheckImpactAssessment(workData.value[i].fields);
-                    autoSpotCheck.CheckRootCause(workData.value[i].fields);
-                    autoSpotCheck.CheckProjectZero(workData.value[i].fields);
-                    autoSpotCheck.CheckPRLifeCycle(workData.value[i].fields);
-                    autoSpotCheck.CheckStatusDiscre(workData.value[i].fields);
-                    autoSpotCheck.CheckTestCaseGape(workData.value[i].fields);
-                    autoSpotCheck.CheckVTDRequired(workData.value[i].fields);
-                    autoSpotCheck.CheckVLDBRequired(workData.value[i].fields);
-                }
-            });
-
         }
 
         private void SaveTestRunResult(DateTime fromDate, DateTime toDate, WorkItemModel workItemModel)

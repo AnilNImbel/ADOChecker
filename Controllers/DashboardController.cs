@@ -58,8 +58,8 @@ namespace ADOAnalyser.Controllers
                             if (workData.value.Count > 0)
                             {
                                 AddTestRelationFilterData(workData);
-                                CheckMissingData(workData);
-                                SetCountForMissing(workData);
+                                autoSpotCheck.CheckMissingData(workData);
+                                autoSpotCheck.SetCountForMissing(workData);
                             }
                         }
                     }
@@ -112,33 +112,6 @@ namespace ADOAnalyser.Controllers
             }
             return PartialView("_WorkItemGrid", data);
             // Do something with the product
-        }
-
-        private void CheckMissingData(WorkItemModel workData)
-        {
-            for (int i = 0; i < workData.value.Count; i++)
-            {
-                autoSpotCheck.CheckImpactAssessment(workData.value[i].fields);
-                autoSpotCheck.CheckRootCause(workData.value[i].fields);
-                autoSpotCheck.CheckProjectZero(workData.value[i].fields);
-                autoSpotCheck.CheckPRLifeCycle(workData.value[i].fields);
-                autoSpotCheck.CheckStatusDiscre(workData.value[i].fields);
-                autoSpotCheck.CheckTestCaseGape(workData.value[i].fields);
-                autoSpotCheck.CheckVTDRequired(workData.value[i].fields);
-                autoSpotCheck.CheckVLDBRequired(workData.value[i].fields);
-            }
-        }
-
-        private void SetCountForMissing(WorkItemModel workData)
-        {
-            workData.missingIACount = autoSpotCheck.MissingImpactAssessmentCount(workData);
-            workData.missingRootCauseCount = autoSpotCheck.MissingRootCauseCount(workData);
-            workData.missingProjectZeroCount = autoSpotCheck.MissingProjectZeroCount(workData);
-            workData.missingPRLifeCycleCount = autoSpotCheck.MissingPRLifeCycleCount(workData);
-            workData.missingStatusDiscreCount = autoSpotCheck.MissingStatusDiscreCount(workData);
-            workData.missingTestCaseCount = autoSpotCheck.MissingTestCaseGapeCount(workData);
-            workData.missingVTDCount = autoSpotCheck.MissingVTDCount(workData);
-            workData.missingVLDBCount = autoSpotCheck.MissingVLDBCount(workData);
         }
 
         private void AddTestRelationFilterData(WorkItemModel workData)

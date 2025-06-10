@@ -169,24 +169,15 @@ namespace ADOAnalyser.Common
             return workData.value.Where(a => a.fields.StatusDiscrepancyStatus.Equals(ResultEnum.Yes.ToString())).Count();
         }
 
-        public void CheckTestCaseGape(Fields fieldData)
+        public void CheckTestCaseGape(List<TestByRelationField> testFieldData)
         {
-            //string rca = fieldData.CivicaAgileRootCauseAnalysis;
-            //string rcaDetail = fieldData.CustomRootCauseAnalysisDetail;
-            //if (string.IsNullOrWhiteSpace(rca) || string.IsNullOrWhiteSpace(rcaDetail))
-            //{
-            //    fieldData.TestCaseGapeStatus = ResultEnum.Missing.ToString();
-            //}
-            //else
-            //{
-            //    fieldData.TestCaseGapeStatus = ResultEnum.Completed.ToString();
-            //}
-            fieldData.TestCaseGapeStatus = string.Empty;
+            //
         }
 
         public int MissingTestCaseGapeCount(WorkItemModel workData)
         {
-            return workData.value.Where(a => a.fields.TestCaseGapeStatus.Equals(ResultEnum.Missing.ToString())).Count();
+            return 0;
+            //return workData.value.Where(a => a.fields.TestCaseGapeStatus.Equals(ResultEnum.Missing.ToString())).Count();
         }
 
 
@@ -224,13 +215,17 @@ namespace ADOAnalyser.Common
             string VTDStatus = fieldData.VTDMissingStatus;
             DateTime? vldbDate = fieldData.CustomVIEWLanDeskBreakDate;
             string vldb = vldbDate.HasValue ? vldbDate.Value.ToString() : string.Empty;
-            if (VTDStatus.Equals(ResultEnum.Missing) || VTDStatus.Equals(ResultEnum.Pending))
+            if (VTDStatus.Equals(ResultEnum.Pending))
             {
                 fieldData.VLDBMissingStatus = ResultEnum.Pending.ToString();
             }
+            if (VTDStatus.Equals(ResultEnum.Missing))
+            {
+                fieldData.VLDBMissingStatus = ResultEnum.Missing.ToString();
+            }
             else
             {
-                fieldData.VLDBMissingStatus = string.IsNullOrWhiteSpace(vldb) ? ResultEnum.Pending.ToString() :  ResultEnum.Updated.ToString();
+                fieldData.VLDBMissingStatus = string.IsNullOrWhiteSpace(vldb) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
             }
         }
 
@@ -254,6 +249,51 @@ namespace ADOAnalyser.Common
             {
                 return true;
             }
+        }
+
+        public async Task CheckMissingDataAsync(WorkItemModel workData)
+        {
+            await Task.Run(() =>
+            {
+                Parallel.ForEach(workData.value, item =>
+                {
+                    CheckImpactAssessment(item.fields);
+                    CheckRootCause(item.fields);
+                    CheckProjectZero(item.fields);
+                    CheckPRLifeCycle(item.fields);
+                    CheckStatusDiscre(item.fields);
+                    CheckTestCaseGape(item.testByRelationField);
+                    CheckVTDRequired(item.fields);
+                    CheckVLDBRequired(item.fields);
+                });
+            });
+        }
+
+        public void CheckMissingData(WorkItemModel workData)
+        {
+            Parallel.ForEach(workData.value, item =>
+            {
+                CheckImpactAssessment(item.fields);
+                CheckRootCause(item.fields);
+                CheckProjectZero(item.fields);
+                CheckPRLifeCycle(item.fields);
+                CheckStatusDiscre(item.fields);
+                CheckTestCaseGape(item.testByRelationField);
+                CheckVTDRequired(item.fields);
+                CheckVLDBRequired(item.fields);
+            });
+        }
+
+        public void SetCountForMissing(WorkItemModel workData)
+        {
+            workData.missingIACount = MissingImpactAssessmentCount(workData);
+            workData.missingRootCauseCount = MissingRootCauseCount(workData);
+            workData.missingProjectZeroCount = MissingProjectZeroCount(workData);
+            workData.missingPRLifeCycleCount = MissingPRLifeCycleCount(workData);
+            workData.missingStatusDiscreCount = MissingStatusDiscreCount(workData);
+            workData.missingTestCaseCount = MissingTestCaseGapeCount(workData);
+            workData.missingVTDCount = MissingVTDCount(workData);
+            workData.missingVLDBCount = MissingVLDBCount(workData);
         }
     }
 }

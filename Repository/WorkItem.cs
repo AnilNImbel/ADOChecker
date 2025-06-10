@@ -44,16 +44,16 @@ namespace ADOAnalyser
             return _Utility.GetDataSync(Url);
         }
 
-        public async Task<string> GetWorkItemAsync(string projectName, string ids)
+        public Task<string> GetWorkItemAsync(string projectName, string ids)
         {
             string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
-            return _Utility.GetDataSync(Url);
+            return Task.FromResult(_Utility.GetDataSync(Url));
         }
 
-        public async Task<string> GetWorkItemAsync(string ids)
+        public Task<string> GetWorkItemAsync(string ids)
         {
             string Url = string.Format("/_apis/wit/workitems?ids={0}&$expand=relations&api-version=7.1-preview.2", ids);
-            return _Utility.GetDataSync(Url);
+            return Task.FromResult(_Utility.GetDataSync(Url));
         }
 
         public string GetWorkItemForReports(string projectName, string ids)

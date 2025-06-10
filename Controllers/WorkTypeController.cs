@@ -55,10 +55,16 @@ namespace ADOAnalyser.Controllers
                 {
                     var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(500)));
                     workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-                    if (workData != null)
+                    if (workData?.value?.Any() == true)
                     {
-                        CheckMissingData(workData);
-                        SetCountForMissing(workData);
+                        workData.value = workData.value
+                                             .Where(a => string.IsNullOrEmpty(a.fields.CivicaAgileReproducible) ||
+                                              a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.OrdinalIgnoreCase)).ToList();
+                        if (workData.value.Count > 0)
+                        {
+                            autoSpotCheck.CheckMissingData(workData);
+                            autoSpotCheck.SetCountForMissing(workData);
+                        }
                     }
                 }
             }
@@ -75,33 +81,6 @@ namespace ADOAnalyser.Controllers
 
             TempData["worktype"] = workType;
             return PartialView("_WorkItemGridApplication", viewModel);
-        }
-
-        private void CheckMissingData(WorkItemModel workData)
-        {
-            for (int i = 0; i < workData.value.Count; i++)
-            {
-                autoSpotCheck.CheckImpactAssessment(workData.value[i].fields);
-                autoSpotCheck.CheckRootCause(workData.value[i].fields);
-                autoSpotCheck.CheckProjectZero(workData.value[i].fields);
-                autoSpotCheck.CheckPRLifeCycle(workData.value[i].fields);
-                autoSpotCheck.CheckStatusDiscre(workData.value[i].fields);
-                autoSpotCheck.CheckTestCaseGape(workData.value[i].fields);
-                autoSpotCheck.CheckVTDRequired(workData.value[i].fields);
-                autoSpotCheck.CheckVLDBRequired(workData.value[i].fields);
-            }
-        }
-
-        private void SetCountForMissing(WorkItemModel workData)
-        {
-            workData.missingIACount = autoSpotCheck.MissingImpactAssessmentCount(workData);
-            workData.missingRootCauseCount = autoSpotCheck.MissingRootCauseCount(workData);
-            workData.missingProjectZeroCount = autoSpotCheck.MissingProjectZeroCount(workData);
-            workData.missingPRLifeCycleCount = autoSpotCheck.MissingPRLifeCycleCount(workData);
-            workData.missingStatusDiscreCount = autoSpotCheck.MissingStatusDiscreCount(workData);
-            workData.missingTestCaseCount = autoSpotCheck.MissingTestCaseGapeCount(workData);
-            workData.missingVTDCount = autoSpotCheck.MissingVTDCount(workData);
-            workData.missingVLDBCount = autoSpotCheck.MissingVLDBCount(workData);
         }
     }
 }
