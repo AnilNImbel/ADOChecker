@@ -1,5 +1,6 @@
 ﻿using System.Net.Mail;
 using System.Net;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 namespace ADOAnalyser.Repository
 {
     public class Email
@@ -7,11 +8,12 @@ namespace ADOAnalyser.Repository
         private SmtpClient smtpClient;
         public Email() {
 
-            smtpClient = new SmtpClient("outlook.office365.com")
+            smtpClient = new SmtpClient("smtp-mail.outlook.com")
             {
                 Port = 587,
-                Credentials = new NetworkCredential("anil.nimbel@civica.com", ""),
                 EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                Credentials = new System.Net.NetworkCredential("anil.nimbel@civica.com", ""),
             };
 
         }
