@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace ADOAnalyser
+namespace ADOAnalyser.Extensions
 {
     public static class Extensions
     {

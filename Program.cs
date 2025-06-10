@@ -1,6 +1,7 @@
 using ADOAnalyser;
 using ADOAnalyser.Common;
 using ADOAnalyser.DBContext;
+using ADOAnalyser.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using System.Net;
@@ -33,6 +34,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IUtility, Utility>();
 builder.Services.AddScoped<IWorkItem, WorkItem>();
 builder.Services.AddScoped<AutoSpotCheck>();
+builder.Services.AddScoped<Email>();
 builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
 

@@ -148,6 +148,9 @@ th {
     background-color: #2a72d5;
     color: white;
 }
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
 
 .status-pass {
     color: green;

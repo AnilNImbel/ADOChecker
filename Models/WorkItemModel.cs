@@ -326,7 +326,7 @@ namespace ADOAnalyser.Models
         public List<Relation> relations { get; set; }
         public List<TestByRelationField> testByRelationField { get; set; }
 
-        public string TlPrReviewAssignedTo
+        public string? TlPrReviewAssignedTo
         {
             get; set;
         }

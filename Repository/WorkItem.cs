@@ -1,4 +1,5 @@
-﻿using ADOAnalyser.Models;
+﻿using ADOAnalyser.Extensions;
+using ADOAnalyser.Models;
 using ADOAnalyser.TestModel;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
@@ -429,7 +430,7 @@ namespace ADOAnalyser
                         }
                         catch (Exception ex)
                         {
-                            // Optional: log or handle the error
+                            throw;
                         }
                     }));
                 }

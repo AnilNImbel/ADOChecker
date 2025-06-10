@@ -1,17 +1,22 @@
 ﻿using ADOAnalyser.DBContext;
 using ADOAnalyser.Models;
+using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Configuration;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ADOAnalyser.Controllers
 {
     public class ReportsController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly Email _email;
 
-        public ReportsController(AppDbContext context)
+        public ReportsController(AppDbContext context, Email email)
         {
             _context = context;
+            _email =   email;
         }
 
         public IActionResult Index()
@@ -63,6 +68,43 @@ namespace ADOAnalyser.Controllers
             var fileBytes = Encoding.UTF8.GetBytes(csvBuilder.ToString());
 
             return File(fileBytes, "text/csv", fileName);
+        }
+
+        [HttpGet]
+        public IActionResult EmailSend(int runId)
+        {
+            var emailCollection = _context.TestRunDetails
+             .Where(a => a.TechnicalLeadName != null)
+             .AsEnumerable() // Forces in-memory evaluation
+                .GroupBy(a => a.TechnicalLeadName)
+             .Select(g => new EmailCollectionModel
+             {
+                 Email = g.Key.Substring(g.Key.IndexOf('<') + 1, g.Key.IndexOf('>') - g.Key.IndexOf('<') - 1),
+                 Body = string.Join(", ", g.Select(x => x.AdoItemId))
+             })
+             .ToList();
+
+
+            if (!emailCollection.Any())
+            {
+                TempData["AlertMessage"] = "No Email Found!";
+            }
+            try
+            {
+                if (emailCollection.Any())
+                {
+                    foreach (var email in emailCollection)
+                    {
+                        _email.EmailSend(email.Body, "anil.nimbel@civica.com");
+                    }
+                    TempData["AlertMessage"] = "Email Send Successfully.";
+                }
+            }
+            catch(Exception ex)
+            {
+                TempData["AlertMessage"] = ex.Message;
+            }
+            return RedirectToAction("Index", "Reports");
         }
     }
 }
