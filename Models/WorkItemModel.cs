@@ -311,6 +311,8 @@ namespace ADOAnalyser.Models
         public string ProjectZeroStatus { get; set; }
         public string PRLifeCycleStatus { get; set; }
         public string StatusDiscrepancyStatus { get; set; }
+        public string TestCaseGapeHTML { get; set; }
+
         public string TestCaseGapeStatus { get; set; }
 
         public string VTDMissingStatus{ get; set; }
@@ -345,16 +347,25 @@ namespace ADOAnalyser.Models
 
     public class TestByRelationField
     {
-        [JsonProperty("CivicaAgile.TestLevel")]
         public string CivicaAgileTestLevel { get; set; }
 
-        [JsonProperty("CivicaAgile.TestPhase")]
         public string CivicaAgileTestPhase { get; set; }
 
-        [JsonProperty("Custom.TestType")]
         public string CustomTestType { get; set; }
 
-        [JsonProperty("Microsoft.VSTS.TCM.AutomationStatus")]
-        public string MicrosoftVSTSTCMAutomationStatus { get; set; }
+        public string CustomAutomation { get; set; }
+
+        public string SystemState { get; set; }
+
+        public int TestId { get; set; }
+
+        public string? CivicaAgileTestLevelStatus { get; set; }
+
+        public string? CivicaAgileTestPhaseStatus { get; set; }
+
+        public string? CustomTestTypeStatus { get; set; }
+
+        public string? CustomAutomationStatus { get; set; }
+        public string? TestCaseUpdated { get; set; }
     }
 }

@@ -247,15 +247,16 @@ namespace ADOAnalyser
                     if (testData?.value?.Any() == true)
                     {
                         workData.value[i].testByRelationField = testData.value
-                                             .Select(v => v.fields)
-                                             .Where(f => f != null)
-                                             .Select(f => new TestByRelationField
-                                             {
-                                                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
-                                                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
-                                                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
-                                                 CustomTestType = f.CustomTestType
-                                             }).ToList();
+                                                 .Where(v => v.fields != null)
+                                                 .Select(v => new TestByRelationField
+                                                 {
+                                                     TestId = v.id,
+                                                     SystemState = v.fields.SystemState,
+                                                     CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
+                                                     CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
+                                                     CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,
+                                                     CustomTestType = v.fields.CustomTestType
+                                                 }).ToList();
                     }
                 }
             }
@@ -417,15 +418,16 @@ namespace ADOAnalyser
                             if (testData?.value?.Any() == true)
                             {
                                 workItem.testByRelationField = testData.value
-                                    .Select(v => v.fields)
-                                    .Where(f => f != null)
-                                    .Select(f => new TestByRelationField
-                                    {
-                                        MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
-                                        CivicaAgileTestLevel = f.CivicaAgileTestLevel,
-                                        CivicaAgileTestPhase = f.CivicaAgileTestPhase,
-                                        CustomTestType = f.CustomTestType
-                                    }).ToList();
+                                     .Where(v => v.fields != null)
+                                     .Select(v => new TestByRelationField
+                                     {
+                                         TestId = v.id, 
+                                         SystemState = v.fields.SystemState,
+                                         CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
+                                         CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
+                                         CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,
+                                         CustomTestType = v.fields.CustomTestType
+                                     }).ToList();
                             }
                         }
                         catch (Exception ex)

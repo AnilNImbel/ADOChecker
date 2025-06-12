@@ -22,6 +22,63 @@ namespace ADOAnalyser.TestModel
 
         [JsonProperty("Microsoft.VSTS.TCM.AutomationStatus")]
         public string MicrosoftVSTSTCMAutomationStatus { get; set; }
+
+        [JsonProperty("System.AreaPath")]
+        public string SystemAreaPath { get; set; }
+
+        [JsonProperty("System.TeamProject")]
+        public string SystemTeamProject { get; set; }
+
+        [JsonProperty("System.IterationPath")]
+        public string SystemIterationPath { get; set; }
+
+        [JsonProperty("System.WorkItemType")]
+        public string SystemWorkItemType { get; set; }
+
+        [JsonProperty("System.State")]
+        public string SystemState { get; set; }
+
+        [JsonProperty("System.Reason")]
+        public string SystemReason { get; set; }
+
+        [JsonProperty("System.AssignedTo")]
+        public string SystemAssignedTo { get; set; }
+
+        [JsonProperty("System.CreatedDate")]
+        public DateTime SystemCreatedDate { get; set; }
+
+        [JsonProperty("System.CreatedBy")]
+        public string SystemCreatedBy { get; set; }
+
+        [JsonProperty("System.ChangedDate")]
+        public DateTime SystemChangedDate { get; set; }
+
+        [JsonProperty("System.ChangedBy")]
+        public string SystemChangedBy { get; set; }
+
+        [JsonProperty("System.CommentCount")]
+        public int SystemCommentCount { get; set; }
+
+        [JsonProperty("System.Title")]
+        public string SystemTitle { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.Common.StateChangeDate")]
+        public DateTime MicrosoftVSTSCommonStateChangeDate { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.Common.ActivatedDate")]
+        public DateTime MicrosoftVSTSCommonActivatedDate { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.Common.ActivatedBy")]
+        public string MicrosoftVSTSCommonActivatedBy { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.Common.Priority")]
+        public int MicrosoftVSTSCommonPriority { get; set; }
+
+        [JsonProperty("System.History")]
+        public string SystemHistory { get; set; }
+
+        [JsonProperty("Microsoft.VSTS.TCM.Steps")]
+        public string MicrosoftVSTSTCMSteps { get; set; }
     }
 
     public class Relation

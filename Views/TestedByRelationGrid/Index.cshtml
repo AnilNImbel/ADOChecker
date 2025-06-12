@@ -1,0 +1,81 @@
+﻿@model ADOAnalyser.Models.Values
+@{
+    Layout = null; // or set a custom layout path
+}
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tested By Grid - ADOAnalyser</title>
+    <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ADOAnalyser.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="main">
+            <div class="row mb-3">
+                <span><a style="text-decoration:none" href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@Model.id" target="_blank">@Model.fields.SystemWorkItemType  @Model.id </a> : @Model.fields.SystemTitle</span>
+            </div>
+            <div class="row">
+                <div class="col-md-12 table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Test Item Number</th>
+                                <th>Test Type Missing</th>
+                                <th>Test Level Missing</th>
+                                <th>Test Phase Missing.</th>
+                                <th>Automation Status Missing.</th>
+                                <th>Test Case Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.testByRelationField != null && Model.testByRelationField.Any())
+                            {
+                                foreach (var testByRelationFields in Model.testByRelationField)
+                                {
+
+                                    string missing = "Missing";
+                                    string updated = "Updated";
+
+                                    string CustomTestType = testByRelationFields.CustomTestType == null ? missing : updated;
+                                    string CivicaAgileTestLevel = testByRelationFields.CivicaAgileTestLevel == null ? missing : updated;
+                                    string CivicaAgileTestPhase = testByRelationFields.CivicaAgileTestPhase == null ? missing : updated;
+                                    string CustomAutomation = testByRelationFields.CustomAutomation == null ? missing : updated;
+
+                                    <tr>
+                                        <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@testByRelationFields.TestId" target="_blank">@testByRelationFields.TestId</a></td>
+                                        <td class="@CustomTestType">@CustomTestType</td>
+                                        <td class="@CivicaAgileTestLevel">@CivicaAgileTestLevel</td>
+                                        <td class="@CivicaAgileTestPhase">@CivicaAgileTestPhase</td>
+                                        <td class="@CustomAutomation">@CustomAutomation</td>
+                                        <td>@testByRelationFields.SystemState</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="9" class="text-center">No work items found for this sprint.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Common.js" asp-append-version="true"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://cdn.canvasjs.com/jquery.canvasjs.min.js"></script>
+    @* @await RenderSectionAsync("Scripts", required: false) *@
+</body>
+</html>

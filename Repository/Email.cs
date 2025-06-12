@@ -6,16 +6,27 @@ namespace ADOAnalyser.Repository
     public class Email
     {
         private SmtpClient smtpClient;
-        public Email() {
+        public Email() 
+        {
 
-            smtpClient = new SmtpClient("smtp-mail.outlook.com")
+            WebProxy proxy = new WebProxy("http://webproxy.civica.com:8080")
+            {
+                Credentials = CredentialCache.DefaultCredentials,
+                BypassProxyOnLocal = true
+            };
+
+            // Set the default proxy for all web requests (including SMTP if applicable)
+            WebRequest.DefaultWebProxy = proxy;
+
+            smtpClient = new SmtpClient("smtp.office365.com")
             {
                 Port = 587,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                Credentials = new System.Net.NetworkCredential("anil.nimbel@civica.com", ""),
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential("anil.nimbel@civica.com", "@Annu90334M#1"),
+                Timeout = 30000
             };
-
         }
 
         public void EmailSend(string body, string ToEmail) {

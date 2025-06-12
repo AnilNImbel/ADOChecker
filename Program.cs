@@ -1,5 +1,4 @@
 using ADOAnalyser;
-using ADOAnalyser.Common;
 using ADOAnalyser.DBContext;
 using ADOAnalyser.Repository;
 using Microsoft.EntityFrameworkCore;

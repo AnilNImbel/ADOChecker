@@ -1,6 +1,6 @@
-﻿using ADOAnalyser.Common;
-using ADOAnalyser.DBContext;
+﻿using ADOAnalyser.DBContext;
 using ADOAnalyser.Models;
+using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;

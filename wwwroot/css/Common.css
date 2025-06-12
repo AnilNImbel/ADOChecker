@@ -173,6 +173,7 @@ tbody tr:nth-child(even) {
 .Missing, .Yes {
     color: red !important;
     font-weight: bold;
+    text-wrap-mode: nowrap;
 }
 
 .Pending {

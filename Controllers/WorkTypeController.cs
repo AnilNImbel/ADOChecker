@@ -1,5 +1,5 @@
-﻿using ADOAnalyser.Common;
-using ADOAnalyser.Models;
+﻿using ADOAnalyser.Models;
+using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Collections.Generic;

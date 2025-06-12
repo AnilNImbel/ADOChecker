@@ -1,6 +1,6 @@
-﻿using ADOAnalyser.Common;
-using ADOAnalyser.Enum;
+﻿using ADOAnalyser.Enum;
 using ADOAnalyser.Models;
+using ADOAnalyser.Repository;
 using ADOAnalyser.TestModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -134,15 +134,16 @@ namespace ADOAnalyser.Controllers
                     if (testData?.value?.Any() == true)
                     {
                         workData.value[i].testByRelationField = testData.value
-                             .Select(v => v.fields)
-                             .Where(f => f != null)
-                             .Select(f => new TestByRelationField
-                             {
-                                 MicrosoftVSTSTCMAutomationStatus = f.MicrosoftVSTSTCMAutomationStatus,
-                                 CivicaAgileTestLevel = f.CivicaAgileTestLevel,
-                                 CivicaAgileTestPhase = f.CivicaAgileTestPhase,
-                                 CustomTestType = f.CustomTestType
-                             }).ToList();
+                                     .Where(v => v.fields != null)
+                                     .Select(v => new TestByRelationField
+                                     {
+                                         TestId = v.id,
+                                         SystemState = v.fields.SystemState,
+                                         CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
+                                         CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
+                                         CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,
+                                         CustomTestType = v.fields.CustomTestType
+                                     }).ToList();
                     }
                 }
             }
