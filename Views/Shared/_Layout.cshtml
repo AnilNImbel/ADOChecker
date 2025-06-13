@@ -48,11 +48,11 @@
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
                 </li>
-                <li data-section="settings" style="display:none" class="nav-item @(currentController == "Settings" ? "active" : "")">
+                <li data-section="settings"  class="nav-item @(currentController == "Graph" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fas fa-gears"></i>
+                        <i class="fas fa-graph"></i>
                     </span>
-                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Settings" asp-action="Index">Settings</a>
+                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Graph" asp-action="Index">Graph</a>
                 </li>
             </ul>
         </div>
