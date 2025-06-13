@@ -80,25 +80,16 @@ namespace ADOAnalyser.Controllers
 
         private void FilterTestCase(string type, List<Values> values)
         {
-            if (type.Equals("TestType"))
+            if (type.Equals("Updated"))
             {
-                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.CustomTestTypeStatus != null).ToList();
-            }
-            else if (type.Equals("TestLevel"))
-            {
-                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.CivicaAgileTestLevelStatus != null).ToList();
-            }
-            else if (type.Equals("TestPhase"))
-            {
-                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.CivicaAgileTestPhaseStatus != null).ToList();
-            }
-            else if (type.Equals("Automation"))
-            {
-                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.CustomAutomationStatus != null).ToList();
+                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.TestCaseUpdated != null).ToList();
             }
             else
             {
-                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.TestCaseUpdated != null).ToList();
+                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.CivicaAgileTestLevelStatus != null
+                                                                                    || a.CustomTestTypeStatus != null
+                                                                                    || a.CivicaAgileTestPhaseStatus != null
+                                                                                    || a.CustomAutomationStatus != null).ToList();
             }
         }
     }

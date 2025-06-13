@@ -181,7 +181,6 @@ namespace ADOAnalyser.Repository
             return workData.value.Where(a => a.fields.StatusDiscrepancyStatus.Equals(ResultEnum.Yes.ToString())).Count();
         }
 
-
         public void CheckTestCaseGape(Values values)
         {
             string state = values.fields.SystemState ?? string.Empty;
@@ -190,9 +189,10 @@ namespace ADOAnalyser.Repository
             {
                 values.fields.TestCaseGapeStatus = ResultEnum.Pending.ToString();
             }
-            else if (state == StateStatusEnum.Test.ToString() ||
-            state == StateStatusEnum.Closed.ToString() ||
-            state == StateStatusEnum.Resolved.ToString())
+            else if (state is var s &&
+            (s == StateStatusEnum.Test.ToString() ||
+            s == StateStatusEnum.Closed.ToString() ||
+            s == StateStatusEnum.Resolved.ToString()))
             {
                 if (values.testByRelationField == null || !values.testByRelationField.Any())
                 {
@@ -200,48 +200,48 @@ namespace ADOAnalyser.Repository
                 }
                 else
                 {
+                    values.fields.TestCaseGapeStatus = ResultEnum.Missing.ToString();
+
                     foreach (var testCase in values.testByRelationField)
                     {
-                        string customTestType = testCase.CustomTestType == null ? string.Empty : testCase.CustomTestType;
-                        string customtestLevel = testCase.CivicaAgileTestLevel == null ? string.Empty : testCase.CivicaAgileTestLevel;
-                        string customtestPhase = testCase.CivicaAgileTestPhase == null ? string.Empty : testCase.CivicaAgileTestPhase;
-                        string customAutomation = testCase.CustomAutomation == null ? string.Empty : testCase.CustomAutomation;
 
-                        values.fields.TestCaseGapeStatus = ResultEnum.Missing.ToString();
+                        bool allFieldsPresent = true;
 
-                        if (string.IsNullOrEmpty(customTestType))
+                        if (IsFieldMissing(testCase.CustomTestType, out var testTypeStatus))
                         {
-                            testCase.CustomTestTypeStatus = ResultEnum.Missing.ToString();
-                        }
-                        if (string.IsNullOrEmpty(customtestLevel))
-                        {
-                            testCase.CivicaAgileTestLevelStatus = ResultEnum.Missing.ToString();
-                        }
-                        if (string.IsNullOrEmpty(customtestPhase))
-                        {
-                            testCase.CivicaAgileTestPhaseStatus = ResultEnum.Missing.ToString();
-                        }
-                        if (string.IsNullOrEmpty(customAutomation))
-                        {
-                            testCase.CustomAutomationStatus = ResultEnum.Missing.ToString();
+                            testCase.CustomTestTypeStatus = testTypeStatus;
+                            allFieldsPresent = false;
                         }
 
-                        if (!string.IsNullOrEmpty(customTestType) &&
-                        !string.IsNullOrEmpty(customtestLevel) &&
-                        !string.IsNullOrEmpty(customtestPhase) &&
-                        !string.IsNullOrEmpty(customAutomation))
+                        if (IsFieldMissing(testCase.CivicaAgileTestLevel, out var testLevelStatus))
+                        {
+                            testCase.CivicaAgileTestLevelStatus = testLevelStatus;
+                            allFieldsPresent = false;
+                        }
+
+                        if (IsFieldMissing(testCase.CivicaAgileTestPhase, out var testPhaseStatus))
+                        {
+                            testCase.CivicaAgileTestPhaseStatus = testPhaseStatus;
+                            allFieldsPresent = false;
+                        }
+
+                        if (IsFieldMissing(testCase.CustomAutomation, out var automationStatus))
+                        {
+                            testCase.CustomAutomationStatus = automationStatus;
+                            allFieldsPresent = false;
+                        }
+
+                        if (allFieldsPresent)
                         {
                             values.fields.TestCaseGapeStatus = ResultEnum.Updated.ToString();
                             testCase.TestCaseUpdated = ResultEnum.Updated.ToString();
                         }
                     }
-
                 }
             }
 
             values.fields.TestCaseGapeHTML = HTMLString(values);
         }
-
 
         public int MissingTestCaseGapeCount(WorkItemModel workData)
         {
@@ -363,113 +363,58 @@ namespace ADOAnalyser.Repository
             workData.missingVLDBCount = MissingVLDBCount(workData);
         }
 
+        private bool IsFieldMissing(string fieldValue, out string? status)
+        {
+            if (string.IsNullOrEmpty(fieldValue))
+            {
+                status = ResultEnum.Missing.ToString();
+                return true;
+            }
+            status = null;
+            return false;
+        }
+
 
         private string HTMLString(Values values)
         {
-            if (values.testByRelationField == null || !values.testByRelationField.Any()) 
-            {
-                string status = ResultEnum.Missing.ToString();
-                string displayText = status switch
-                {
-                    var s when s == ResultEnum.Missing.ToString() => "No Test case Attached",
-                    var s when s == ResultEnum.Pending.ToString() => "In Progress",
-                    _ => status
-                };
-                return $"<span class=\"{status}\">{displayText}</span>";
-            }
-            else
-            {
-                int countUpdated = values.testByRelationField.Where(a =>  a.TestCaseUpdated != null && a.TestCaseUpdated.Equals(ResultEnum.Updated.ToString())).Count();
-                int TotalCount = values.testByRelationField.Count();
-                if (values.fields.TestCaseGapeStatus.Equals(ResultEnum.Pending.ToString()))
-                {
-                    string status = ResultEnum.Pending.ToString();
-                    string displayText = status switch
-                    {
-                        var s when s == ResultEnum.Missing.ToString() => "No Test case Attached",
-                        var s when s == ResultEnum.Pending.ToString() => "In Progress",
-                        _ => status
-                    };
-                    return $"<span class=\"{status}\">{displayText}</span>";
-                }
-                else
-                {
-                    string workItemNumber = Convert.ToString(values.id);
-                    var testBuilder = new StringBuilder();
-                    string cssClass = ResultEnum.Missing.ToString();
-                    int countCustomTestType = values.testByRelationField.Where(a => a.CustomTestTypeStatus != null).Count();
-                    int CivicaAgileTestLevel = values.testByRelationField.Where(a => a.CivicaAgileTestLevelStatus != null).Count(); 
-                    int CivicaAgileTestPhase = values.testByRelationField.Where(a => a.CivicaAgileTestPhaseStatus != null).Count(); 
-                    int CustomAutomationStatus = values.testByRelationField.Where(a => a.CustomAutomationStatus != null).Count();
-                    if (countCustomTestType > 0) {
-                        string msg = string.Format("Test Type missing in {0} test case(s).", countCustomTestType);
-                        testBuilder.AppendFormat(
-                         "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type={3}\" style=\"text-decoration:none\" target=\"_blank\"><span class=\"{1}\">{2}</span><br>",
-                         workItemNumber,
-                         cssClass,
-                         msg,
-                         "TestType"
-                        );
-                    }
-                    if (CivicaAgileTestLevel > 0)
-                    {
-                        string msg = string.Format("Test Level missing in {0} test case(s).", CivicaAgileTestLevel);
-                        testBuilder.AppendFormat(
-                          "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type={3}\"  style=\"text-decoration:none\" target=\"_blank\"><span class=\"{1}\">{2}</span><br>",
-                         workItemNumber,
-                         cssClass,
-                         msg,
-                         "TestLevel"
-                        );
-                    }
-                    if (CivicaAgileTestPhase > 0)
-                    {
-                        string msg = string.Format("Test Phase missing in {0} test case(s).", CivicaAgileTestPhase);
-                        testBuilder.AppendFormat(
-                          "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type={3}\"  style=\"text-decoration:none\" target=\"_blank\"><span class=\"{1}\">{2}</span><br>",
-                         workItemNumber,
-                         cssClass,
-                         msg,
-                         "TestPhase"
-                        );
-                    }
-                    if (CustomAutomationStatus > 0)
-                    {
-                        string msg = string.Format("Automation Status missing in {0} test case(s).", CustomAutomationStatus);
-                        testBuilder.AppendFormat(
-                          "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type={3}\"  style=\"text-decoration:none\" target=\"_blank\"><span class=\"{1}\">{2}</span><br>",
-                         workItemNumber,
-                         cssClass,
-                         msg,
-                         "Automation"
-                        );
-                    }
-                    if (countUpdated > 0 && countUpdated != TotalCount)
-                    {
-                        string msg = string.Format("Updated Test Case is {0}.", countUpdated);
-                        testBuilder.AppendFormat(
-                         "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type={3}\"  style=\"text-decoration:none\" target=\"_blank\"><span class=\"{1}\">{2}</span><br>",
-                         workItemNumber,
-                         "Updated",
-                         msg,
-                         "Updated"
-                        );
-                    }
-                    if(countUpdated > 0 && countUpdated == TotalCount)
-                    {
-                        string msg = string.Format("All Field Updated.");
-                        testBuilder.AppendFormat(
-                          "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type={3}\"  style=\"text-decoration:none\" target=\"_blank\"><span class=\"{1}\">{2}</span><br>",
-                         workItemNumber,
-                         "Updated",
-                         msg,
-                         "Updated"
-                        );
-                    }
-                    return testBuilder.ToString();
-                }
-            } 
-        }
+            var status = values.fields.TestCaseGapeStatus;
+            var testCases = values.testByRelationField;
 
+            if (testCases == null || !testCases.Any())
+            {
+                return $"<span class=\"{ResultEnum.Missing}\">No Test case Attached</span>";
+            }
+
+            if (status == ResultEnum.Pending.ToString())
+            {
+                return $"<span class=\"{ResultEnum.Pending}\">In Progress</span>";
+            }
+
+            var workItemNumber = Convert.ToString(values.id);
+            var testBuilder = new StringBuilder();
+            int countUpdated = testCases.Count(tc => tc.TestCaseUpdated == ResultEnum.Updated.ToString());
+            int totalCount = testCases.Count;
+            int missingCount = testCases.Count(tc => tc.CustomTestTypeStatus == ResultEnum.Missing.ToString()
+                                                || tc.CivicaAgileTestLevelStatus == ResultEnum.Missing.ToString()
+                                                || tc.CivicaAgileTestPhaseStatus == ResultEnum.Missing.ToString()
+                                                || tc.CustomAutomationStatus == ResultEnum.Missing.ToString());
+            if (missingCount > 0)
+            {
+                string msg = "Missing Details";// "<span style=\"font-weight: bold\">Test case information: <span>";
+                testBuilder.AppendFormat(
+                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Missing\" target=\"_blank\" style=\"text-decoration:none\"\" ><span class=\"Missing\">{1}</span><br>",
+                workItemNumber, msg);
+            }
+
+            if (countUpdated > 0)
+            {
+                string msg = countUpdated == totalCount ? "All fields updated." : $"Updated Details";
+                testBuilder.AppendFormat(
+                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Updated\" target=\"_blank\" style=\"text-decoration:none\"\"><span class=\"Updated\">{1}</span><br>",
+                workItemNumber, msg);
+            }
+
+            return testBuilder.ToString();
+        }
     }
 }
