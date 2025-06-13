@@ -87,23 +87,30 @@ namespace ADOAnalyser.Repository
             {
                 fieldData.ProjectZeroStatus = ResultEnum.NA.ToString();
             }
-            if (!workType.Equals(UserStory) && (state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString())) &&
-               rca.Equals("Code"))
+            if (!workType.Equals(UserStory) && (state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) || state.Equals(StateStatusEnum.Closed.ToString())))
             {
-                string why1 = fieldData.CustomRootCauseAnalysisWhy1;
-                string why2 = fieldData.CustomRootCauseAnalysisWhy2;
-                string why3 = fieldData.CustomRootCauseAnalysisWhy3;
-                string owner = fieldData.CustomRemediationOwner;
-                if (string.IsNullOrEmpty(why1) || string.IsNullOrEmpty(why2) || string.IsNullOrEmpty(why3) || string.IsNullOrEmpty(owner))
+                if (rca.Equals("Code"))
                 {
-                    fieldData.ProjectZeroStatus = ResultEnum.Missing.ToString();
+                    string why1 = fieldData.CustomRootCauseAnalysisWhy1;
+                    string why2 = fieldData.CustomRootCauseAnalysisWhy2;
+                    string why3 = fieldData.CustomRootCauseAnalysisWhy3;
+                    string owner = fieldData.CustomRemediationOwner;
+                    if (string.IsNullOrEmpty(why1) || string.IsNullOrEmpty(why2) || string.IsNullOrEmpty(why3) || string.IsNullOrEmpty(owner))
+                    {
+                        fieldData.ProjectZeroStatus = ResultEnum.Missing.ToString();
+                    }
+                    else
+                    {
+                        fieldData.ProjectZeroStatus = ResultEnum.Completed.ToString();
+                    }
                 }
                 else
                 {
-                    fieldData.ProjectZeroStatus = ResultEnum.Completed.ToString();
+                    fieldData.ProjectZeroStatus = ResultEnum.NA.ToString();
                 }
+                
             }
-            if (!workType.Equals(UserStory) && !state.Equals(StateStatusEnum.Test.ToString()))
+            if (!workType.Equals(UserStory) && state.Equals(StateStatusEnum.Active.ToString()))
             {
                 fieldData.ProjectZeroStatus = ResultEnum.Pending.ToString();
             }
