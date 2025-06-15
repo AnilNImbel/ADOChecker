@@ -2,6 +2,7 @@
 using ADOAnalyser.Models;
 using ADOAnalyser.TestModel;
 using Microsoft.Identity.Client;
+using Microsoft.Office.Interop.Outlook;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NuGet.Packaging;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net.Http;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,33 +31,37 @@ namespace ADOAnalyser
             _Utility = Utility;
         }
 
+        public string GetPipelines(string project, string folder)
+        {
+            string Url = string.Format("{0}/_apis/pipelines?folderPath={1}&api-version=7.0", project, folder);
+            return _Utility.GetDataSync(Url);
+        }
+
+        public string GetBuilds(string project, int definitionId, string status)
+        {
+            string Url = string.Format("{0}/_apis/build/builds?definitions={1}&statusFilter={2}&api-version=7.1-preview.7", project, definitionId, status);
+            return _Utility.GetDataSync(Url);
+        }
+
+        private string BuildWorkItemUrl(string? projectName, string ids)
+        {
+            return string.IsNullOrEmpty(projectName)
+            ? $"/_apis/wit/workitems?ids={ids}&$expand=relations&api-version=7.1-preview.2"
+            : $"{projectName}/_apis/wit/workitems?ids={ids}&$expand=relations&api-version=7.1-preview.2";
+        }
+
         public IterationResult GetSprint(string projectName)
         {
             return _Utility.GetCurrentIterationAsync(projectName);
         }
 
-        public string GetWorkItem(string projectName, string ids)
-        {
-            string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
-            return _Utility.GetDataSync(Url);
-        }
-        public string GetWorkItem(string ids)
-        {
-            string Url = string.Format("/_apis/wit/workitems?ids={0}&$expand=relations&api-version=7.1-preview.2", ids);
-            return _Utility.GetDataSync(Url);
-        }
-
-        public Task<string> GetWorkItemAsync(string projectName, string ids)
-        {
-            string Url = string.Format("{0}/_apis/wit/workitems?ids={1}&$expand=relations&api-version=7.1-preview.2", projectName, ids);
-            return Task.FromResult(_Utility.GetDataSync(Url));
-        }
-
-        public Task<string> GetWorkItemAsync(string ids)
-        {
-            string Url = string.Format("/_apis/wit/workitems?ids={0}&$expand=relations&api-version=7.1-preview.2", ids);
-            return Task.FromResult(_Utility.GetDataSync(Url));
-        }
+        public string GetWorkItem(string? projectName, string ids) => _Utility.GetDataSync(BuildWorkItemUrl(projectName, ids));
+        
+        public string GetWorkItem(string ids) => GetWorkItem(null, ids);
+        
+        public Task<string> GetWorkItemAsync(string projectName, string ids) => Task.FromResult(GetWorkItem(projectName, ids));
+        
+        public Task<string> GetWorkItemAsync(string ids) => Task.FromResult(GetWorkItem(null, ids));
 
         public string GetWorkItemForReports(string projectName, string ids)
         {
@@ -313,24 +319,24 @@ namespace ADOAnalyser
                          a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.OrdinalIgnoreCase)).ToList();
 
                         Parallel.ForEach(filtered, item =>
-                            {
-                                localValues.Add(item);
+                        {
+                            localValues.Add(item);
 
-                                if (item.relations != null)
+                            if (item.relations != null)
+                            {
+                                foreach (var relation in item.relations)
                                 {
-                                    foreach (var relation in item.relations)
+                                    if (relation.rel == "System.LinkTypes.Hierarchy-Forward")
                                     {
-                                        if (relation.rel == "System.LinkTypes.Hierarchy-Forward")
+                                        var idPart = relation.url.Split('/').Last();
+                                        if (int.TryParse(idPart, out int childId))
                                         {
-                                            var idPart = relation.url.Split('/').Last();
-                                            if (int.TryParse(idPart, out int childId))
-                                            {
-                                                allChildIds.Add(childId);
-                                            }
+                                            allChildIds.Add(childId);
                                         }
                                     }
                                 }
-                            });
+                            }
+                        });
                     }
                 });
 
@@ -421,7 +427,7 @@ namespace ADOAnalyser
                                      .Where(v => v.fields != null)
                                      .Select(v => new TestByRelationField
                                      {
-                                         TestId = v.id, 
+                                         TestId = v.id,
                                          SystemState = v.fields.SystemState,
                                          CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
                                          CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
@@ -430,7 +436,7 @@ namespace ADOAnalyser
                                      }).ToList();
                             }
                         }
-                        catch (Exception ex)
+                        catch (System.Exception ex)
                         {
                             throw;
                         }

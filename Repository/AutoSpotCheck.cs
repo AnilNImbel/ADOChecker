@@ -12,41 +12,26 @@ namespace ADOAnalyser.Repository
 {
     public class AutoSpotCheck
     {
-        private string UserStory = "User Story";
+        #region variables
+        private const string UserStory = "User Story";
+        private const string InAnalysis = "01. Analysis & Estimate";
+        private const string PRRaised = "11. PR Raised to DevOps";
+        #endregion
 
-        private string InAnalysis = "01. Analysis & Estimate";
-
-        private string PRRaised = "11. PR Raised to DevOps";
-
+        #region Rules
         public void CheckImpactAssessment(Fields workData)
         {
             string iaData = workData.MicrosoftVSTSCMMIImpactAssessmentHtml ?? string.Empty;
-            string state = workData.SystemState;
+            string state = workData.SystemState ?? string.Empty;
             string devStatus = workData.CustomDevelopmentStatus ?? string.Empty;
-            if (state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString())
-                || state.Equals(StateStatusEnum.Closed.ToString()))
-            {
-                workData.IAStatus = ImpactAssessmentRegex(iaData) ? ResultEnum.Attached.ToString() : ResultEnum.Missing.ToString();
-            }
-            if (state.Equals(StateStatusEnum.Active.ToString()) && devStatus.Equals(InAnalysis))
-            {
+            bool hasIA = ImpactAssessmentRegex(iaData);
+
+            if (state == StateStatusEnum.Test.ToString() || state == StateStatusEnum.Resolved.ToString() || state == StateStatusEnum.Closed.ToString())
+                workData.IAStatus = hasIA ? ResultEnum.Attached.ToString() : ResultEnum.Missing.ToString();
+            else if (state == StateStatusEnum.Active.ToString() && devStatus == InAnalysis)
                 workData.IAStatus = ResultEnum.Pending.ToString();
-            }
             else
-            {
-                workData.IAStatus = ImpactAssessmentRegex(iaData) ? ResultEnum.Attached.ToString() : ResultEnum.Missing.ToString();
-            }
-        }
-
-        public bool ImpactAssessmentRegex(string data)
-        {
-            string pattern = @"https?://[^""']*Assessment[^""']*\.xlsx";
-            return Regex.IsMatch(data, pattern, RegexOptions.IgnoreCase);
-        }
-
-        public int MissingImpactAssessmentCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.IAStatus.Equals(ResultEnum.Missing.ToString())).Count();
+                workData.IAStatus = hasIA ? ResultEnum.Attached.ToString() : ResultEnum.Missing.ToString();
         }
 
         public void CheckRootCause(Fields fieldData)
@@ -54,28 +39,15 @@ namespace ADOAnalyser.Repository
             string rca = fieldData.CivicaAgileRootCauseAnalysis ?? string.Empty;
             string state = fieldData.SystemState ?? string.Empty;
             string workType = fieldData.SystemWorkItemType ?? string.Empty;
-            if (!workType.Equals(UserStory) && (state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()))
-                && string.IsNullOrWhiteSpace(rca))
-            {
-                fieldData.RootCauseStatus = ResultEnum.Missing.ToString();
-            }
-            if (!workType.Equals(UserStory) && (state.Equals(StateStatusEnum.New.ToString()) || state.Equals(StateStatusEnum.Active.ToString())))
-            {
-                fieldData.RootCauseStatus = ResultEnum.Pending.ToString();
-            }
-            if (!workType.Equals(UserStory) && !string.IsNullOrWhiteSpace(rca))
-            {
-                fieldData.RootCauseStatus = ResultEnum.Completed.ToString();
-            }
-            if (workType.Equals(UserStory))
-            {
-                fieldData.RootCauseStatus = ResultEnum.NA.ToString();
-            }
-        }
 
-        public int MissingRootCauseCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.RootCauseStatus.Equals(ResultEnum.Missing.ToString())).Count();
+            if (workType == UserStory)
+                fieldData.RootCauseStatus = ResultEnum.NA.ToString();
+            else if (state == StateStatusEnum.New.ToString() || state == StateStatusEnum.Active.ToString())
+                fieldData.RootCauseStatus = ResultEnum.Pending.ToString();
+            else if (!string.IsNullOrWhiteSpace(rca))
+                fieldData.RootCauseStatus = ResultEnum.Completed.ToString();
+            else
+                fieldData.RootCauseStatus = ResultEnum.Missing.ToString();
         }
 
         public void CheckProjectZero(Fields fieldData)
@@ -83,102 +55,54 @@ namespace ADOAnalyser.Repository
             string rca = fieldData.CivicaAgileRootCauseAnalysis ?? string.Empty;
             string workType = fieldData.SystemWorkItemType ?? string.Empty;
             string state = fieldData.SystemState ?? string.Empty;
-            if (workType.Equals(UserStory))
-            {
-                fieldData.ProjectZeroStatus = ResultEnum.NA.ToString();
-            }
-            if (!workType.Equals(UserStory) && (state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) || state.Equals(StateStatusEnum.Closed.ToString())))
-            {
-                if (rca.Equals("Code"))
-                {
-                    string why1 = fieldData.CustomRootCauseAnalysisWhy1;
-                    string why2 = fieldData.CustomRootCauseAnalysisWhy2;
-                    string why3 = fieldData.CustomRootCauseAnalysisWhy3;
-                    string owner = fieldData.CustomRemediationOwner;
-                    if (string.IsNullOrEmpty(why1) || string.IsNullOrEmpty(why2) || string.IsNullOrEmpty(why3) || string.IsNullOrEmpty(owner))
-                    {
-                        fieldData.ProjectZeroStatus = ResultEnum.Missing.ToString();
-                    }
-                    else
-                    {
-                        fieldData.ProjectZeroStatus = ResultEnum.Completed.ToString();
-                    }
-                }
-                else
-                {
-                    fieldData.ProjectZeroStatus = ResultEnum.NA.ToString();
-                }
-                
-            }
-            if (!workType.Equals(UserStory) && state.Equals(StateStatusEnum.Active.ToString()))
-            {
-                fieldData.ProjectZeroStatus = ResultEnum.Pending.ToString();
-            }
-        }
 
-        public int MissingProjectZeroCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.ProjectZeroStatus.Equals(ResultEnum.Missing.ToString())).Count();
+            if (workType == UserStory)
+                fieldData.ProjectZeroStatus = ResultEnum.NA.ToString();
+            else if (state == StateStatusEnum.Active.ToString())
+                fieldData.ProjectZeroStatus = ResultEnum.Pending.ToString();
+            else if ((state == StateStatusEnum.Test.ToString() || state == StateStatusEnum.Resolved.ToString() || state == StateStatusEnum.Closed.ToString()) && rca == "Code")
+            {
+                bool missing = string.IsNullOrEmpty(fieldData.CustomRootCauseAnalysisWhy1)
+                || string.IsNullOrEmpty(fieldData.CustomRootCauseAnalysisWhy2)
+                || string.IsNullOrEmpty(fieldData.CustomRootCauseAnalysisWhy3)
+                || string.IsNullOrEmpty(fieldData.CustomRemediationOwner);
+
+                fieldData.ProjectZeroStatus = missing ? ResultEnum.Missing.ToString() : ResultEnum.Completed.ToString();
+            }
+            else
+                fieldData.ProjectZeroStatus = ResultEnum.NA.ToString();
         }
 
         public void CheckPRLifeCycle(Fields fieldData)
         {
             string state = fieldData.SystemState ?? string.Empty;
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
-            if (state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()))
-            {
-                fieldData.PRLifeCycleStatus = !CheckPRCheckList(fieldData) ? ResultEnum.Missing.ToString() : ResultEnum.Completed.ToString();
-            }
-            if (state.Equals(StateStatusEnum.Active.ToString()))
-            {
-                if (!devStatus.Equals(PRRaised))
-                {
-                    fieldData.PRLifeCycleStatus = ResultEnum.Pending.ToString();
-                }
-                else
-                {
-                    fieldData.PRLifeCycleStatus = !CheckPRCheckList(fieldData) ? ResultEnum.Missing.ToString() : ResultEnum.Completed.ToString();
-                }
-            }
-            if (state.Equals(StateStatusEnum.New.ToString()))
-            {
-                fieldData.PRLifeCycleStatus = ResultEnum.Pending.ToString();
-            }
-        }
 
-        public int MissingPRLifeCycleCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.PRLifeCycleStatus.Equals(ResultEnum.Missing.ToString())).Count();
+            if (state == StateStatusEnum.Active.ToString())
+                fieldData.PRLifeCycleStatus = devStatus == PRRaised && CheckPRCheckList(fieldData)
+                ? ResultEnum.Completed.ToString()
+                : ResultEnum.Pending.ToString();
+            else if (state == StateStatusEnum.Test.ToString() || state == StateStatusEnum.Closed.ToString() || state == StateStatusEnum.Resolved.ToString())
+                fieldData.PRLifeCycleStatus = CheckPRCheckList(fieldData)
+                ? ResultEnum.Completed.ToString()
+                : ResultEnum.Missing.ToString();
         }
 
         public void CheckStatusDiscre(Fields fieldData)
         {
-            string iaData = fieldData.MicrosoftVSTSCMMIImpactAssessmentHtml ?? string.Empty;
             string state = fieldData.SystemState ?? string.Empty;
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
             string qaStatus = fieldData.CustomQAStatus ?? string.Empty;
-            if ((state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Active.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()))
-                && string.IsNullOrWhiteSpace(devStatus))
-            {
-                fieldData.StatusDiscrepancyStatus = ResultEnum.Yes.ToString();
-            }
-            if ((state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString()))
-                && (string.IsNullOrWhiteSpace(qaStatus) || string.IsNullOrWhiteSpace(devStatus)))
-            {
-                fieldData.StatusDiscrepancyStatus = ResultEnum.Yes.ToString();
-            }
-            if ((state.Equals(StateStatusEnum.Test.ToString()) || state.Equals(StateStatusEnum.Closed.ToString())) &&
-                !string.IsNullOrWhiteSpace(qaStatus) && !devStatus.Equals(PRRaised))
-            {
-                fieldData.StatusDiscrepancyStatus = ResultEnum.Yes.ToString();
-            }
-            string current = fieldData.StatusDiscrepancyStatus;
-            fieldData.StatusDiscrepancyStatus = !string.IsNullOrWhiteSpace(current) ? ResultEnum.Yes.ToString() : ResultEnum.No.ToString();
-        }
 
-        public int MissingStatusDiscreCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.StatusDiscrepancyStatus.Equals(ResultEnum.Yes.ToString())).Count();
+            bool isTestOrClosed = state == StateStatusEnum.Test.ToString() || state == StateStatusEnum.Closed.ToString();
+            bool isTestActiveClosed = isTestOrClosed || state == StateStatusEnum.Active.ToString();
+
+            bool discrepancy =
+            (isTestActiveClosed && string.IsNullOrWhiteSpace(devStatus)) ||
+            (isTestOrClosed && (string.IsNullOrWhiteSpace(qaStatus) || string.IsNullOrWhiteSpace(devStatus))) ||
+            (isTestOrClosed && !string.IsNullOrWhiteSpace(qaStatus) && devStatus != PRRaised);
+
+            fieldData.StatusDiscrepancyStatus = discrepancy ? ResultEnum.Yes.ToString() : ResultEnum.No.ToString();
         }
 
         public void CheckTestCaseGape(Values values)
@@ -189,10 +113,9 @@ namespace ADOAnalyser.Repository
             {
                 values.fields.TestCaseGapeStatus = ResultEnum.Pending.ToString();
             }
-            else if (state is var s &&
-            (s == StateStatusEnum.Test.ToString() ||
-            s == StateStatusEnum.Closed.ToString() ||
-            s == StateStatusEnum.Resolved.ToString()))
+            else if (state == StateStatusEnum.Test.ToString() ||
+                     state == StateStatusEnum.Closed.ToString() ||
+                     state == StateStatusEnum.Resolved.ToString())
             {
                 if (values.testByRelationField == null || !values.testByRelationField.Any())
                 {
@@ -204,32 +127,23 @@ namespace ADOAnalyser.Repository
 
                     foreach (var testCase in values.testByRelationField)
                     {
-
                         bool allFieldsPresent = true;
 
-                        if (IsFieldMissing(testCase.CustomTestType, out var testTypeStatus))
-                        {
-                            testCase.CustomTestTypeStatus = testTypeStatus;
-                            allFieldsPresent = false;
-                        }
+                        bool isMissingType = IsFieldMissing(testCase.CustomTestType, out var typeStatus);
+                        testCase.CustomTestTypeStatus = typeStatus;
+                        allFieldsPresent &= !isMissingType;
 
-                        if (IsFieldMissing(testCase.CivicaAgileTestLevel, out var testLevelStatus))
-                        {
-                            testCase.CivicaAgileTestLevelStatus = testLevelStatus;
-                            allFieldsPresent = false;
-                        }
+                        bool isMissingLevel = IsFieldMissing(testCase.CivicaAgileTestLevel, out var levelStatus);
+                        testCase.CivicaAgileTestLevelStatus = levelStatus;
+                        allFieldsPresent &= !isMissingLevel;
 
-                        if (IsFieldMissing(testCase.CivicaAgileTestPhase, out var testPhaseStatus))
-                        {
-                            testCase.CivicaAgileTestPhaseStatus = testPhaseStatus;
-                            allFieldsPresent = false;
-                        }
+                        bool isMissingPhase = IsFieldMissing(testCase.CivicaAgileTestPhase, out var phaseStatus);
+                        testCase.CivicaAgileTestPhaseStatus = phaseStatus;
+                        allFieldsPresent &= !isMissingPhase;
 
-                        if (IsFieldMissing(testCase.CustomAutomation, out var automationStatus))
-                        {
-                            testCase.CustomAutomationStatus = automationStatus;
-                            allFieldsPresent = false;
-                        }
+                        bool isMissingAutomation = IsFieldMissing(testCase.CustomAutomation, out var automationStatus);
+                        testCase.CustomAutomationStatus = automationStatus;
+                        allFieldsPresent &= !isMissingAutomation;
 
                         if (allFieldsPresent)
                         {
@@ -243,81 +157,80 @@ namespace ADOAnalyser.Repository
             values.fields.TestCaseGapeHTML = HTMLString(values);
         }
 
-        public int MissingTestCaseGapeCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.TestCaseGapeStatus.Equals(ResultEnum.Missing.ToString())).Count();
-        }
-
         public void CheckVTDRequired(Fields fieldData)
         {
-            DateTime? vtdDate = fieldData.CivicaAgileVIEWTargetDate;
-            string vtd = vtdDate.HasValue ? vtdDate.Value.ToString() : string.Empty;
             string state = fieldData.SystemState ?? string.Empty;
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
-            if (state.Equals(StateStatusEnum.Closed.ToString()) || state.Equals(StateStatusEnum.Resolved.ToString()) 
-                || state.Equals(StateStatusEnum.Test.ToString()))
-            {
-                fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
-            }
-            if (state.Equals(StateStatusEnum.Active.ToString()))
-            {
-                if (!devStatus.Equals(InAnalysis))
-                {
-                    fieldData.VTDMissingStatus = string.IsNullOrWhiteSpace(vtd) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
-                }
-                else
-                {
-                    fieldData.VTDMissingStatus = ResultEnum.Pending.ToString();
-                }
-            }
-        }
+            bool hasVTD = fieldData.CivicaAgileVIEWTargetDate.HasValue;
 
-        public int MissingVTDCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.VTDMissingStatus.Equals(ResultEnum.Missing.ToString())).Count();
+            bool isFinalState = state == StateStatusEnum.Closed.ToString() ||
+                                state == StateStatusEnum.Resolved.ToString() ||
+                                state == StateStatusEnum.Test.ToString();
+
+            if (isFinalState)
+            {
+                fieldData.VTDMissingStatus = hasVTD ? ResultEnum.Updated.ToString() : ResultEnum.Missing.ToString();
+            }
+            else if (state == StateStatusEnum.Active.ToString())
+            {
+                fieldData.VTDMissingStatus = devStatus == InAnalysis
+                    ? ResultEnum.Pending.ToString()
+                    : (hasVTD ? ResultEnum.Updated.ToString() : ResultEnum.Missing.ToString());
+            }
         }
 
         public void CheckVLDBRequired(Fields fieldData)
         {
-            string VTDStatus = fieldData.VTDMissingStatus;
-            DateTime? vldbDate = fieldData.CustomVIEWLanDeskBreakDate;
-            string vldb = vldbDate.HasValue ? vldbDate.Value.ToString() : string.Empty;
-            if (VTDStatus.Equals(ResultEnum.Pending))
-            {
-                fieldData.VLDBMissingStatus = ResultEnum.Pending.ToString();
-            }
-            if (VTDStatus.Equals(ResultEnum.Missing))
-            {
-                fieldData.VLDBMissingStatus = ResultEnum.Missing.ToString();
-            }
-            else
-            {
-                fieldData.VLDBMissingStatus = string.IsNullOrWhiteSpace(vldb) ? ResultEnum.Missing.ToString() : ResultEnum.Updated.ToString();
-            }
-        }
+            string vtdStatus = fieldData.VTDMissingStatus;
+            bool hasVLDB = fieldData.CustomVIEWLanDeskBreakDate.HasValue;
 
-        public int MissingVLDBCount(WorkItemModel workData)
-        {
-            return workData.value.Where(a => a.fields.VLDBMissingStatus.Equals(ResultEnum.Missing.ToString())).Count();
+            fieldData.VLDBMissingStatus = vtdStatus switch
+            {
+                var s when s == ResultEnum.Pending.ToString() => ResultEnum.Pending.ToString(),
+                var s when s == ResultEnum.Missing.ToString() => ResultEnum.Missing.ToString(),
+                _ => hasVLDB ? ResultEnum.Updated.ToString() : ResultEnum.Missing.ToString()
+            };
         }
 
         private bool CheckPRCheckList(Fields fieldData)
         {
-            int? manualUnitTestCount = fieldData.CustomVIEWPRManualUnitTestCount;
-            string demo = fieldData.CustomVIEWPRCompletedDemo?? string.Empty;
-            double? iahours = fieldData.CustomVIEWPRImpactAnalysisHours;
-            double? prActualEffortHour = fieldData.CustomVIEWPRActualEffortHours;
-            string signedOff = fieldData.CustomSignedOffBy?? string.Empty;
-            if(string.IsNullOrEmpty(demo) || string.IsNullOrEmpty(signedOff) || manualUnitTestCount == null || iahours == null || prActualEffortHour == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return !(string.IsNullOrEmpty(fieldData.CustomVIEWPRCompletedDemo)
+            || string.IsNullOrEmpty(fieldData.CustomSignedOffBy)
+            || fieldData.CustomVIEWPRManualUnitTestCount == null
+            || fieldData.CustomVIEWPRImpactAnalysisHours == null
+            || fieldData.CustomVIEWPRActualEffortHours == null);
         }
 
+        #endregion
+
+        #region MissingCount
+        public int MissingImpactAssessmentCount(WorkItemModel workData) =>
+        workData.value.Count(a => a.fields.IAStatus == ResultEnum.Missing.ToString());
+
+        public int MissingRootCauseCount(WorkItemModel workData) =>
+        workData.value.Count(a => a.fields.RootCauseStatus == ResultEnum.Missing.ToString());
+
+        public int MissingProjectZeroCount(WorkItemModel workData) =>
+        workData.value.Count(a => a.fields.ProjectZeroStatus == ResultEnum.Missing.ToString());
+
+        public int MissingPRLifeCycleCount(WorkItemModel workData) =>
+        workData.value.Count(a => a.fields.PRLifeCycleStatus == ResultEnum.Missing.ToString());
+
+        public int MissingStatusDiscreCount(WorkItemModel workData) =>
+        workData.value.Count(a => a.fields.StatusDiscrepancyStatus == ResultEnum.Yes.ToString());
+
+        public int MissingTestCaseGapeCount(WorkItemModel workData) =>
+        workData.value.Count(a => a.fields.TestCaseGapeStatus == ResultEnum.Missing.ToString());
+
+        public int MissingVLDBCount(WorkItemModel workData) =>
+            workData.value.Count(a => a.fields.VLDBMissingStatus == ResultEnum.Missing.ToString());
+
+        public int MissingVTDCount(WorkItemModel workData) =>
+        workData.value.Count(a => a.fields.VTDMissingStatus == ResultEnum.Missing.ToString());
+
+        #endregion
+
+        #region Others
         public async Task CheckMissingDataAsync(WorkItemModel workData)
         {
             await Task.Run(() =>
@@ -351,16 +264,10 @@ namespace ADOAnalyser.Repository
             });
         }
 
-        public void SetCountForMissing(WorkItemModel workData)
+        public bool ImpactAssessmentRegex(string data)
         {
-            workData.missingIACount = MissingImpactAssessmentCount(workData);
-            workData.missingRootCauseCount = MissingRootCauseCount(workData);
-            workData.missingProjectZeroCount = MissingProjectZeroCount(workData);
-            workData.missingPRLifeCycleCount = MissingPRLifeCycleCount(workData);
-            workData.missingStatusDiscreCount = MissingStatusDiscreCount(workData);
-            workData.missingTestCaseCount = MissingTestCaseGapeCount(workData);
-            workData.missingVTDCount = MissingVTDCount(workData);
-            workData.missingVLDBCount = MissingVLDBCount(workData);
+            string pattern = @"https?://[^""']*Assessment[^""']*\.xlsx";
+            return Regex.IsMatch(data, pattern, RegexOptions.IgnoreCase);
         }
 
         private bool IsFieldMissing(string fieldValue, out string? status)
@@ -374,47 +281,58 @@ namespace ADOAnalyser.Repository
             return false;
         }
 
-
         private string HTMLString(Values values)
         {
             var status = values.fields.TestCaseGapeStatus;
             var testCases = values.testByRelationField;
 
             if (testCases == null || !testCases.Any())
-            {
                 return $"<span class=\"{ResultEnum.Missing}\">No Test case Attached</span>";
-            }
 
             if (status == ResultEnum.Pending.ToString())
-            {
                 return $"<span class=\"{ResultEnum.Pending}\">In Progress</span>";
-            }
 
             var workItemNumber = Convert.ToString(values.id);
             var testBuilder = new StringBuilder();
             int countUpdated = testCases.Count(tc => tc.TestCaseUpdated == ResultEnum.Updated.ToString());
             int totalCount = testCases.Count;
-            int missingCount = testCases.Count(tc => tc.CustomTestTypeStatus == ResultEnum.Missing.ToString()
-                                                || tc.CivicaAgileTestLevelStatus == ResultEnum.Missing.ToString()
-                                                || tc.CivicaAgileTestPhaseStatus == ResultEnum.Missing.ToString()
-                                                || tc.CustomAutomationStatus == ResultEnum.Missing.ToString());
+            int missingCount = testCases.Count(tc =>
+            tc.CustomTestTypeStatus == ResultEnum.Missing.ToString() ||
+            tc.CivicaAgileTestLevelStatus == ResultEnum.Missing.ToString() ||
+            tc.CivicaAgileTestPhaseStatus == ResultEnum.Missing.ToString() ||
+            tc.CustomAutomationStatus == ResultEnum.Missing.ToString());
+
             if (missingCount > 0)
             {
-                string msg = "Missing Details";// "<span style=\"font-weight: bold\">Test case information: <span>";
                 testBuilder.AppendFormat(
-                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Missing\" target=\"_blank\" style=\"text-decoration:none\"\" ><span class=\"Missing\">{1}</span><br>",
-                workItemNumber, msg);
+                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Missing\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<span class=\"Missing\">Missing Details</span><br></a>",
+                workItemNumber);
             }
 
             if (countUpdated > 0)
             {
-                string msg = countUpdated == totalCount ? "All fields updated." : $"Updated Details";
+                string msg = countUpdated == totalCount ? "All fields updated." : "Updated Details";
                 testBuilder.AppendFormat(
-                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Updated\" target=\"_blank\" style=\"text-decoration:none\"\"><span class=\"Updated\">{1}</span><br>",
+                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Updated\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<span class=\"Updated\">{1}</span><br></a>",
                 workItemNumber, msg);
             }
 
             return testBuilder.ToString();
         }
+
+        public void SetCountForMissing(WorkItemModel workData)
+        {
+            workData.missingIACount = MissingImpactAssessmentCount(workData);
+            workData.missingRootCauseCount = MissingRootCauseCount(workData);
+            workData.missingProjectZeroCount = MissingProjectZeroCount(workData);
+            workData.missingPRLifeCycleCount = MissingPRLifeCycleCount(workData);
+            workData.missingStatusDiscreCount = MissingStatusDiscreCount(workData);
+            workData.missingTestCaseCount = MissingTestCaseGapeCount(workData);
+            workData.missingVTDCount = MissingVTDCount(workData);
+            workData.missingVLDBCount = MissingVLDBCount(workData);
+        }
+        #endregion
     }
 }

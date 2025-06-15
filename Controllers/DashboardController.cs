@@ -1,149 +1,129 @@
-﻿using ADOAnalyser.Enum;
+﻿
+using ADOAnalyser.Enum;
 using ADOAnalyser.Models;
 using ADOAnalyser.Repository;
 using ADOAnalyser.TestModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ADOAnalyser.Controllers
 {
     public class DashboardController : Controller
     {
         private readonly IWorkItem _workItem;
+        private readonly AutoSpotCheck _autoSpotCheck;
 
-        private readonly AutoSpotCheck autoSpotCheck;
+        private const string TestRelation = "Microsoft.VSTS.Common.TestedBy-Forward";
+        private const string ProjectName = "CE";
 
-        private string testRelation = "Microsoft.VSTS.Common.TestedBy-Forward";
-
-        private string project = "CE";
-
-        public DashboardController(IWorkItem workItem, AutoSpotCheck autoSpotChecks)
+        public DashboardController(IWorkItem workItem, AutoSpotCheck autoSpotCheck)
         {
             _workItem = workItem;
-            autoSpotCheck = autoSpotChecks;
+            _autoSpotCheck = autoSpotCheck;
         }
 
         public IActionResult Index(string? selectedSprint = null)
         {
-            List<string> workItemType = new List<string> { "Bug", "User Story", "Production Defect" };
-            string filter = @"AND [System.State] <> 'New' AND [System.State] <> 'Approved'";
+            var workItemTypes = new List<string> { "Bug", "User Story", "Production Defect" };
+            const string filter = @"AND [System.State] <> 'New' AND [System.State] <> 'Approved'";
 
-            // Get sprint info (current + all)
-            var iterationData = _workItem.GetSprint(project); // your GetSprint returns IterationResult
+            var iterationData = _workItem.GetSprint(ProjectName);
             var allSprints = iterationData.AllSprints;
             var currentSprints = iterationData.CurrentSprints;
 
-            // Choose sprint: dropdown value or fallback to current sprint
-            string sprintToUse = selectedSprint ?? currentSprints.FirstOrDefault()?.FullPath;
-
+            var sprintToUse = selectedSprint ?? currentSprints.FirstOrDefault()?.FullPath;
             var workData = new WorkItemModel();
+
             if (!string.IsNullOrEmpty(sprintToUse))
             {
-                var getWiql = _workItem.GetAllWiqlByType(project, workItemType, sprintToUse, filter);
-                var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(getWiql);
-                if (wiqlData?.workItems?.Any() == true)
+                var wiqlJson = _workItem.GetAllWiqlByType(ProjectName, workItemTypes, sprintToUse, filter);
+                var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(wiqlJson);
+
+                var idList = wiqlData?.workItems?.Select(w => w.id).ToList();
+                if (idList?.Any() == true)
                 {
-                    var idList = wiqlData.workItems?.Select(r => r.id).ToList();
-                    if (idList?.Any() == true)
+                    var workItemsJson = _workItem.GetWorkItem(ProjectName, string.Join(", ", idList.Take(200)));
+                    workData = JsonConvert.DeserializeObject<WorkItemModel>(workItemsJson);
+
+                    if (workData?.value?.Any() == true)
                     {
-                        var getWorkItems = _workItem.GetWorkItem(project, string.Join(", ", idList.Take(200)));
-                        workData = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
-                        if (workData?.value?.Any() == true)
+                        workData.value = workData.value
+                        .Where(w => string.IsNullOrEmpty(w.fields.CivicaAgileReproducible) ||
+                        w.fields.CivicaAgileReproducible.Equals("YES", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                        if (workData.value.Count > 0)
                         {
-                            workData.value = workData.value
-                                             .Where(a => string.IsNullOrEmpty(a.fields.CivicaAgileReproducible) ||
-                                              a.fields.CivicaAgileReproducible.Equals("YES", StringComparison.OrdinalIgnoreCase)).ToList();
-                            if (workData.value.Count > 0)
-                            {
-                                AddTestRelationFilterData(workData);
-                                autoSpotCheck.CheckMissingData(workData);
-                                autoSpotCheck.SetCountForMissing(workData);
-                            }
+                            AddTestRelationFilterData(workData);
+                            _autoSpotCheck.CheckMissingData(workData);
+                            _autoSpotCheck.SetCountForMissing(workData);
                         }
                     }
                 }
-
             }
 
-            // Create a view model to send sprint info + work items to partial
             var viewModel = new SprintViewModel
             {
                 SelectedSprint = sprintToUse,
-                AllSprints = allSprints.Select(i => i.FullPath).ToList(),
+                AllSprints = allSprints.Select(s => s.FullPath).ToList(),
                 WorkItemData = workData
             };
+
             HttpContext.Session.SetString("workItemModel", JsonConvert.SerializeObject(workData));
             return View(viewModel);
         }
 
         public IActionResult GridLoad(string missingType)
         {
-            //var filteredData = workItem.value.Where(a => a.fields.GetType().GetProperty(missingType).GetValue(a.fields).ToString().Equals(ResultEnum.Missing.ToString())).ToList();
-            WorkItemModel data = new WorkItemModel();
-            WorkItemModel workItem = JsonConvert.DeserializeObject<WorkItemModel>((string)HttpContext.Session.GetString("workItemModel"));
-            if (workItem != null && workItem.value != null)
+            var workItemJson = HttpContext.Session.GetString("workItemModel");
+            var workItem = JsonConvert.DeserializeObject<WorkItemModel>(workItemJson ?? string.Empty);
+            var filteredData = new WorkItemModel();
+
+            if (workItem?.value != null)
             {
-                if (missingType.Equals("IAStatus"))
+                filteredData.value = missingType switch
                 {
-                    data.value = workItem.value.Where(a => a.fields.IAStatus.Equals(ResultEnum.Missing.ToString())).ToList();
-                }
-                else if (missingType.Equals("RootCauseStatus"))
-                {
-                    data.value = workItem.value.Where(a => a.fields.RootCauseStatus.Equals(ResultEnum.Missing.ToString())).ToList();
-                }
-                if (missingType.Equals("ProjectZeroStatus"))
-                {
-                    data.value = workItem.value.Where(a => a.fields.ProjectZeroStatus.Equals(ResultEnum.Missing.ToString())).ToList();
-                }
-                if (missingType.Equals("PRLifeCycleStatus"))
-                {
-                    data.value = workItem.value.Where(a => a.fields.PRLifeCycleStatus.Equals(ResultEnum.Missing.ToString())).ToList();
-                }
-                if (missingType.Equals("StatusDiscrepancyStatus"))
-                {
-                    data.value = workItem.value.Where(a => a.fields.StatusDiscrepancyStatus.Equals(ResultEnum.Yes.ToString())).ToList();
-                }
-                if (missingType.Equals("TestCaseGapeStatus"))
-                {
-                    data.value = workItem.value.Where(a => a.fields.TestCaseGapeStatus.Equals(ResultEnum.Missing.ToString())).ToList();
-                }
+                    "IAStatus" => workItem.value.Where(w => w.fields.IAStatus == ResultEnum.Missing.ToString()).ToList(),
+                    "RootCauseStatus" => workItem.value.Where(w => w.fields.RootCauseStatus == ResultEnum.Missing.ToString()).ToList(),
+                    "ProjectZeroStatus" => workItem.value.Where(w => w.fields.ProjectZeroStatus == ResultEnum.Missing.ToString()).ToList(),
+                    "PRLifeCycleStatus" => workItem.value.Where(w => w.fields.PRLifeCycleStatus == ResultEnum.Missing.ToString()).ToList(),
+                    "StatusDiscrepancyStatus" => workItem.value.Where(w => w.fields.StatusDiscrepancyStatus == ResultEnum.Yes.ToString()).ToList(),
+                    "TestCaseGapeStatus" => workItem.value.Where(w => w.fields.TestCaseGapeStatus == ResultEnum.Missing.ToString()).ToList(),
+                    _ => new List<Values>()
+                };
             }
-            return PartialView("_WorkItemGrid", data);
-            // Do something with the product
+
+            return PartialView("_WorkItemGrid", filteredData);
         }
 
         private void AddTestRelationFilterData(WorkItemModel workData)
         {
-            for (int i = 0; i < workData.value.Count; i++)
+            foreach (var item in workData.value)
             {
-                var relationIds = workData.value[i].relations?
-                                  .Where(r => r.rel == testRelation)
-                                  .Select(r =>
-                                  {
-                                      var segments = r.url.Split('/');
-                                      return int.Parse(segments.Last());
-                                  })
-                                  .ToList();
+                var relationIds = item.relations?
+                .Where(r => r.rel == TestRelation)
+                .Select(r => int.Parse(r.url.Split('/').Last()))
+                .ToList();
 
                 if (relationIds?.Any() == true)
                 {
-                    var getWorkItems = _workItem.GetWorkItem(string.Join(", ", relationIds.Take(200)));
-                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                    var testItemsJson = _workItem.GetWorkItem(string.Join(", ", relationIds.Take(200)));
+                    var testData = JsonConvert.DeserializeObject<TestedByModel>(testItemsJson);
+
                     if (testData?.value?.Any() == true)
                     {
-                        workData.value[i].testByRelationField = testData.value
-                                     .Where(v => v.fields != null)
-                                     .Select(v => new TestByRelationField
-                                     {
-                                         TestId = v.id,
-                                         SystemState = v.fields.SystemState,
-                                         CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
-                                         CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
-                                         CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,
-                                         CustomTestType = v.fields.CustomTestType
-                                     }).ToList();
+                        item.testByRelationField = testData.value
+                        .Where(v => v.fields != null)
+                        .Select(v => new TestByRelationField
+                        {
+                            TestId = v.id,
+                            SystemState = v.fields.SystemState,
+                            CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
+                            CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
+                            CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,
+                            CustomTestType = v.fields.CustomTestType
+                        }).ToList();
                     }
                 }
             }

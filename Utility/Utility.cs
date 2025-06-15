@@ -1,37 +1,25 @@
-﻿using ADOAnalyser.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Routing.Matching;
-using Microsoft.Extensions.Options;
+﻿
+using ADOAnalyser.Models;
 using Newtonsoft.Json;
-using NuGet.Packaging.Signing;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Http.Headers;
-using System.Security.Policy;
-using System.Text;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Xml.Linq;
-using static Microsoft.CodeAnalysis.IOperation;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
+using System.Threading.Tasks;
 
 namespace ADOAnalyser
 {
     public class Utility : IUtility
     {
         private static HttpClient client;
-
         private static string baseUrl = "https://dev.azure.com/civica-cp/";
-
-        public string NormalizePath(string path) => path.Trim().Replace("/", "\\").ToLowerInvariant();
 
         public Utility(IHttpClientFactory httpClientFactory)
         {
             client = httpClientFactory.CreateClient("AzureDevOpsClient");
         }
+
+        public string NormalizePath(string path) => path.Trim().Replace("//", "\\").ToLowerInvariant();
 
         public async Task<string> GetDataAsync(string URL)
         {
@@ -39,18 +27,11 @@ namespace ADOAnalyser
             {
                 string apiURL = $"{baseUrl}/{URL}";
                 var response = await client.GetAsync(apiURL);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var stringResponse = await response.Content.ReadAsStringAsync();
-                    return stringResponse;
-                }
-                else
-                {
-                    return @"{'Error':'Error'}";
-                }
+                return response.IsSuccessStatusCode
+                    ? await response.Content.ReadAsStringAsync()
+                    : @"{'Error':'Error'}";
             }
-            catch (Exception)
+            catch
             {
                 throw;
             }
@@ -62,17 +43,11 @@ namespace ADOAnalyser
             {
                 string apiURL = $"{baseUrl}/{URL}";
                 var response = client.GetAsync(apiURL).Result;
-                if (response.IsSuccessStatusCode)
-                {
-                    var stringResponse = response.Content.ReadAsStringAsync().Result;
-                    return stringResponse;
-                }
-                else
-                {
-                    return @"{'Error':'Error'}";
-                }
+                return response.IsSuccessStatusCode
+                    ? response.Content.ReadAsStringAsync().Result
+                    : @"{'Error':'Error'}";
             }
-            catch (Exception)
+            catch
             {
                 throw;
             }
@@ -84,17 +59,11 @@ namespace ADOAnalyser
             {
                 string apiURL = $"{baseUrl}/{URL}";
                 var response = await client.PostAsync(apiURL, content);
-                if (!response.IsSuccessStatusCode)
-                {
-                    return @"{'Error':'Error'}";
-                }
-                else
-                {
-                    var result = await response.Content.ReadAsStringAsync();
-                    return result;
-                }
+                return response.IsSuccessStatusCode
+                    ? await response.Content.ReadAsStringAsync()
+                    : @"{'Error':'Error'}";
             }
-            catch (Exception)
+            catch
             {
                 throw;
             }
@@ -106,89 +75,61 @@ namespace ADOAnalyser
             {
                 string apiURL = $"{baseUrl}/{URL}";
                 var response = client.PostAsync(apiURL, content).Result;
-                if (!response.IsSuccessStatusCode)
-                {
-                    return @"{'Error':'Error'}";
-                }
-                else
-                {
-                    var result = response.Content.ReadAsStringAsync();
-                    return result.Result;
-                }
+                return response.IsSuccessStatusCode
+                    ? response.Content.ReadAsStringAsync().Result
+                    : @"{'Error':'Error'}";
             }
-            catch (Exception)
+            catch
             {
                 throw;
             }
         }
 
-
         public IterationResult GetCurrentIterationAsync(string projectName)
         {
             var result = new IterationResult();
-
-            var expectedPaths = new List<string>
-                                {
-                                    "CE\\The Mastermind",
-                                    "CE\\View Warriors"
-                                };
-
-            var uri = baseUrl + string.Format("{0}/_apis/wit/classificationnodes/iterations?$depth=3&api-version=7.1-preview.2", projectName.ToUpper());
+            var expectedPaths = new List<string> { "CE\\The Mastermind", "CE\\View Warriors" };
+            var uri = $"{baseUrl}{projectName.ToUpper()}/_apis/wit/classificationnodes/iterations?$depth=3&api-version=7.1-preview.2";
 
             var response = client.GetAsync(uri).Result;
+            if (!response.IsSuccessStatusCode) return result;
 
-            if (response.IsSuccessStatusCode)
-            {
-                var stringResponse = response.Content.ReadAsStringAsync().Result;
-                var root = JsonConvert.DeserializeObject<IterationRoot>(stringResponse);
+            var stringResponse = response.Content.ReadAsStringAsync().Result;
+            var root = JsonConvert.DeserializeObject<IterationRoot>(stringResponse);
+            var normalizedPaths = expectedPaths.Select(NormalizePath).ToList();
+            var allIterations = FlattenIterationsWithPath(root.children, projectName.ToUpper());
+            var today = DateTime.UtcNow.Date;
 
-                var normalizedPaths = expectedPaths
-                                       .Select(NormalizePath)
-                                       .ToList();
+            result.AllSprints = allIterations
+                .Where(i => normalizedPaths.Any(p => NormalizePath(i.FullPath).StartsWith(p)))
+                .OrderByDescending(i => i.Attributes.StartDate)
+                .ToList();
 
-                var allIterations = FlattenIterationsWithPath(root.children, projectName.ToUpper());
-                var today = DateTime.UtcNow.Date;
+            result.CurrentSprints = result.AllSprints
+                .Where(i => i.Attributes?.StartDate <= today && i.Attributes?.FinishDate >= today)
+                .OrderByDescending(i => i.Attributes.StartDate)
+                .ToList();
 
-                result.AllSprints = allIterations
-                                      .Where(i => normalizedPaths.Any(p => NormalizePath(i.FullPath).StartsWith(p)))
-                                      .OrderByDescending(i => i.Attributes.StartDate)
-                                      .ToList();
-
-                result.CurrentSprints = result.AllSprints
-                                       .Where(i =>
-                                           i.Attributes?.StartDate <= today &&
-                                           i.Attributes?.FinishDate >= today)
-                                       .OrderByDescending(i => i.Attributes.StartDate)
-                                       .ToList();
-
-                return result;
-            }
-            else
-            {
-                return result;
-            }
+            return result;
         }
 
         public List<IterationNode> FlattenIterations(List<IterationNode> nodes)
         {
             var result = new List<IterationNode>();
-
             foreach (var node in nodes)
             {
                 if (node.Attributes?.StartDate != null && node.Attributes?.FinishDate != null)
                     result.Add(node);
 
-                if (node.children != null && node.children.Count > 0)
+                if (node.children?.Count > 0)
                     result.AddRange(FlattenIterations(node.children));
             }
-
             return result;
         }
 
         public List<IterationNodeWithPath> FlattenIterationsWithPath(List<IterationNode> nodes, string parentPath)
         {
             var list = new List<IterationNodeWithPath>();
-
             foreach (var node in nodes)
             {
                 string currentPath = string.IsNullOrEmpty(parentPath) ? node.name : $"{parentPath}\\{node.name}";
@@ -204,13 +145,9 @@ namespace ADOAnalyser
                     });
                 }
 
-                if (node.children != null && node.children.Any())
-                {
-                    var childFlattened = FlattenIterationsWithPath(node.children, currentPath);
-                    list.AddRange(childFlattened);
-                }
+                if (node.children?.Any() == true)
+                    list.AddRange(FlattenIterationsWithPath(node.children, currentPath));
             }
-
             return list;
         }
     }

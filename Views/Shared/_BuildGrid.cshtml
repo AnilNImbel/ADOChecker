@@ -1,0 +1,39 @@
+﻿@model ADOAnalyser.BuildsModel.BuildModel
+<div class="row">
+    <div class="col-md-12 table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Defination ID</th>
+                    <th>Build ID</th>
+                    <th>Source Branch</th>
+                    <th>Result</th>
+                    <th>Finish Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.value != null && Model.value.Any())
+                {
+                    foreach (var build in Model.value)
+                    {
+                        <tr>
+                            <td><a href="https://dev.azure.com/civica-cp/CE/_build/results?buildId=@build.id&view=results" style="text-decoration:none" target="_blank">@build.id</a></td>
+                            <td>@build.buildNumber</td>
+                            <td>@build.sourceBranch</td>
+                            <td class="@build.result">@build.result</td>
+                            <td>@build.finishTime</td>
+                            @* <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@project.id" target="_blank">@project.id</a></td> *@
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="9" class="text-center">No work items found for this sprint.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>

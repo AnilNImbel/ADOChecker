@@ -44,15 +44,21 @@
                 </li>
                 <li data-section="reports" class="nav-item @(currentController == "Reports" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fas fa-chart-bar"></i>
+                        <i class="fas fa-chart-line"></i>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
                 </li>
-                <li data-section="settings"  class="nav-item @(currentController == "Graph" ? "active" : "")">
+                <li data-section="graphs"  class="nav-item @(currentController == "Graph" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fas fa-graph"></i>
+                        <i class="fas fa-chart-bar"></i>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Graph" asp-action="Index">Graph</a>
+                </li>
+                <li data-section="builds" class="nav-item @(currentController == "Build" ? "active" : "")">
+                    <span class="menu-icon">
+                        <i class="fa-solid fa-pipe"></i>
+                    </span>
+                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Build" asp-action="Index">Builds</a>
                 </li>
             </ul>
         </div>

@@ -1,10 +1,12 @@
 ﻿@model ADOAnalyser.Models.WorkItemModel
+
 @{
     ViewData["Title"] = "Run Checks";
-    bool hasResults = Model?.value != null && Model.value.Any();
-    int count = (Model?.value != null && Model.value.Any()) ? Model.value.Count() : 0;
-    bool formSubmitted = ViewBag.FromDate != null && ViewBag.ToDate != null;
+    bool hasResults = Model?.value?.Any() == true;
+    int count = hasResults ? Model.value.Count : 0;
+    bool formSubmitted = !string.IsNullOrEmpty(ViewBag.FromDate) && !string.IsNullOrEmpty(ViewBag.ToDate);
 }
+
 <section id="runChecks" class="content">
     <div class="header">Run Checks</div>
 

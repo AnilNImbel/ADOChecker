@@ -10,6 +10,10 @@ namespace ADOAnalyser
 {
     public interface IWorkItem
     {
+        string GetPipelines(string project, string folder);
+
+        string GetBuilds(string project, int definitionId, string status);
+
         string GetWorkItem(string projectName, string ids);
 
         string GetWorkItem(string ids);

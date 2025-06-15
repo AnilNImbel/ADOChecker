@@ -1,0 +1,26 @@
+﻿@model List<ADOAnalyser.Controllers.BuildController.BuildDefinition>
+@{
+    ViewData["Title"] = "Build";
+}
+<section id="builds" class="content">
+    <div class="header">Pipelines</div>
+    <div class="row mb-3">
+        <div class="col-md-12 d-flex flex-row">
+            <select id="pipelineFilter" class="selectpicker form-control">
+                <option value="">-- Select --</option>
+                @foreach (var pipeline in Model)
+                {
+                    <option value="@pipeline.Id">
+                        @pipeline.Name
+                    </option>
+                }
+            </select>
+        </div>
+    </div>
+    <div id="workItemsTable">
+    </div>
+
+    <div id="loader" style="display: none;justify-items:center">
+        <div class="spinner"></div>
+    </div>
+</section>

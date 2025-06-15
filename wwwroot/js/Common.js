@@ -103,6 +103,50 @@ $(document).on('change', '#sprintDashBoardFilter', function () {
     window.location.href = '/Dashboard/Index?selectedSprint=' + selected;
 });
 
+$(document).on('change', '#pipelineFilter', function () {
+    let definitionId = '';
+    $('#workItemsTable').html("");
+    $("#loader").show();
+    definitionId = this.value;
+    $.ajax({
+        url: '/Build/GetBuildDetails',
+        type: 'GET',
+        data: { definitionId: definitionId },
+        success: function (result) {
+            $('#workItemsTable').html(result);
+        },
+        error: function () {
+            alert('Error loading partial view.');
+        },
+        complete: function () {
+            // Hide the loader after the request completes
+            $("#loader").hide();
+        }
+    });
+});
+
+$('.loadData').click(function () {
+    let currentWorkType = '';
+    $('#workItemsTable').html("");
+    $("#loader").show();
+    currentWorkType = $(this).attr('name');
+    $.ajax({
+        url: '/DashBoard/GridLoad',
+        type: 'GET',
+        data: { missingType: currentWorkType },
+        success: function (result) {
+            $('#workItemsTable').html(result);
+        },
+        error: function () {
+            alert('Error loading partial view.');
+        },
+        complete: function () {
+            // Hide the loader after the request completes
+            $("#loader").hide();
+        }
+    });
+});
+
 $('.loadData').click(function () {
     let currentWorkType = '';
     $('#workItemsTable').html("");

@@ -163,20 +163,20 @@ tbody tr:nth-child(even) {
 }
 
 
-.Attached, .Completed, .Filled, .No, .Updated {
+.Attached, .Completed, .Filled, .No, .Updated, .succeeded {
     color: green !important;
     font-weight: bold;
 }
 .NA {
     font-weight: bold;
 }
-.Missing, .Yes {
+.Missing, .Yes, .canceled, .failed {
     color: red !important;
     font-weight: bold;
     text-wrap-mode: nowrap;
 }
 
-.Pending {
+.Pending, .partiallySucceeded {
     color: darkorange !important;
     font-weight: bold;
 }
