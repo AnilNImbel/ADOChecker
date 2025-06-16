@@ -1,10 +1,10 @@
-﻿using ADOAnalyser.PipelineModel;
-using ADOAnalyser.Repository;
+﻿using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.Office.Interop.Outlook;
 using System.Net.Http;
 using ADOAnalyser.Models.BuildsModel;
+using ADOAnalyser.Models.PipelineModel;
 
 namespace ADOAnalyser.Controllers
 {
@@ -19,38 +19,49 @@ namespace ADOAnalyser.Controllers
             _workItem = workItem;
         }
 
-        //
-        public IActionResult Index(string? selectedSprint = null)
+
+        public async Task<IActionResult> Index(string? selectedSprint = null)
         {
-           
-            var pipelineJson =  _workItem.GetPipelines(ProjectName, FolderPath);
-            var definitions = new List<BuildDefinition>();
+
+            var pipelineJson = await _workItem.GetPipelinesAsync(ProjectName, FolderPath);
             var pipelineData = JsonConvert.DeserializeObject<PipelineBuildModel>(pipelineJson);
-            if (pipelineData?.value?.Any() == true)
+
+            if (pipelineData?.value == null || !pipelineData.value.Any())
+                return View(new List<BuildDefinition>());
+
+            var filteredPipelines = pipelineData.value
+            .Where(x => x.folder.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+            var buildTasks = filteredPipelines.Select(async pipeline =>
             {
-                pipelineData.value = pipelineData.value.Where(x => x.folder.Equals(FolderPath)).ToList();
+                var buildsJson = await _workItem.GetBuildsAsync(ProjectName, pipeline.id);
+                var buildsData = JsonConvert.DeserializeObject<BuildModel>(buildsJson);
 
-                if (pipelineData.value?.Any() == true)
+                return buildsData?.value?.Any() == true
+                ? new BuildDefinition
                 {
-                    foreach (var pipeline in pipelineData.value)
-                    {
-
-                        definitions.Add(new BuildDefinition
-                        {
-                            Id = pipeline.id,
-                            Name = pipeline.name
-                        });
-                    }
+                    Id = pipeline.id,
+                    Name = pipeline.name,
+                    buildModels = buildsData.value
                 }
-            }
+                : null;
+            });
+
+            var definitions = (await Task.WhenAll(buildTasks))
+            .Where(def => def != null)
+            .ToList();
+
             return View(definitions);
+
         }
+
 
         public IActionResult GetBuildDetails(int definitionId)
         {
             var BuildDetails = new BuildModel();
             BuildDetails.value = new List<Models.BuildsModel.Value>();
-            var buildsJson = _workItem.GetBuilds(ProjectName, definitionId, "all");
+            var buildsJson = _workItem.GetBuilds(ProjectName, definitionId);
             var buildsData = JsonConvert.DeserializeObject<BuildModel>(buildsJson);
             return PartialView("_BuildGrid", buildsData);
         }
@@ -60,6 +71,7 @@ namespace ADOAnalyser.Controllers
         {
             public int Id { get; set; }
             public string Name { get; set; }
+            public List<ADOAnalyser.Models.BuildsModel.Value> buildModels { get; set; }
         }
 
     }

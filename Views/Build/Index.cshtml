@@ -4,7 +4,7 @@
 }
 <section id="builds" class="content">
     <div class="header">Pipelines</div>
-    <div class="row mb-3">
+    @* <div class="row mb-3">
         <div class="col-md-12 d-flex flex-row">
             <select id="pipelineFilter" class="selectpicker form-control">
                 <option value="">----- Select -----</option>
@@ -16,11 +16,109 @@
                 }
             </select>
         </div>
+    </div> *@
+
+    <div class="row">
+        <div class="col-md-12 table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Definition ID</th>
+                        <th>Name</th>
+                        <th>Build ID</th>
+                        <th>Build Number</th>
+                        <th>Source Branch</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var pipeline in Model)
+                    {
+                        var firstBuild = pipeline.buildModels.FirstOrDefault();
+                        <tr class="parent-row">
+                            <td>
+                                <span class="toggle-icon" onclick="toggleChild('child-@pipeline.Id', this)">+</span>
+                            </td>
+                            <td>@pipeline.Id</td>
+                            <td>@pipeline.Name</td>
+                            <td>@firstBuild?.id</td>
+                            <td>@firstBuild?.buildNumber</td>
+                            <td>@firstBuild?.sourceBranch</td>
+                            <td class="@firstBuild?.result">@firstBuild?.result</td>
+                        </tr>
+
+                        <tr id="child-@pipeline.Id" class="child-row" style="display:none;">
+                            <td colspan="7">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Build ID</th>
+                                            <th>Build Number</th>
+                                            <th>Source Branch</th>
+                                            <th>Result</th>
+                                            <th>Finish Time</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var build in pipeline.buildModels)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <a href="https://dev.azure.com/civica-cp/CE/_build/results?buildId=@build.id&view=results" target="_blank">
+                                                        @build.id
+                                                    </a>
+                                                </td>
+                                                <td>@build.buildNumber</td>
+                                                <td>@build.sourceBranch</td>
+                                                <td class="@build.result">@build.result</td>
+                                                <td>@build.finishTime</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+
     </div>
-    <div id="workItemsTable">
+@*     <div id="workItemsTable">
     </div>
 
     <div id="loader" style="display: none;justify-items:center">
         <div class="spinner"></div>
-    </div>
+    </div> *@
 </section>
+
+<style>
+table {
+width: 100%;
+}
+.child-row {
+display: none;
+}
+.parent-row {
+cursor: pointer;
+}
+
+.toggle-icon {
+cursor: pointer;
+font-weight: bold;
+font-size: 18px;
+color: #007bff;
+}
+
+</style>
+<script>
+
+function toggleChild(rowId, iconElement) {
+        const row = document.getElementById(rowId);
+        const isVisible = row.style.display === 'table-row';
+        row.style.display = isVisible ? 'none' : 'table-row';
+        iconElement.textContent = isVisible ? '+' : '-';
+    }
+</script>

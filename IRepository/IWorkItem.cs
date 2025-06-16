@@ -12,8 +12,10 @@ namespace ADOAnalyser
     {
         string GetPipelines(string project, string folder);
 
-        string GetBuilds(string project, int definitionId, string status);
+        string GetBuilds(string project, int definitionId);
 
+        Task<string> GetPipelinesAsync(string project, string folder);
+        Task<string> GetBuildsAsync(string project, int definitionId);
         string GetWorkItem(string projectName, string ids);
 
         string GetWorkItem(string ids);

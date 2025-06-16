@@ -1,6 +1,5 @@
 ﻿using ADOAnalyser.DBContext;
 using ADOAnalyser.Models;
-using ADOAnalyser.PipelineModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;

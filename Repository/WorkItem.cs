@@ -37,10 +37,22 @@ namespace ADOAnalyser
             return _Utility.GetDataSync(Url);
         }
 
-        public string GetBuilds(string project, int definitionId, string status)
+        public string GetBuilds(string project, int definitionId)
         {
-            string Url = string.Format("{0}/_apis/build/builds?definitions={1}&statusFilter={2}&api-version=7.1-preview.7", project, definitionId, status);
+            string Url = string.Format("{0}/_apis/build/builds?definitions={1}&statusFilter={2}&api-version=7.1-preview.7", project, definitionId, "all");
             return _Utility.GetDataSync(Url);
+        }
+
+        public async Task<string> GetPipelinesAsync(string project, string folder)
+        {
+            string Url = string.Format("{0}/_apis/pipelines?folderPath={1}&api-version=7.0", project, folder);
+            return await _Utility.GetDataAsync(Url);
+        }
+
+        public async Task<string> GetBuildsAsync(string project, int definitionId)
+        {
+            string Url = string.Format("{0}/_apis/build/builds?definitions={1}&statusFilter={2}&api-version=7.1-preview.7", project, definitionId, "all");
+            return await _Utility.GetDataAsync(Url);
         }
 
         private string BuildWorkItemUrl(string? projectName, string ids)

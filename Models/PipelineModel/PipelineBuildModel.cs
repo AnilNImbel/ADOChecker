@@ -1,4 +1,6 @@
-﻿namespace ADOAnalyser.PipelineModel
+﻿using ADOAnalyser.Models.BuildsModel;
+
+namespace ADOAnalyser.Models.PipelineModel
 {
     public class Links
     {
