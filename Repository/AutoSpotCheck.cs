@@ -79,13 +79,21 @@ namespace ADOAnalyser.Repository
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
 
             if (state == StateStatusEnum.Active.ToString())
-                fieldData.PRLifeCycleStatus = devStatus == PRRaised && CheckPRCheckList(fieldData)
-                ? ResultEnum.Completed.ToString()
-                : ResultEnum.Pending.ToString();
+            {
+                if(devStatus == PRRaised)
+                {
+                    fieldData.PRLifeCycleStatus = CheckPRCheckList(fieldData) ? ResultEnum.Completed.ToString() :  ResultEnum.Missing.ToString();
+                }
+                else
+                {
+                    fieldData.PRLifeCycleStatus = ResultEnum.Pending.ToString();
+                }
+
+            }
             else if (state == StateStatusEnum.Test.ToString() || state == StateStatusEnum.Closed.ToString() || state == StateStatusEnum.Resolved.ToString())
-                fieldData.PRLifeCycleStatus = CheckPRCheckList(fieldData)
-                ? ResultEnum.Completed.ToString()
-                : ResultEnum.Missing.ToString();
+            {
+                fieldData.PRLifeCycleStatus = CheckPRCheckList(fieldData) ? ResultEnum.Completed.ToString() : ResultEnum.Missing.ToString();
+            }    
         }
 
         public void CheckStatusDiscre(Fields fieldData)
