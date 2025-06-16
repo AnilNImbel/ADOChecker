@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace ADOAnalyser.TestModel
+namespace ADOAnalyser.Models.TestModel
 {
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Attributes

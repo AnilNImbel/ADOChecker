@@ -359,6 +359,8 @@ namespace ADOAnalyser.Models
 
         public int TestId { get; set; }
 
+        public string SystemAssignedTo { get; set; }
+
         public string? CivicaAgileTestLevelStatus { get; set; }
 
         public string? CivicaAgileTestPhaseStatus { get; set; }

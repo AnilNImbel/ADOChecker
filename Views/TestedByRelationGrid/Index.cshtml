@@ -30,6 +30,7 @@
                                 <th>Test Level Missing</th>
                                 <th>Test Phase Missing.</th>
                                 <th>Automation Status Missing.</th>
+                                <th>Assigned To</th>
                                 <th>Test Case Status</th>
                             </tr>
                         </thead>
@@ -46,6 +47,7 @@
                                     string CivicaAgileTestLevel = testByRelationFields.CivicaAgileTestLevel == null ? missing : updated;
                                     string CivicaAgileTestPhase = testByRelationFields.CivicaAgileTestPhase == null ? missing : updated;
                                     string CustomAutomation = testByRelationFields.CustomAutomation == null ? missing : updated;
+                                    string SystemAssignedTo = testByRelationFields.SystemAssignedTo == null ? string.Empty : testByRelationFields.SystemAssignedTo.Split('<')[0].Trim();
 
                                     <tr>
                                         <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@testByRelationFields.TestId" target="_blank">@testByRelationFields.TestId</a></td>
@@ -53,6 +55,7 @@
                                         <td class="@CivicaAgileTestLevel">@CivicaAgileTestLevel</td>
                                         <td class="@CivicaAgileTestPhase">@CivicaAgileTestPhase</td>
                                         <td class="@CustomAutomation">@CustomAutomation</td>
+                                        <td>@SystemAssignedTo</td>
                                         <td>@testByRelationFields.SystemState</td>
                                     </tr>
                                 }
@@ -76,6 +79,5 @@
     <script src="~/js/Common.js" asp-append-version="true"></script>
     <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script type="text/javascript" src="https://cdn.canvasjs.com/jquery.canvasjs.min.js"></script>
-    @* @await RenderSectionAsync("Scripts", required: false) *@
 </body>
 </html>

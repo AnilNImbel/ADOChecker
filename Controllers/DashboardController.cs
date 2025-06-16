@@ -1,8 +1,8 @@
 ﻿
 using ADOAnalyser.Enum;
 using ADOAnalyser.Models;
+using ADOAnalyser.Models.TestModel;
 using ADOAnalyser.Repository;
-using ADOAnalyser.TestModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -119,6 +119,7 @@ namespace ADOAnalyser.Controllers
                         {
                             TestId = v.id,
                             SystemState = v.fields.SystemState,
+                            SystemAssignedTo = v.fields.SystemAssignedTo,
                             CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
                             CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
                             CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,

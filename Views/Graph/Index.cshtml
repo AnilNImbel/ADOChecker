@@ -4,6 +4,33 @@
 <section id="graphs" class="content">
     <div class="header">Graph</div>
     <div class="row">
-        Graph
+        <canvas id="myChart"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx = document.getElementById('myChart');
+            new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: ['6/1–6/13', '5/1–6/13', '5/1–6/10'],
+                datasets: [{
+                  label: 'Total Work Items',
+                  data: [4194, 3954, 823],
+                  backgroundColor: 'skyblue'
+                }]
+              },
+              options: {
+                responsive: true,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Work Items' }
+                  },
+                  x: {
+                    title: { display: true, text: 'Date Range' }
+                  }
+                }
+              }
+            });
+        </script>
     </div>
 </section>

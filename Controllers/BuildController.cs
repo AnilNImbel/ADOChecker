@@ -1,10 +1,10 @@
 ﻿using ADOAnalyser.PipelineModel;
-using ADOAnalyser.BuildsModel;
 using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.Office.Interop.Outlook;
 using System.Net.Http;
+using ADOAnalyser.Models.BuildsModel;
 
 namespace ADOAnalyser.Controllers
 {
@@ -49,7 +49,7 @@ namespace ADOAnalyser.Controllers
         public IActionResult GetBuildDetails(int definitionId)
         {
             var BuildDetails = new BuildModel();
-            BuildDetails.value = new List<BuildsModel.Value>();
+            BuildDetails.value = new List<Models.BuildsModel.Value>();
             var buildsJson = _workItem.GetBuilds(ProjectName, definitionId, "all");
             var buildsData = JsonConvert.DeserializeObject<BuildModel>(buildsJson);
             return PartialView("_BuildGrid", buildsData);

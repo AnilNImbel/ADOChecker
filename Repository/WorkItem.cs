@@ -1,6 +1,6 @@
 ﻿using ADOAnalyser.Extensions;
 using ADOAnalyser.Models;
-using ADOAnalyser.TestModel;
+using ADOAnalyser.Models.TestModel;
 using Microsoft.Identity.Client;
 using Microsoft.Office.Interop.Outlook;
 using Newtonsoft.Json;
@@ -258,6 +258,7 @@ namespace ADOAnalyser
                                                  {
                                                      TestId = v.id,
                                                      SystemState = v.fields.SystemState,
+                                                     SystemAssignedTo = v.fields.SystemAssignedTo,
                                                      CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
                                                      CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
                                                      CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,
@@ -429,6 +430,7 @@ namespace ADOAnalyser
                                      {
                                          TestId = v.id,
                                          SystemState = v.fields.SystemState,
+                                         SystemAssignedTo = v.fields.SystemAssignedTo,
                                          CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
                                          CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
                                          CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,

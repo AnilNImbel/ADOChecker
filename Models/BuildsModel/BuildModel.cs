@@ -1,4 +1,4 @@
-﻿namespace ADOAnalyser.BuildsModel
+﻿namespace ADOAnalyser.Models.BuildsModel
 {
     public class BuildModel
     {
