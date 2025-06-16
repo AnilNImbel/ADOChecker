@@ -1,39 +1,50 @@
 ﻿@model List<ADOAnalyser.Controllers.GraphController.GraphDefinition>
 @{
     ViewData["Title"] = "Graph";
-    var idList = @Model.Select(a => a.Date).ToList();
-    var countList = @Model.Select(a => a.Count).ToList();
+    var dateList = @Model.Select(a => a.Date).ToList();
+    var missingList = @Model.Select(a => a.MissingCount).ToList();
+    var passingList = @Model.Select(a => a.PassingCount).ToList();
 }
 <section id="graphs" class="content">
     <div class="header">Graph</div>
     <div class="row">
-        <canvas id="myChart"></canvas>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            const ctx = document.getElementById('myChart');
-            new Chart(ctx, {
-              type: 'bar',
-              data: {
-               labels: [@Html.Raw(string.Join(",", idList.Select(x => $"\"{x}\"")))],
-                datasets: [{
-                  label: 'Total Work Items',
-                 data: [@Html.Raw(string.Join(",", countList))],
-                  backgroundColor: 'skyblue'
-                }]
-              },
-              options: {
-                responsive: true,
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Work Items' }
+        <div class="col-md-12">
+            <canvas id="myChart"></canvas>
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                const ctx = document.getElementById('myChart');
+                new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                   labels: [@Html.Raw(string.Join(",", dateList.Select(x => $"\"{x}\"")))],
+                   datasets: [
+                                {
+                                    label: 'Failed',
+                                    data: [@Html.Raw(string.Join(",", missingList))],
+                                    backgroundColor: 'red'
+                                },
+                                {
+                                    label: 'Passed',
+                                    data: [@Html.Raw(string.Join(",", passingList))],
+                                    backgroundColor: 'green'
+                                }
+                                
+                            ]
                   },
-                  x: {
-                    title: { display: true, text: 'Date Range' }
+                  options: {
+                    responsive: true,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Work Items' }
+                      },
+                      x: {
+                        title: { display: true, text: 'Date Range' }
+                      }
+                    }
                   }
-                }
-              }
-            });
-        </script>
+                });
+            </script>
+        </div>
     </div>
 </section>

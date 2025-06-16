@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using static ADOAnalyser.Controllers.BuildController;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ADOAnalyser.Controllers
 {
@@ -30,17 +31,18 @@ namespace ADOAnalyser.Controllers
             {
                 foreach (var pipeline in pipelineJson)
                 {
-                    int number = Regex.Matches(pipeline.ResultSummary, @"\d+")
-                    .Cast<Match>()
-                    .Select(m => int.Parse(m.Value))
-                    .FirstOrDefault();
+                    MatchCollection matches = Regex.Matches(pipeline.ResultSummary, @"\d+");
 
+                    if (matches.Count >= 3)
+                    {   
+                        definitions.Add(new GraphDefinition
+                        {
+                            Date = pipeline.StartDate?.ToShortDateString() + "-" + pipeline.EndDate?.ToShortDateString(),
+                            MissingCount = int.Parse(matches[2].Value),
+                            PassingCount = int.Parse(matches[1].Value)
+                        });
+                    }
 
-                    definitions.Add(new GraphDefinition
-                    {
-                        Date = pipeline.StartDate?.ToShortDateString() + "-" + pipeline.EndDate?.ToShortDateString(),
-                        Count = number
-                    });
                 }
             }
 
@@ -50,7 +52,8 @@ namespace ADOAnalyser.Controllers
         public class GraphDefinition
         {
             public string Date { get; set; }
-            public int Count { get; set; }
+            public int MissingCount { get; set; }
+            public int PassingCount { get; set; }
         }
     }
 }
