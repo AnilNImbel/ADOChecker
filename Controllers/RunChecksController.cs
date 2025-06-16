@@ -37,6 +37,7 @@ namespace ADOAnalyser.Controllers
             if (workItemModel?.value != null)
             {
                 await autoSpotCheck.CheckMissingDataAsync(workItemModel);
+                workItemModel.passingCount = autoSpotCheck.TotalFullyPassedCount(workItemModel);
             }
             ViewBag.FromDate = fromDate.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate.ToString("yyyy-MM-dd");
@@ -47,52 +48,17 @@ namespace ADOAnalyser.Controllers
             return View(workItemModel);
         }
 
-        private void SaveTestRunResult(DateTime fromDate, DateTime toDate, WorkItemModel workItemModel)
-        {
-            var runResult = new TestRunResult
-            {
-                RunDate = DateTime.Now,
-                StartDate = fromDate,
-                EndDate = toDate,
-                ResultSummary = $"Run completed with {workItemModel.value?.Count ?? 0} work items."
-            };
-
-            _dbContext.TestRunResults.Add(runResult);
-            _dbContext.SaveChanges(); // Generate RunId
-
-            if (workItemModel?.value != null && workItemModel.value.Any() && runResult.RunId != 0)
-            {
-                var detailRecords = workItemModel.value.Select(w => new TestRunDetail
-                {
-                    RunId = runResult.RunId,
-                    AdoItemId = w.id.ToString(),
-                    CallReference = w.fields?.CivicaAgileCallReference,
-                    ImpactAssessment = w.fields?.IAStatus,
-                    RootCauseAnalysis = w.fields?.RootCauseStatus,
-                    ProjectZero = w.fields?.ProjectZeroStatus,
-                    PRLifecycle = w.fields?.PRLifeCycleStatus,
-                    StatusDiscrepancy = w.fields?.StatusDiscrepancyStatus,
-                    TestCaseGap = string.Empty, // or combine with VLDB if needed
-                    CurrentStatus = w.fields?.SystemState,
-                    TechnicalLeadName = w.TlPrReviewAssignedTo,
-                    DevName = string.Empty,
-                    WorkitemType = w.fields?.SystemWorkItemType
-                });
-
-                _dbContext.TestRunDetails.AddRange(detailRecords);
-                _dbContext.SaveChanges();
-            }
-        }
-
-
         private async Task SaveTestRunResultAsync(DateTime fromDate, DateTime toDate, WorkItemModel workItemModel)
         {
+            int totalCount = workItemModel.value?.Count ?? 0;
+            int missingCount = totalCount - workItemModel.passingCount;
+
             var runResult = new TestRunResult
             {
                 RunDate = DateTime.Now,
                 StartDate = fromDate,
                 EndDate = toDate,
-                ResultSummary = $"Run completed with {workItemModel.value?.Count ?? 0} work items."
+                ResultSummary = $"Run completed with {totalCount} work items.{workItemModel.passingCount} Passed, {missingCount} Failed."
             };
 
             await _dbContext.TestRunResults.AddAsync(runResult);

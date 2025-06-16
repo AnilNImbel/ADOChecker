@@ -1,5 +1,8 @@
-﻿@{
+﻿@model List<ADOAnalyser.Controllers.GraphController.GraphDefinition>
+@{
     ViewData["Title"] = "Graph";
+    var idList = @Model.Select(a => a.Date).ToList();
+    var countList = @Model.Select(a => a.Count).ToList();
 }
 <section id="graphs" class="content">
     <div class="header">Graph</div>
@@ -11,10 +14,10 @@
             new Chart(ctx, {
               type: 'bar',
               data: {
-                labels: ['6/1–6/13', '5/1–6/13', '5/1–6/10'],
+                labels: [@string.Join(",",idList)],
                 datasets: [{
                   label: 'Total Work Items',
-                  data: [4194, 3954, 823],
+                  data: [@string.Join(",",countList)],
                   backgroundColor: 'skyblue'
                 }]
               },

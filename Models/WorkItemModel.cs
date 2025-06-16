@@ -20,6 +20,7 @@ namespace ADOAnalyser.Models
         public int missingTestCaseCount { get; set; }
         public int missingVTDCount { get; set; }
         public int missingVLDBCount { get; set; }
+        public int passingCount { get; set; }
     }
 
     public class Fields
