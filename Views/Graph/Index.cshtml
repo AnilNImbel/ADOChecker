@@ -14,10 +14,10 @@
             new Chart(ctx, {
               type: 'bar',
               data: {
-                labels: [@string.Join(",",idList)],
+               labels: [@Html.Raw(string.Join(",", idList.Select(x => $"\"{x}\"")))],
                 datasets: [{
                   label: 'Total Work Items',
-                  data: [@string.Join(",",countList)],
+                 data: [@Html.Raw(string.Join(",", countList))],
                   backgroundColor: 'skyblue'
                 }]
               },
