@@ -231,6 +231,20 @@ namespace ADOAnalyser.Repository
         #endregion
 
         #region Others
+        public int TotalFullyPassedCount(WorkItemModel workData)
+        {
+            return workData.value.Count(a =>
+           a.fields.IAStatus != ResultEnum.Missing.ToString() &&
+           a.fields.RootCauseStatus != ResultEnum.Missing.ToString() &&
+           a.fields.ProjectZeroStatus != ResultEnum.Missing.ToString() &&
+           a.fields.PRLifeCycleStatus != ResultEnum.Missing.ToString() &&
+           a.fields.StatusDiscrepancyStatus != ResultEnum.Yes.ToString() &&
+           a.fields.TestCaseGapeStatus != ResultEnum.Missing.ToString() &&
+           a.fields.VLDBMissingStatus != ResultEnum.Missing.ToString() &&
+           a.fields.VTDMissingStatus != ResultEnum.Missing.ToString()
+            );
+        }
+
         public async Task CheckMissingDataAsync(WorkItemModel workData)
         {
             await Task.Run(() =>
@@ -248,6 +262,7 @@ namespace ADOAnalyser.Repository
                 });
             });
         }
+
 
         public void CheckMissingData(WorkItemModel workData)
         {
