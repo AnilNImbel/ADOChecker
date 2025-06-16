@@ -42,7 +42,7 @@ namespace ADOAnalyser.Repository
 
             if (workType == UserStory)
                 fieldData.RootCauseStatus = ResultEnum.NA.ToString();
-            else if (state == StateStatusEnum.New.ToString() || state == StateStatusEnum.Active.ToString())
+            else if (state == StateStatusEnum.Active.ToString())
                 fieldData.RootCauseStatus = ResultEnum.Pending.ToString();
             else if (!string.IsNullOrWhiteSpace(rca))
                 fieldData.RootCauseStatus = ResultEnum.Completed.ToString();
@@ -94,13 +94,13 @@ namespace ADOAnalyser.Repository
             string devStatus = fieldData.CustomDevelopmentStatus ?? string.Empty;
             string qaStatus = fieldData.CustomQAStatus ?? string.Empty;
 
-            bool isTestOrClosed = state == StateStatusEnum.Test.ToString() || state == StateStatusEnum.Closed.ToString();
-            bool isTestActiveClosed = isTestOrClosed || state == StateStatusEnum.Active.ToString();
+            bool isTestOrClosedOrResolved = state == StateStatusEnum.Test.ToString() || state == StateStatusEnum.Closed.ToString() || state == StateStatusEnum.Resolved.ToString();
+            bool isTestActiveClosedResolved = isTestOrClosedOrResolved || state == StateStatusEnum.Active.ToString();
 
             bool discrepancy =
-            (isTestActiveClosed && string.IsNullOrWhiteSpace(devStatus)) ||
-            (isTestOrClosed && (string.IsNullOrWhiteSpace(qaStatus) || string.IsNullOrWhiteSpace(devStatus))) ||
-            (isTestOrClosed && !string.IsNullOrWhiteSpace(qaStatus) && devStatus != PRRaised);
+            (isTestActiveClosedResolved && string.IsNullOrWhiteSpace(devStatus)) ||
+            (isTestOrClosedOrResolved && (string.IsNullOrWhiteSpace(qaStatus) || string.IsNullOrWhiteSpace(devStatus))) ||
+            (isTestOrClosedOrResolved && !string.IsNullOrWhiteSpace(qaStatus) && devStatus != PRRaised);
 
             fieldData.StatusDiscrepancyStatus = discrepancy ? ResultEnum.Yes.ToString() : ResultEnum.No.ToString();
         }
