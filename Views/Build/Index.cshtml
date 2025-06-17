@@ -1,6 +1,17 @@
 ﻿@model List<ADOAnalyser.Controllers.BuildController.BuildDefinition>
 @{
     ViewData["Title"] = "Build";
+
+    var priority = new Dictionary<string, int>
+     {
+             { "inProgress", 0 },
+             { "cancelling", 1 },
+             { "notStarted", 2 },
+             { "completed", 3 },
+             { "postponed",4 },
+             { "none", 5 },
+     };
+
 }
 <section id="builds" class="content">
     <div class="header">Pipelines</div>
@@ -35,7 +46,7 @@
                 <tbody>
                     @foreach (var pipeline in Model)
                     {
-                        var firstBuild = pipeline.buildModels.FirstOrDefault();
+                        var firstBuild = pipeline.buildModels.OrderBy(p => priority.ContainsKey(p.result) ? priority[p.result] : 99).FirstOrDefault();
                         <tr class="parent-row">
                             <td>
                                 <span class="toggle-icon" onclick="toggleChild('child-@pipeline.Id', this)">+</span>
@@ -86,7 +97,7 @@
         </div>
 
     </div>
-@*     <div id="workItemsTable">
+    @*     <div id="workItemsTable">
     </div>
 
     <div id="loader" style="display: none;justify-items:center">
@@ -95,30 +106,32 @@
 </section>
 
 <style>
-table {
-width: 100%;
-}
-.child-row {
-display: none;
-}
-.parent-row {
-cursor: pointer;
-}
+    table {
+        width: 100%;
+    }
 
-.toggle-icon {
-cursor: pointer;
-font-weight: bold;
-font-size: 18px;
-color: #007bff;
-}
+    .child-row {
+        display: none;
+    }
+
+    .parent-row {
+        cursor: pointer;
+    }
+
+    .toggle-icon {
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 18px;
+        color: #007bff;
+    }
 
 </style>
 <script>
 
-function toggleChild(rowId, iconElement) {
-        const row = document.getElementById(rowId);
-        const isVisible = row.style.display === 'table-row';
-        row.style.display = isVisible ? 'none' : 'table-row';
-        iconElement.textContent = isVisible ? '+' : '-';
-    }
+    function toggleChild(rowId, iconElement) {
+            const row = document.getElementById(rowId);
+            const isVisible = row.style.display === 'table-row';
+            row.style.display = isVisible ? 'none' : 'table-row';
+            iconElement.textContent = isVisible ? '+' : '-';
+        }
 </script>
