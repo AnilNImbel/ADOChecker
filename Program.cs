@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using static ADOAnalyser.Repository.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,7 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.Configure<EmailSetting>(builder.Configuration.GetSection("Email"));
 
 var app = builder.Build();
 

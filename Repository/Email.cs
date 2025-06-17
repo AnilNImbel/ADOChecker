@@ -1,30 +1,28 @@
 ﻿using System.Net.Mail;
 using System.Net;
 using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
+using Microsoft.Extensions.Options;
 namespace ADOAnalyser.Repository
 {
     public class Email
     {
         private SmtpClient smtpClient;
-        public Email() 
+
+        private readonly EmailSetting _settings;
+
+        private readonly string emailFrom;
+
+        public Email(IOptions<EmailSetting> settings) 
         {
-
-            WebProxy proxy = new WebProxy("http://webproxy.civica.com:8080")
-            {
-                Credentials = CredentialCache.DefaultCredentials,
-                BypassProxyOnLocal = true
-            };
-
-            // Set the default proxy for all web requests (including SMTP if applicable)
-            WebRequest.DefaultWebProxy = proxy;
-
-            smtpClient = new SmtpClient("smtp.office365.com")
+            _settings = settings.Value;
+            emailFrom = _settings.EmailFrom;
+            smtpClient = new SmtpClient(_settings.Server)
             {
                 Port = 587,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("anil.nimbel@civica.com", "@Annu90334M#1"),
+                Credentials = new NetworkCredential(_settings.Username, _settings.Password),
                 Timeout = 30000
             };
         }
@@ -36,7 +34,7 @@ namespace ADOAnalyser.Repository
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("anil.nimbel@civica.com"),
+                    From = new MailAddress(emailFrom),
                     Subject = "Work Item Verification",
                     Body = body + "<br> Missing Items",
                     IsBodyHtml = true,
@@ -52,6 +50,15 @@ namespace ADOAnalyser.Repository
             }
 
         }
+
+        public class EmailSetting
+        {
+            public string Server { get; set; }
+            public string EmailFrom { get; set; }
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
+
 
     }
 }
