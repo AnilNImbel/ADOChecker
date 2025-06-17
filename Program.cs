@@ -22,7 +22,7 @@ builder.Services.AddHttpClient("AzureDevOpsClient", client =>
 {
     return new HttpClientHandler
     {
-        Proxy = new WebProxy("http://b.webproxy.civica.com:8080")
+        Proxy = new WebProxy(builder.Configuration.GetSection("Proxy").Get<string>())
         {
             Credentials = CredentialCache.DefaultNetworkCredentials
         },
