@@ -190,7 +190,7 @@ namespace ADOAnalyser.Repository
         public void CheckVLDBRequired(Fields fieldData)
         {
             string vtdStatus = fieldData.VTDMissingStatus;
-            bool hasVLDB = fieldData.SystemWorkItemType == "User Story" ? fieldData.ViewEndDate.HasValue : fieldData.CustomVIEWLanDeskBreakDate.HasValue;
+            bool hasVLDB = fieldData.SystemWorkItemType == UserStory ? fieldData.ViewEndDate.HasValue : fieldData.CustomVIEWLanDeskBreakDate.HasValue;
 
             fieldData.VLDBMissingStatus = vtdStatus switch
             {
