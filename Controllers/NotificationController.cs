@@ -2,7 +2,7 @@
 
 namespace ADOAnalyser.Controllers
 {
-    public class SettingsController : Controller
+    public class NotificationController : Controller
     {
         public IActionResult Index()
         {
