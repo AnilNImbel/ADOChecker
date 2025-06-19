@@ -21,6 +21,7 @@ namespace ADOAnalyser.Models
         public int missingVTDCount { get; set; }
         public int missingVLDBCount { get; set; }
         public int passingCount { get; set; }
+        public int dashboardCount { get; set; }
     }
 
     public class Fields
@@ -318,6 +319,10 @@ namespace ADOAnalyser.Models
 
         public string VTDMissingStatus{ get; set; }
         public string VLDBMissingStatus{ get; set; }
+
+        [JsonProperty("CivicaAgile.VIEWEndDate")]
+        public DateTime? ViewEndDate { get; set; }
+
     }
 
     public class Values

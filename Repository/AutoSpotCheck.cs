@@ -190,7 +190,7 @@ namespace ADOAnalyser.Repository
         public void CheckVLDBRequired(Fields fieldData)
         {
             string vtdStatus = fieldData.VTDMissingStatus;
-            bool hasVLDB = fieldData.CustomVIEWLanDeskBreakDate.HasValue;
+            bool hasVLDB = fieldData.SystemWorkItemType == "User Story" ? fieldData.ViewEndDate.HasValue : fieldData.CustomVIEWLanDeskBreakDate.HasValue;
 
             fieldData.VLDBMissingStatus = vtdStatus switch
             {
@@ -355,6 +355,17 @@ namespace ADOAnalyser.Repository
             workData.missingTestCaseCount = MissingTestCaseGapeCount(workData);
             workData.missingVTDCount = MissingVTDCount(workData);
             workData.missingVLDBCount = MissingVLDBCount(workData);
+        }
+
+        public void SetCountForMissingForDashboard(WorkItemModel workData)
+        {
+            workData.missingIACount = MissingImpactAssessmentCount(workData);
+            workData.missingRootCauseCount = MissingRootCauseCount(workData);
+            workData.missingProjectZeroCount = MissingProjectZeroCount(workData);
+            workData.missingPRLifeCycleCount = MissingPRLifeCycleCount(workData);
+            workData.missingStatusDiscreCount = MissingStatusDiscreCount(workData);
+            workData.missingTestCaseCount = MissingTestCaseGapeCount(workData);
+            workData.dashboardCount = workData.missingIACount + workData.missingRootCauseCount + workData.missingProjectZeroCount + workData.missingPRLifeCycleCount + workData.missingStatusDiscreCount + workData.missingTestCaseCount;
         }
         #endregion
     }

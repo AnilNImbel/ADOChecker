@@ -57,7 +57,7 @@ namespace ADOAnalyser.Controllers
                         {
                             AddTestRelationFilterData(workData);
                             _autoSpotCheck.CheckMissingData(workData);
-                            _autoSpotCheck.SetCountForMissing(workData);
+                            _autoSpotCheck.SetCountForMissingForDashboard(workData);
                         }
                     }
                 }
