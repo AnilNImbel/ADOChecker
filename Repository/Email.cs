@@ -2,6 +2,8 @@
 using System.Net;
 using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using Microsoft.Extensions.Options;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 namespace ADOAnalyser.Repository
 {
     public class Email
@@ -12,10 +14,15 @@ namespace ADOAnalyser.Repository
 
         private readonly string emailFrom;
 
-        public Email(IOptions<EmailSetting> settings) 
+        public Email(IOptions<EmailSetting> settings)
         {
             _settings = settings.Value;
             emailFrom = _settings.EmailFrom;
+            ServicePointManager.ServerCertificateValidationCallback =
+            delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+            {
+                return true;
+};
             smtpClient = new SmtpClient(_settings.Server)
             {
                 Port = 587,
@@ -42,7 +49,7 @@ namespace ADOAnalyser.Repository
 
                 mailMessage.To.Add(ToEmail);
 
-                 smtpClient.Send(mailMessage);
+                smtpClient.Send(mailMessage);
             }
             catch (Exception ex)
             {
