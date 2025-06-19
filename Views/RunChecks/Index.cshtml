@@ -10,17 +10,17 @@
 <section id="runChecks" class="content">
     <div class="header">Run Checks</div>
 
-    <p>Click the button below to start verification checks on ADO items, for last update date.</p>
+    <p>Click the button below to start verification checks on ADO items based on the last updated date.</p>
 
     <form id="runCheckForm" asp-controller="RunChecks" asp-action="Index" method="post" onsubmit="return validateDateRange()">
         <div class="row g-2 align-items-end">
             <div class="col-md-3">
-                <label for="fromDate" class="form-label">Last update date from</label>
+                <label for="fromDate" class="form-label">Last updated date from</label>
                 <input type="date" class="form-control form-control-sm" id="fromDate" name="fromDate" min="2000-01-01" required value="@ViewBag.FromDate" />
             </div>
 
             <div class="col-md-3">
-                <label for="toDate" class="form-label">Last update date to</label>
+                <label for="toDate" class="form-label">Last updated date to</label>
                 <input type="date" class="form-control form-control-sm" id="toDate" name="toDate" min="2000-01-01" required value="@ViewBag.ToDate" />
             </div>
 

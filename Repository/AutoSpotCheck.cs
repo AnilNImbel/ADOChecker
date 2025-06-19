@@ -356,17 +356,6 @@ namespace ADOAnalyser.Repository
             workData.missingVTDCount = MissingVTDCount(workData);
             workData.missingVLDBCount = MissingVLDBCount(workData);
         }
-
-        public void SetCountForMissingForDashboard(WorkItemModel workData)
-        {
-            workData.missingIACount = MissingImpactAssessmentCount(workData);
-            workData.missingRootCauseCount = MissingRootCauseCount(workData);
-            workData.missingProjectZeroCount = MissingProjectZeroCount(workData);
-            workData.missingPRLifeCycleCount = MissingPRLifeCycleCount(workData);
-            workData.missingStatusDiscreCount = MissingStatusDiscreCount(workData);
-            workData.missingTestCaseCount = MissingTestCaseGapeCount(workData);
-            workData.dashboardCount = workData.missingIACount + workData.missingRootCauseCount + workData.missingProjectZeroCount + workData.missingPRLifeCycleCount + workData.missingStatusDiscreCount + workData.missingTestCaseCount;
-        }
         #endregion
     }
 }

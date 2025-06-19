@@ -41,7 +41,7 @@ namespace ADOAnalyser.Controllers
             var csvBuilder = new StringBuilder();
 
             // Write CSV header
-            csvBuilder.AppendLine("Work Item Type,Ado Item Id,Call Reference,Impact Assessment,Root Cause Analysis,Project Zero,PR Lifecycle,Status Discrepancy,TestCase Gaps,Current Stage,Technical Lead Name,Dev Name");
+            csvBuilder.AppendLine("Work Item Type,Ado Item Id,Call Reference,Impact Assessment,Root Cause Analysis,Project Zero,PR Lifecycle,Status Discrepancy,TestCase Gaps,Current Stage,Technical Lead Name");
 
             // Write CSV rows
             foreach (var d in details)

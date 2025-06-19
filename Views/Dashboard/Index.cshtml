@@ -3,10 +3,10 @@
     ViewData["Title"] = "DashBoard";
 }
 <section id="dashboard" class="content">
-    <div class="header">DevOps ADO Item Verification Dashboard</div>
+    <div class="header">ADO Item verification Dashboard</div>
     <div class="row mb-3">
         <div class="col-md-12 d-flex flex-row">
-            <div class="form-label">Select Sprint  from here</div>
+            <div class="form-label">Select Sprint</div>
         </div>
         <div class="col-md-12 d-flex flex-row">
             <select id="sprintDashBoardFilter" class="selectpicker form-control">
@@ -28,14 +28,14 @@
     </div> *@
     <div class="row">
         <div class="col-md-12 mb-2">
-            <label class="form-label" style="float:right">Total Work Items : <span style="font-weight:bold">@Model.WorkItemData.dashboardCount</span></label>
+            <label class="form-label" style="float:right">Total Work Items in Sprint : <span style="font-weight:bold">@Model.WorkItemData.count</span></label>
         </div>
     </div>
     <div class="row" id="tableChart">
         <div class="col-md-4 mb-4">
             <div class="card">
                 <a class="loadData" name="IAStatus" style="text-decoration:none;cursor:pointer">
-                    <div class="card-body"><h3>Impact Assessment Issues</h3><p class="badge">@Model.WorkItemData.missingIACount</p></div>
+                    <div class="card-body"><h3>Impact Assessment Missing</h3><p class="badge">@Model.WorkItemData.missingIACount</p></div>
                 </a>
             </div>
         </div>

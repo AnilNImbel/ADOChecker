@@ -1,12 +1,12 @@
 ﻿@model List<ADOAnalyser.Controllers.GraphController.GraphDefinition>
 @{
-    ViewData["Title"] = "Graph";
+    ViewData["Title"] = "AutoSpot Check Summary Graph";
     var dateList = @Model.Select(a => a.Date).ToList();
     var missingList = @Model.Select(a => a.MissingCount).ToList();
     var passingList = @Model.Select(a => a.PassingCount).ToList();
 }
 <section id="graphs" class="content">
-    <div class="header">Graph</div>
+    <div class="header">AutoSpot Check Summary Graph</div>
     <div class="row">
         <div class="col-md-12">
             <canvas id="myChart"></canvas>
