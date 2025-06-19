@@ -271,7 +271,6 @@ namespace ADOAnalyser.Repository
             });
         }
 
-
         public void CheckMissingData(WorkItemModel workData)
         {
             Parallel.ForEach(workData.value, item =>
@@ -309,7 +308,7 @@ namespace ADOAnalyser.Repository
             var status = values.fields.TestCaseGapeStatus;
             var testCases = values.testByRelationField;
 
-            if (testCases == null || !testCases.Any())
+            if ((testCases == null || !testCases.Any()) && status.Equals(ResultEnum.Missing.ToString()))
                 return $"<span class=\"{ResultEnum.Missing}\">No Test case Attached</span>";
 
             if (status == ResultEnum.Pending.ToString())
