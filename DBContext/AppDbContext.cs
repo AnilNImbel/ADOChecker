@@ -9,6 +9,7 @@ namespace ADOAnalyser.DBContext
 
         public DbSet<TestRunResult> TestRunResults { get; set; }
         public DbSet<TestRunDetail> TestRunDetails { get; set; }
+        public DbSet<TestRunDetail> EmailConfig { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
