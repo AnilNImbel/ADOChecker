@@ -1,12 +1,12 @@
 using ADOAnalyser;
 using ADOAnalyser.DBContext;
+using ADOAnalyser.IRepository;
 using ADOAnalyser.Repository;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using static ADOAnalyser.Repository.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +35,7 @@ builder.Services.AddScoped<IUtility, Utility>();
 builder.Services.AddScoped<IWorkItem, WorkItem>();
 builder.Services.AddScoped<AutoSpotCheck>();
 builder.Services.AddScoped<Email>();
+builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
 builder.Services.AddSession();
 builder.Services.AddControllersWithViews();
 

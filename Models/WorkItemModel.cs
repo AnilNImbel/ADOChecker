@@ -313,10 +313,8 @@ namespace ADOAnalyser.Models
         public string ProjectZeroStatus { get; set; }
         public string PRLifeCycleStatus { get; set; }
         public string StatusDiscrepancyStatus { get; set; }
-        public string TestCaseGapeHTML { get; set; }
-
         public string TestCaseGapeStatus { get; set; }
-
+        public string TestCaseGapeHTML { get; set; }
         public string VTDMissingStatus{ get; set; }
         public string VLDBMissingStatus{ get; set; }
 

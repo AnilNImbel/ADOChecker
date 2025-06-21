@@ -1,6 +1,6 @@
 USE [AdoChecker]
 GO
-
+DROP TABLE IF EXISTS [dbo].[TestRunDetails];
 /****** Object:  Table [dbo].[TestRunDetails]    Script Date: 6/2/2025 12:22:43 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -19,6 +19,7 @@ CREATE TABLE [dbo].[TestRunDetails](
 	[PRLifecycle] [nvarchar](20) NULL,
 	[StatusDiscrepancy] [nvarchar](10) NULL,
 	[TestCaseGap] [nvarchar](200) NULL,
+	[TestCaseGapeHTML] [nvarchar](max) NULL,
 	[CurrentStatus] [nvarchar](20) NULL,
 	[TechnicalLeadName] [nvarchar](100) NULL,
 	[DevName] [nvarchar](50) NULL,
@@ -26,7 +27,7 @@ CREATE TABLE [dbo].[TestRunDetails](
 PRIMARY KEY CLUSTERED 
 (
 	[DetailId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
 

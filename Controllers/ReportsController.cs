@@ -3,7 +3,11 @@ using ADOAnalyser.Models;
 using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Configuration;
+using System;
+using System.Configuration;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ADOAnalyser.Controllers
@@ -58,7 +62,7 @@ namespace ADOAnalyser.Controllers
                        Escape(d.ProjectZero ?? ""),
                        Escape(d.PRLifecycle ?? ""),
                        Escape(d.StatusDiscrepancy ?? ""),
-                       Escape(d.TestCaseGap ?? ""),
+                       Escape(d.TestCaseGapeHTML ?? ""),
                        Escape(d.CurrentStatus ?? ""),
                        Escape(d.TechnicalLeadName ?? "")
                     ));
@@ -73,21 +77,50 @@ namespace ADOAnalyser.Controllers
         [HttpGet]
         public IActionResult EmailSend(int runId)
         {
-            var emailCollection = _context.TestRunDetails
-             .Where(a => a.TechnicalLeadName != null)
-             .AsEnumerable() // Forces in-memory evaluation
-                .GroupBy(a => a.TechnicalLeadName)
-             .Select(g => new EmailCollectionModel
-             {
-                 Email = g.Key.Substring(g.Key.IndexOf('<') + 1, g.Key.IndexOf('>') - g.Key.IndexOf('<') - 1),
-                 Body = string.Join(", ", g.Select(x => x.AdoItemId))
-             })
-             .ToList();
+            var approvedlist = ApprovedEmailList();
+            //var emailCollection = _context.TestRunDetails
+            //                         .Where(a => a.RunId == runId)
+            //                          .AsEnumerable() // Forces in-memory evaluation
+            //                                .GroupBy(a => a.TechnicalLeadName)
+            //                         .Select(g => new EmailCollectionModel
+            //                         {
+            //                             Email = string.IsNullOrEmpty(g.Key) ? null 
+            //                                    : g.Key.Substring(g.Key.IndexOf('<') + 1, g.Key.IndexOf('>') - g.Key.IndexOf('<') - 1),
+            //                             Body = string.Join(", ", g.Select(x => x.AdoItemId))
+            //                         })
+            //                         .ToList();
 
+
+            var emailCollection =_context.TestRunDetails
+                                     .Where(a => a.RunId == runId)
+                                     .AsEnumerable()
+                                     .GroupBy(a =>
+                                     {
+                                         // Extract email from TechnicalLeadName
+                                         if (string.IsNullOrEmpty(a.TechnicalLeadName) || !a.TechnicalLeadName.Contains("<") || !a.TechnicalLeadName.Contains(">"))
+                                             return "null";
+
+                                         var extractedEmail = a.TechnicalLeadName.Substring(
+                                         a.TechnicalLeadName.IndexOf('<') + 1,
+                                         a.TechnicalLeadName.IndexOf('>') - a.TechnicalLeadName.IndexOf('<') - 1
+                                         ).ToLower();
+
+                                         return approvedlist.Contains(extractedEmail) ? extractedEmail : "null";
+                                     })
+                                     .Select(g => new EmailCollectionModel
+                                     {
+                                         Email = g.Key == "null" ? null : g.Key,
+                                         workIds = string.Join(", ", g.Select(x => x.AdoItemId))
+                                     })
+                                     .ToList();
+
+
+
+            var EmailConfig = _context.EmailConfig.Where(a => a.IsActive).ToList();
 
             if (!emailCollection.Any())
             {
-                TempData["AlertMessage"] = "No Email Found!";
+                TempData["AlertMessage"] = "No Data Found!";
             }
             try
             {
@@ -95,7 +128,30 @@ namespace ADOAnalyser.Controllers
                 {
                     foreach (var email in emailCollection)
                     {
-                        _email.EmailSend(email.Body, "anil.nimbel@civica.com");
+                        if(email.Email != null) //&& ApprovedEmailList().Contains(email.Email))
+                        {
+
+                            var allEmails = email.Email +
+                                                         (EmailConfig.Any()
+                                                         ? ", " + string.Join(", ", EmailConfig.Select(a => a.EmailId))
+                                                         : string.Empty);
+
+                            _email.EmailSend(GridData(email.workIds, runId),  allEmails);
+                        }
+                        else
+                        {
+                            if (EmailConfig.Any())
+                            {
+                                _email.EmailSend(GridData(email.workIds, runId), string.Join(", ", EmailConfig.Select(a => a.EmailId)));
+                            }
+                            else
+                            {
+                                if(emailCollection.Count == 1)
+                                {
+                                    TempData["AlertMessage"] = "No Email Found!";
+                                }
+                            }
+                        }
                     }
                     TempData["AlertMessage"] = "Email Send Successfully.";
                 }
@@ -105,6 +161,26 @@ namespace ADOAnalyser.Controllers
                 TempData["AlertMessage"] = ex.Message;
             }
             return RedirectToAction("Index", "Reports");
+        }
+
+        private List<string> ApprovedEmailList()
+        {
+            var emailList = AppSettingsReader.GetValue("Others", "ApprovedTLEmail");
+
+            List<string> approvedList = emailList
+             .Split(',', StringSplitOptions.RemoveEmptyEntries)
+             .Select(s => s.Trim())
+             .ToList();
+
+            return approvedList;
+        }
+
+
+        private List<TestRunDetail> GridData(string workIds, int runID)
+        {
+            var data = _context.TestRunDetails.Where(a => a.RunId == runID).ToList();
+
+            return data;
         }
     }
 }

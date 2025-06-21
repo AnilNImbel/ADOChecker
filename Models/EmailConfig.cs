@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ADOAnalyser.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace ADOAnalyser.Models
 {
@@ -6,7 +7,9 @@ namespace ADOAnalyser.Models
     {
         [Key]
         public int Id { get; set; }
-        public string EmailIds { get; set; }
+
+        [Required]
+        public string EmailId { get; set; }
 
         public DateTime CreatedDate { get; set; }
         public DateTime ModifiedDate { get; set; }

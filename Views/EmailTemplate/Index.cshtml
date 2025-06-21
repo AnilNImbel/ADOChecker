@@ -1,0 +1,241 @@
+﻿@{
+    Layout = null; // or set a custom layout path
+}
+@model List<ADOAnalyser.Models.TestRunDetail>
+<html>
+<head>
+    <style type="text/css">
+
+
+
+
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6fa;
+            color: #333;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: #2a72d5;
+            color: #fff;
+            height: 100vh;
+            transition: width 0.3s;
+            overflow: hidden;
+            padding: 20px;
+            position: fixed;
+            z-index: 1000;
+        }
+
+            .sidebar.collapsed {
+                width: 85px;
+            }
+
+        .brand {
+            cursor: pointer;
+            padding-bottom: 5px;
+            padding-top: 5px;
+        }
+
+            .brand .text-label {
+                font-size: 20px;
+                padding-left: 10px;
+            }
+
+            .brand .menu-icon {
+                display: none;
+                padding-left: 15px;
+            }
+
+        .nav-item .menu-icon {
+            display: none;
+        }
+
+        .sidebar.collapsed .text-label {
+            display: none;
+        }
+
+        .sidebar.collapsed .menu-icon {
+            display: inline;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+            .sidebar ul li {
+                margin: 15px 0;
+                cursor: pointer;
+                padding: 8px 12px;
+                border-radius: 6px;
+                transition: background-color 0.3s;
+            }
+
+                .sidebar ul li:hover,
+                .sidebar ul li.active {
+                    background-color: #0056b3;
+                }
+
+
+        .content {
+            flex-grow: 1;
+            transition: margin-left 0.3s;
+            margin-left: 250px;
+        }
+
+        .main {
+            width: 100%;
+            padding: 30px;
+        }
+
+        .header {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #2a72d5;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            flex: 1 1 250px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+            .card h3 {
+                margin: 0 0 10px;
+                font-size: 16px;
+                color: #555;
+            }
+
+            .card p {
+                font-size: 22px;
+                margin: 0;
+                color: #2a72d5;
+            }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #2a72d5;
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .status-pass {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-fail {
+            color: red;
+            font-weight: bold;
+        }
+
+
+        .Attached, .Completed, .Filled, .No, .Updated, .succeeded {
+            color: green !important;
+            font-weight: bold;
+        }
+
+        .NA {
+            font-weight: bold;
+        }
+
+        .Missing, .Yes, .canceled, .failed {
+            color: red !important;
+            font-weight: bold;
+            text-wrap-mode: nowrap;
+        }
+
+        .Pending, .partiallySucceeded {
+            color: darkorange !important;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div>
+            <div>
+                <span>Hello,</span><br /><br />
+                <span>This email is sent from ADOChecker.</span><br />
+                <span>It contains ADO data with missing or incomplete details that require your attention.</span><br /><br />
+                <span class="header">Total Work Item:@Model.Count</span><br /><br />
+            </div>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Work Item</th>
+                            <th style="width:10px">ADO Item ID</th>
+                            <th>Impact Assessment</th>
+                            <th>Root Cause</th>
+                            <th>Project Zero</th>
+                            <th>PR Lifecycle</th>
+                            <th>Status Discrepancy</th>
+                            <th>Test Case Gaps</th>
+                            <th>ADO State</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            foreach (var details in Model)
+                            {
+                                <tr>
+                                    <td>@details.WorkitemType</td>
+                                    <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@details.AdoItemId" target="_blank">@details.AdoItemId</a></td>
+                                    <td class="@details.ImpactAssessment">@details.ImpactAssessment</td>
+                                    <td class="@details.RootCauseAnalysis">@details.RootCauseAnalysis</td>
+                                    <td class="@details.ProjectZero">@details.ProjectZero</td>
+                                    <td class="@details.PRLifecycle">@details.PRLifecycle</td>
+                                    <td class="@details.StatusDiscrepancy">@details.StatusDiscrepancy</td>
+                                    <td>@Html.Raw(@details.TestCaseGapeHTML)</td>
+                                    <td>@details.CurrentStatus</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center">No work items found for this sprint.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+

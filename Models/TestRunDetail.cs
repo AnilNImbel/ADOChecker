@@ -16,6 +16,7 @@ namespace ADOAnalyser.Models
         public string? PRLifecycle { get; set; }
         public string? StatusDiscrepancy { get; set; }
         public string? TestCaseGap { get; set; }
+        public string? TestCaseGapeHTML { get; set; }
         public string? CurrentStatus { get; set; }
         public string? TechnicalLeadName { get; set; }
         public string? DevName { get; set; }

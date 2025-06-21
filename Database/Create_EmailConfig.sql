@@ -1,6 +1,6 @@
 USE [AdoChecker]
 GO
-
+DROP TABLE IF EXISTS [dbo].[EmailConfig];
 /****** Object:  Table [dbo].[EmailConfig]    Script Date: 6/2/2025 12:22:43 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -10,7 +10,7 @@ GO
 
 CREATE TABLE [dbo].[EmailConfig](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[EmailIds] [nvarchar](max) NULL,
+	[EmailId] [nvarchar](max) NULL,
 	[CreatedDate] DateTime NULL,
 	[ModifiedDate] DateTime NULL,
 	[IsActive] bit Default(1),

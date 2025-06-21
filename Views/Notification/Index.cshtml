@@ -1,16 +1,57 @@
-﻿@{
+﻿@model List<ADOAnalyser.Models.EmailConfig>
+@{
     ViewData["Title"] = "Notification";
+}
+@if (TempData["AlertEmail"] != null)
+{
+    <script>
+        alert('@Html.Raw(TempData["AlertEmail"])');
+        TempData["AlertMessage"] = null;
+    </script>
 }
 <section id="notifications" class="content">
     <div class="header">Notification</div>
-    <div class="row">
-        <form>
+    <div class="row  mb-3">
+        <form asp-controller="Notification" asp-action="SaveEmail" method="post">
             <label class="col-md-12 form-label">
                 Notification Email:<br />
-                <input type="email" class="form-control" placeholder="email@example.com" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px;" />
+                <input type="email" name="EmailId" required class="form-control" placeholder="firstname.lastname@civica.com" style="width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px;" />
             </label>
-            <button class="col-md-2 btn btn-primary" type="submit">Save</button>
+            <button id="saveEmailBtn"  class="col-md-2 btn btn-primary">Save</button>
         </form>
     </div>
 
+    <div class="row">
+        <div class="col-md-12 table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Email ID</th>
+                        <th>Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var project in Model)
+                        {
+                            <tr>
+                                <td>@project.Id</td>
+                                <td>@project.EmailId</td>
+                                <td>@project.IsActive</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center">No work items found for this sprint.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 </section>
