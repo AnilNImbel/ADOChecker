@@ -168,3 +168,41 @@ $('.loadData').click(function () {
         }
     });
 });
+
+
+document.querySelectorAll('.loadData').forEach(card => {
+    card.addEventListener('click', function () {
+        // Remove 'active' class from all cards
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+
+        // Add 'active' class to the clicked card
+        this.closest('.card').classList.add('active');
+    });
+});
+
+
+document.getElementById("saveEmailBtn").addEventListener("click", function (e) {
+
+
+    var input = document.querySelector("input[type='email']").value.trim();
+
+    // Check for empty input
+    if (!input) {
+        alert("Email field cannot be empty.");
+        e.preventDefault();
+        return;
+    }
+
+    // Regex for single valid email
+    var regex = /^[a-zA-Z]+\.[a-zA-Z]+@civica\.com$/;
+
+    if (!regex.test(input)) {
+        alert("Please enter a valid email in the format firstname.lastname@civica.com.");
+        e.preventDefault();
+        return;
+    }
+
+    // Submit the form if valid
+    document.querySelector("form").submit();
+
+});
