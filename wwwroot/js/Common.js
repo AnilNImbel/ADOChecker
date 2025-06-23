@@ -147,29 +147,6 @@ $('.loadData').click(function () {
     });
 });
 
-$('.loadData').click(function () {
-    let currentWorkType = '';
-    $('#workItemsTable').html("");
-    $("#loader").show();
-    currentWorkType = $(this).attr('name');
-    $.ajax({
-        url: '/DashBoard/GridLoad',
-        type: 'GET',
-        data: { missingType: currentWorkType },
-        success: function (result) {
-            $('#workItemsTable').html(result);
-        },
-        error: function () {
-            alert('Error loading partial view.');
-        },
-        complete: function () {
-            // Hide the loader after the request completes
-            $("#loader").hide();
-        }
-    });
-});
-
-
 document.querySelectorAll('.loadData').forEach(card => {
     card.addEventListener('click', function () {
         // Remove 'active' class from all cards

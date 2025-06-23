@@ -133,8 +133,18 @@ background-color: #2a72d5;
 color: white;
 }
 
+.card:hover {
+background-color: #2a72d5;
+color: white;
+}
+
 .card.active h3,
 .card.active p {
+color: white;
+}
+
+.card:hover h3,
+.card:hover p {
 color: white;
 }
 
