@@ -194,7 +194,7 @@ document.getElementById("saveEmailBtn").addEventListener("click", function (e) {
     }
 
     // Regex for single valid email
-    var regex = /^[a-zA-Z]+\.[a-zA-Z]+@civica\.com$/;
+    var regex = /^[a-zA-Z0-9]+\.[a-zA-Z0-9]+@civica\.com$/;
 
     if (!regex.test(input)) {
         alert("Please enter a valid email in the format firstname.lastname@civica.com.");
