@@ -20,15 +20,26 @@ builder.Services.AddHttpClient("AzureDevOpsClient", client =>
 })
 .ConfigurePrimaryHttpMessageHandler(() =>
 {
-    return new HttpClientHandler
+    var useProxy = builder.Configuration.GetValue<bool>("UseProxy");
+
+    if (useProxy)
     {
-        Proxy = new WebProxy(builder.Configuration.GetSection("Proxy").Get<string>())
+        var proxyUrl = builder.Configuration.GetValue<string>("Proxy");
+
+        return new HttpClientHandler
         {
-            Credentials = CredentialCache.DefaultNetworkCredentials
-        },
-        UseProxy = true
-    };
+            Proxy = new WebProxy(proxyUrl)
+            {
+                Credentials = CredentialCache.DefaultNetworkCredentials
+            },
+            UseProxy = true
+        };
+    }
+
+    // If proxy is not to be used, return default handler
+    return new HttpClientHandler();
 });
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IUtility, Utility>();
