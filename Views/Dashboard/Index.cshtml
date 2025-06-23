@@ -8,24 +8,18 @@
         <div class="col-md-12 d-flex flex-row">
             <div class="form-label">Select Sprint :</div>
         </div>
-        <div class="col-md-12 d-flex flex-row">
-            <select id="sprintDashBoardFilter" class="selectpicker form-control">
-                @foreach (var sprint in Model.AllSprints)
-                {
-                    <option value="@sprint" selected="@(sprint == Model.SelectedSprint ? "selected" : null)">
-                        @sprint
-                    </option>
-                }
-            </select>
-        </div>
+            @using (Html.BeginForm("Index", "Dashboard", FormMethod.Get, new { @class = "col-md-12 d-flex flex-row" }))
+            {
+                <select id="sprintDashBoardFilter" name="selectedSprint" class="selectpicker form-control" onchange="this.form.submit();">
+                    @foreach (var sprint in Model.AllSprints)
+                    {
+                        <option value="@sprint" selected="@(sprint == Model.SelectedSprint ? "selected" : null)">
+                            @sprint
+                        </option>
+                    }
+                </select>
+            }
     </div>
-@*     <div class="row mb-3">
-        <div class="col-md-12 mb-12" style="text-align:end">
-            <i class="fa fa-table icon-toggle active" tooltip="Table Chart" onclick="chartClick(this, 'table')"></I>
-            <i class="fa fa-bar-chart icon-toggle" tooltip="COLUMN chart" name="COLUMN" onclick="chartClick(this, 'column')"></i>
-            <i class="fa fa-pie-chart icon-toggle" tooltip="PIE Chart" name="PIE" onclick="chartClick(this, 'pie')"></i>
-        </div>
-    </div> *@
     <div class="row">
         <div class="col-md-12 mb-2">
             <label class="form-label" style="float:right">Total Work Items in Sprint : <span style="font-weight:bold">@Model.WorkItemData.count</span></label>
@@ -75,12 +69,6 @@
             </div>
         </div>
     </div>
-@*     <div class="row  mb-3" id="allChart" style="display:none" >
-        <div class="col-md-12 mb-12">
-            <div id="chartContainer">
-            </div>
-        </div>
-    </div> *@
     <div id="workItemsTable">
     </div>
 
@@ -88,97 +76,29 @@
         <div class="spinner"></div>
     </div>
 </section>
-@* <script type="text/javascript">
-    window.onload = function(){
-      const data = document.querySelectorAll('.canvasjs-chart-canvas');
-      const data1 = document.querySelectorAll('.canvasjs-chart-credit');
-      if(data.length != 0){
-          data[1].remove();
-      }
-     if(data1.length != 0){
-          data1[0].remove();
-      }
-    }
-  function chartClick(element,name) {
-            const icons = document.querySelectorAll('.icon-toggle');
-            icons.forEach(icon => icon.classList.remove('active'));
-             $('#workItemsTable').html("");
-            // Add 'active' class to the clicked icon
-            element.classList.add('active');
-            // $('#chartContainer').html("");
-            if (name == 'table') {
-                $("#tableChart").show();
-                $("#allChart").hide();
-            }
-            else {
-                $("#tableChart").hide();
-                $("#allChart").show();
-                 var chartName = $(this).attr('name');
-                    const chart = new CanvasJS.Chart("chartContainer",{
-                           title: {
-                                text: chartName + " Chart"
-                            },
-                            data: [
-                                {
-                                    type: name,
-                                    click:charColumnClick,
-                                    dataPoints: [
-                                        { label: "Impact Assessment Issues", y: @Model.WorkItemData.missingIACount },
-                                        { label: "Root Cause Missing", y: @Model.WorkItemData.missingRootCauseCount },
-                                        { label: "Project Zero Not Filled", y: @Model.WorkItemData.missingProjectZeroCount },
-                                        { label: "PR Lifecycle Incomplete", y: @Model.WorkItemData.missingPRLifeCycleCount },
-                                        { label: "Status Discrepancies", y: @Model.WorkItemData.missingStatusDiscreCount },
-                                        { label: "Test Case Gaps", y: @Model.WorkItemData.missingTestCaseCount }
-                                    ]
-                                }
-                            ]
-                    });
-                    chart.render();
-                     const data = document.querySelectorAll('.canvasjs-chart-canvas');
-                  if(data.length != 0){
-                      data[1].remove();
-                  }
-            }
-    }
 
-  function charColumnClick(event){
-      let lable = '';
-      let currentWorkType = '';
-        $('#workItemsTable').html("");
-        $("#loader").show();
-        lable = event.dataPoint.label;
-        if(lable == "Impact Assessment Issues"){
-            currentWorkType = "IAStatus";
-        }
-        else if(lable == "Root Cause Missing"){
-            currentWorkType = "RootCauseStatus";
-        }
-        else if(lable == "Project Zero Not Filled"){
-            currentWorkType = "ProjectZeroStatus";
-        }
-        else if(lable == "PR Lifecycle Incomplete"){
-            currentWorkType = "PRLifeCycleStatus";
-        }
-        else if(lable == "Status Discrepancies"){
-            currentWorkType = "StatusDiscrepancyStatus";
-        }
-        else if(lable == "Test Case Gaps"){
-            currentWorkType = "TestCaseGapeStatus";
-        }
-    $.ajax({
-        url: '/DashBoard/GridLoad',
-        type: 'GET',
-        data: { missingType: currentWorkType },
-        success: function (result) {
-            $('#workItemsTable').html(result);
-        },
-        error: function () {
-            alert('Error loading partial view.');
-        },
-        complete: function () {
-            // Hide the loader after the request completes
-            $("#loader").hide();
-        }
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.loadData').click(function () {
+            let currentWorkType = $(this).attr('name');
+            $('#workItemsTable').html("");
+            $("#loader").show();
+
+            $.ajax({
+                url: '@Url.Action("GridLoad", "DashBoard")',
+                type: 'GET',
+                data: { missingType: currentWorkType },
+                success: function (result) {
+                    $('#workItemsTable').html(result);
+                },
+                error: function (xhr) {
+                    console.error(xhr.responseText);
+                    alert('Error loading partial view.');
+                },
+                complete: function () {
+                    $("#loader").hide();
+                }
+            });
+        });
     });
-  }
-</script>  *@
+</script>

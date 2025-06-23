@@ -35,7 +35,6 @@ function toggleSidebar() {
     }
 }
 
-
 function validateDateRange() {
     const fromDateInput = document.getElementById("fromDate");
     const toDateInput = document.getElementById("toDate");
@@ -66,87 +65,6 @@ function validateDateRange() {
     return true;
 }
 
-document.querySelectorAll('.download-csv').forEach(button => {
-    button.addEventListener('click', function () {
-        const runId = this.getAttribute('data-run-id');
-        const loader = this.nextElementSibling;
-
-        this.disabled = true;
-        loader.style.display = 'inline-block';
-
-        fetch(`/Reports/DownloadCsv?runId=${runId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Failed to download CSV");
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `report_${runId}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-            })
-            .catch(err => alert("Error: " + err.message))
-            .finally(() => {
-                loader.style.display = 'none';
-                this.disabled = false;
-            });
-    });
-});
-
-$(document).on('change', '#sprintDashBoardFilter', function () {
-    var selected = this.value;
-    window.location.href = '/Dashboard/Index?selectedSprint=' + selected;
-});
-
-$(document).on('change', '#pipelineFilter', function () {
-    let definitionId = '';
-    $('#workItemsTable').html("");
-    $("#loader").show();
-    definitionId = this.value;
-    $.ajax({
-        url: '/Build/GetBuildDetails',
-        type: 'GET',
-        data: { definitionId: definitionId },
-        success: function (result) {
-            $('#workItemsTable').html(result);
-        },
-        error: function () {
-            alert('Error loading partial view.');
-        },
-        complete: function () {
-            // Hide the loader after the request completes
-            $("#loader").hide();
-        }
-    });
-});
-
-$('.loadData').click(function () {
-    let currentWorkType = '';
-    $('#workItemsTable').html("");
-    $("#loader").show();
-    currentWorkType = $(this).attr('name');
-    $.ajax({
-        url: '/DashBoard/GridLoad',
-        type: 'GET',
-        data: { missingType: currentWorkType },
-        success: function (result) {
-            $('#workItemsTable').html(result);
-        },
-        error: function () {
-            alert('Error loading partial view.');
-        },
-        complete: function () {
-            // Hide the loader after the request completes
-            $("#loader").hide();
-        }
-    });
-});
-
 document.querySelectorAll('.loadData').forEach(card => {
     card.addEventListener('click', function () {
         // Remove 'active' class from all cards
@@ -158,28 +76,4 @@ document.querySelectorAll('.loadData').forEach(card => {
 });
 
 
-document.getElementById("saveEmailBtn").addEventListener("click", function (e) {
 
-
-    var input = document.querySelector("input[type='email']").value.trim();
-
-    // Check for empty input
-    if (!input) {
-        alert("Email field cannot be empty.");
-        e.preventDefault();
-        return;
-    }
-
-    // Regex for single valid email
-    var regex = /^[a-zA-Z0-9]+\.[a-zA-Z0-9]+@civica\.com$/;
-
-    if (!regex.test(input)) {
-        alert("Please enter a valid email in the format firstname.lastname@civica.com.");
-        e.preventDefault();
-        return;
-    }
-
-    // Submit the form if valid
-    document.querySelector("form").submit();
-
-});
