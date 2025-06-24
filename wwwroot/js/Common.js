@@ -65,15 +65,5 @@ function validateDateRange() {
     return true;
 }
 
-document.querySelectorAll('.loadData').forEach(card => {
-    card.addEventListener('click', function () {
-        // Remove 'active' class from all cards
-        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-
-        // Add 'active' class to the clicked card
-        this.closest('.card').classList.add('active');
-    });
-});
-
 
 

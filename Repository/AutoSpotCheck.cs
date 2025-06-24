@@ -307,7 +307,7 @@ namespace ADOAnalyser.Repository
         {
             var status = values.fields.TestCaseGapeStatus;
             var testCases = values.testByRelationField;
-
+            var baseUrl =  AppSettingsReader.GetValue("Others", "BaseUrl");
             if ((testCases == null || !testCases.Any()) && status.Equals(ResultEnum.Missing.ToString()))
                 return $"<span class=\"{ResultEnum.Missing}\">No Test case Attached</span>";
 
@@ -327,8 +327,9 @@ namespace ADOAnalyser.Repository
             if (missingCount > 0)
             {
                 testBuilder.AppendFormat(
-                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Missing\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}&type=Missing\" target=\"_blank\" style=\"text-decoration:none\">" +
                 "<span class=\"Missing\">Missing Details</span><br></a>",
+                baseUrl,
                 workItemNumber);
             }
 
@@ -336,9 +337,9 @@ namespace ADOAnalyser.Repository
             {
                 string msg = countUpdated == totalCount ? "All fields updated." : "Updated Details";
                 testBuilder.AppendFormat(
-                "<a href=\"/TestedByRelationGrid/Index?workItemNumber={0}&type=Updated\" target=\"_blank\" style=\"text-decoration:none\">" +
-                "<span class=\"Updated\">{1}</span><br></a>",
-                workItemNumber, msg);
+                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}&type=Updated\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<span class=\"Updated\">{2}</span><br></a>",
+                baseUrl, workItemNumber, msg);
             }
 
             return testBuilder.ToString();

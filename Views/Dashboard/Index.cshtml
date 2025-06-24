@@ -101,4 +101,14 @@
             });
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.loadData').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+                this.closest('.card').classList.add('active');
+            });
+        });
+    });
+
 </script>
