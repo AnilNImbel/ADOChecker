@@ -81,7 +81,8 @@ namespace ADOAnalyser.Controllers
                     CurrentStatus = w.fields?.SystemState,
                     TechnicalLeadName = w.TlPrReviewAssignedTo,
                     DevName = string.Empty,
-                    WorkitemType = w.fields?.SystemWorkItemType
+                    WorkitemType = w.fields?.SystemWorkItemType,
+                    AssignedTo = w.fields?.SystemAssignedTo == null ? string.Empty :w.fields.SystemAssignedTo.Split('<')[0].Trim()
                 });
 
                 await _dbContext.TestRunDetails.AddRangeAsync(detailRecords);

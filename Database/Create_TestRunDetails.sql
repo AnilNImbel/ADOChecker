@@ -24,6 +24,7 @@ CREATE TABLE [dbo].[TestRunDetails](
 	[TechnicalLeadName] [nvarchar](100) NULL,
 	[DevName] [nvarchar](50) NULL,
 	[WorkitemType] [nvarchar](20) NULL,
+	[AssignedTo] [nvarchar](100) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[DetailId] ASC

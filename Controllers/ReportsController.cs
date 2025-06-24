@@ -45,7 +45,7 @@ namespace ADOAnalyser.Controllers
             var csvBuilder = new StringBuilder();
 
             // Write CSV header
-            csvBuilder.AppendLine("Work Item Type,Ado Item Id,Call Reference,Impact Assessment,Root Cause Analysis,Project Zero,PR Lifecycle,Status Discrepancy,TestCase Gaps,Current Stage,Technical Lead Name");
+            csvBuilder.AppendLine("Work Item Type,Ado Item Id,Call Reference,Impact Assessment,Root Cause Analysis,Project Zero,PR Lifecycle,Status Discrepancy,TestCase Gaps,Current Stage,Technical Lead Name,Assigned To");
 
             // Write CSV rows
             foreach (var d in details)
@@ -62,9 +62,10 @@ namespace ADOAnalyser.Controllers
                        Escape(d.ProjectZero ?? ""),
                        Escape(d.PRLifecycle ?? ""),
                        Escape(d.StatusDiscrepancy ?? ""),
-                       Escape(d.TestCaseGapeHTML ?? ""),
+                       Escape(d.TestCaseGap ?? ""),
                        Escape(d.CurrentStatus ?? ""),
-                       Escape(d.TechnicalLeadName ?? "")
+                       Escape(d.TechnicalLeadName ?? ""),
+                       Escape(d.AssignedTo ?? "")
                     ));
             }
 

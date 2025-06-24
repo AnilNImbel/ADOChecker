@@ -223,6 +223,7 @@
                             <th>PR Lifecycle</th>
                             <th>Status Discrepancy</th>
                             <th>Test Case Gaps</th>
+                            <th>Assigned To</th>
                             <th>ADO State</th>
                         </tr>
                     </thead>
@@ -231,6 +232,7 @@
                         {
                             foreach (var details in Model)
                             {
+                                string SystemAssignedTo = @details.AssignedTo == null ? string.Empty : @details.AssignedTo.Split('<')[0].Trim();
                                 <tr>
                                     <td>@details.WorkitemType</td>
                                     <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@details.AdoItemId" target="_blank">@details.AdoItemId</a></td>
@@ -240,6 +242,7 @@
                                     <td class="@details.PRLifecycle">@details.PRLifecycle</td>
                                     <td class="@details.StatusDiscrepancy">@details.StatusDiscrepancy</td>
                                     <td>@Html.Raw(@details.TestCaseGapeHTML)</td>
+                                    <td>@SystemAssignedTo</td>
                                     <td>@details.CurrentStatus</td>
                                 </tr>
                             }

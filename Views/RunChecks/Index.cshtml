@@ -67,12 +67,14 @@
                                 <th>Test Case Gaps</th>
                                 <th>VTD</th>
                                 <th>VLBD/VED</th>
+                                <th>Assigned To</th>
                                 <th>ADO State</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var project in Model.value)
                             {
+                                string SystemAssignedTo = @project.fields.SystemAssignedTo == null ? string.Empty : @project.fields.SystemAssignedTo.Split('<')[0].Trim();
                                 <tr>
                                     <td>@project.fields.SystemWorkItemType</td>
                                     <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@project.id" target="_blank">@project.id</a></td>
@@ -84,6 +86,7 @@
                                     <td>@Html.Raw(@project.fields.TestCaseGapeHTML)</td>
                                     <td class="@project.fields.VTDMissingStatus">@project.fields.VTDMissingStatus</td>
                                     <td class="@project.fields.VLDBMissingStatus">@project.fields.VLDBMissingStatus</td>
+                                    <td>@SystemAssignedTo</td>
                                     <td>@project.fields.SystemState</td>
                                 </tr>
                             }

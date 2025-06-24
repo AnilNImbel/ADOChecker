@@ -21,5 +21,6 @@ namespace ADOAnalyser.Models
         public string? TechnicalLeadName { get; set; }
         public string? DevName { get; set; }
         public string? WorkitemType { get; set; }
+        public string? AssignedTo { get; set; }
     }
 }
