@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddHttpClient("AzureDevOpsClient", client =>
 {
-    var PATToken = "EJHRsZQ9XNFTrN8UTRDr28C1Y7V14k5rmCYE1vaKxL3wAiishmBFJQQJ99BEACAAAAANjyhyAAASAZDO4OL8";
+    var PATToken = builder.Configuration.GetValue<string>("PATToken");
     var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($":{PATToken}"));
     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json-patch+json"));
