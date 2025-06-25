@@ -19,7 +19,6 @@
     @await RenderSectionAsync("Scripts", required: false)
 </head>
 <body>
-
     <div class="wrapper">
         <div class="sidebar" id="sidebar">
             @* <div class="brand" onclick="toggleSidebar()"> *@
@@ -57,7 +56,7 @@
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
                 </li>
-                <li data-section="graphs"  class="nav-item @(currentController == "Graph" ? "active" : "")">
+                <li data-section="graphs" class="nav-item @(currentController == "Graph" ? "active" : "")">
                     <span class="menu-icon">
                         <i class="fas fa-chart-bar"></i>
                     </span>
@@ -79,6 +78,75 @@
         </div>
         <div class="main">
             @RenderBody()
+        </div>
+    </div>
+
+
+    <!-- Modal Project Zero-->
+    <div class="modal fade" id="projectZeroModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog" id="projectZeroModalDialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Project Zero</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-md-8">Root Cause Analysis Why 1 :</div>
+                            <div class="col-md-4" id="why1"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-8">Root Cause Analysis Why 2:</div>
+                            <div class="col-md-4" id="why2"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-8">Root Cause Analysis Why 3:</div>
+                            <div class="col-md-4" id="why3"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-8">Remediation Owner :</div>
+                            <div class="col-md-4" id="owner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PR life cycle-->
+    <div class="modal fade" id="prLifeCycleModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog" id="prLifeCycleModalDialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">PR Life Cycle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-md-8">VIEW PR Completed Demo:</div>
+                            <div class="col-md-4" id="demo"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-8">Signed Off By:</div>
+                            <div class="col-md-4" id="signedOff"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-8">VIEW PR Manual Unit Test Count:</div>
+                            <div class="col-md-4" id="unitTest"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-8">VIEW PR Impact Analysis Hours:</div>
+                            <div class="col-md-4" id="analysisHours"></div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-8">VIEW PR Actual Effort Hours:</div>
+                            <div class="col-md-4" id="actualHours"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

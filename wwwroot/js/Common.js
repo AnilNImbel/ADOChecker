@@ -65,5 +65,73 @@ function validateDateRange() {
     return true;
 }
 
+document.addEventListener("click", function (e) {
+    if (e.target.getAttribute("projectZero") === "Missing") {
+        var Missing = "Missing";
+        var Updated = "Updated";
+        const element = e.target;
+
+        const attributes = ["why1", "why2", "why3", "owner"];
+
+        attributes.forEach(attr => {
+            const attrValue = element.getAttribute(attr);
+            const inputElement = document.getElementById(attr);
+
+            if (inputElement) {
+                if (!attrValue) {
+                    inputElement.classList.add(Missing);
+                    inputElement.innerText = Missing;
+                } else {
+                    inputElement.classList.add(Updated);
+                    inputElement.innerText = Updated;
+                }
+            }
+        });
 
 
+        const modal = new bootstrap.Modal(document.getElementById('projectZeroModal'));
+
+        //const modalDialog = document.getElementById('projectZeroModalDialog');
+        //modalDialog.style.position = 'absolute';
+        //modalDialog.style.top = `${e.clientY}px`;
+        //modalDialog.style.left = `${e.clientX}px`;
+
+        modal.show();
+    }
+});
+
+document.addEventListener("click", function (e) {
+    if (e.target.getAttribute("prlifeCycle") === "Missing") {
+        debugger;
+        var Missing = "Missing";
+        var Updated = "Updated";
+        const element = e.target;
+
+        const attributes = ["demo", "signedOff", "unitTest", "analysisHours", "actualHours"];
+
+        attributes.forEach(attr => {
+            const attrValue = element.getAttribute(attr);
+            const inputElement = document.getElementById(attr);
+
+            if (inputElement) {
+                if (!attrValue) {
+                    inputElement.classList.add(Missing);
+                    inputElement.innerText = Missing;
+                } else {
+                    inputElement.classList.add(Updated);
+                    inputElement.innerText = Updated;
+                }
+            }
+        });
+
+
+        const modal = new bootstrap.Modal(document.getElementById('prLifeCycleModal'));
+
+        //const modalDialog = document.getElementById('projectZeroModalDialog');
+        //modalDialog.style.position = 'absolute';
+        //modalDialog.style.top = `${e.clientY}px`;
+        //modalDialog.style.left = `${e.clientX}px`;
+
+        modal.show();
+    }
+});

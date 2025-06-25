@@ -249,7 +249,9 @@ i {
     }
 }
 
-
+.clickable {
+    cursor:pointer;
+}
 .icon-toggle {
     cursor: pointer;
     color: #888;
