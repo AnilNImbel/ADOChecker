@@ -102,7 +102,6 @@ document.addEventListener("click", function (e) {
 
 document.addEventListener("click", function (e) {
     if (e.target.getAttribute("prlifeCycle") === "Missing") {
-        debugger;
         var Missing = "Missing";
         var Updated = "Updated";
         const element = e.target;
