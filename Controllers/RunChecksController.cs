@@ -58,7 +58,7 @@ namespace ADOAnalyser.Controllers
                 RunDate = DateTime.Now,
                 StartDate = fromDate,
                 EndDate = toDate,
-                ResultSummary = $"Run completed with {totalCount} work items.{workItemModel.passingCount} Passed, {missingCount} Failed."
+                ResultSummary = $"Run completed with {totalCount} work items. {workItemModel.passingCount} Passed, {missingCount} Failed."
             };
 
             await _dbContext.TestRunResults.AddAsync(runResult);

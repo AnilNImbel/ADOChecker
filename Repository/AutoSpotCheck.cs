@@ -327,17 +327,18 @@ namespace ADOAnalyser.Repository
             if (missingCount > 0)
             {
                 testBuilder.AppendFormat(
-                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}&type=Missing\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}\" target=\"_blank\" style=\"text-decoration:none\">" +
                 "<span class=\"Missing\">Missing Details</span><br></a>",
                 baseUrl,
                 workItemNumber);
             }
 
-            if (countUpdated > 0)
+            if (countUpdated > 0 && countUpdated == totalCount && missingCount == 0)
             {
-                string msg = countUpdated == totalCount ? "All fields updated." : "Updated Details";
+                //string msg = countUpdated == totalCount ? "All fields updated." : "Updated Details";
+                string msg =  "All fields updated";
                 testBuilder.AppendFormat(
-                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}&type=Updated\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}\" target=\"_blank\" style=\"text-decoration:none\">" +
                 "<span class=\"Updated\">{2}</span><br></a>",
                 baseUrl, workItemNumber, msg);
             }

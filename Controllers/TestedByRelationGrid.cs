@@ -22,10 +22,10 @@ namespace ADOAnalyser.Controllers
             autoSpotCheck = autoSpotChecks;
         }
 
-        public IActionResult Index(string workItemNumber, string type)
+        public IActionResult Index(string workItemNumber)
         {
             var values = new List<Values>();
-            if (!string.IsNullOrEmpty(workItemNumber) && !string.IsNullOrEmpty(type))
+            if (!string.IsNullOrEmpty(workItemNumber))
             {
                 var getWorkItems = _workItem.GetWorkItem(workItemNumber);
                 var workItem = JsonConvert.DeserializeObject<WorkItemModel>(getWorkItems);
@@ -37,7 +37,6 @@ namespace ADOAnalyser.Controllers
                         autoSpotCheck.CheckTestCaseGape(items);
                     }
                     values.AddRange(workItem.value);
-                    FilterTestCase(type, values);
                 }
             }
             return View(values.FirstOrDefault());
@@ -76,21 +75,6 @@ namespace ADOAnalyser.Controllers
                                     }).ToList();
                     }
                 }
-            }
-        }
-
-        private void FilterTestCase(string type, List<Values> values)
-        {
-            if (type.Equals("Updated"))
-            {
-                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.TestCaseUpdated != null).ToList();
-            }
-            else
-            {
-                values[0].testByRelationField = values[0].testByRelationField.Where(a => a.CivicaAgileTestLevelStatus != null
-                                                                                    || a.CustomTestTypeStatus != null
-                                                                                    || a.CivicaAgileTestPhaseStatus != null
-                                                                                    || a.CustomAutomationStatus != null).ToList();
             }
         }
     }

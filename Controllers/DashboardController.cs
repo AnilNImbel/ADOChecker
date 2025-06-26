@@ -90,6 +90,7 @@ namespace ADOAnalyser.Controllers
                     "PRLifeCycleStatus" => workItem.value.Where(w => w.fields.PRLifeCycleStatus == ResultEnum.Missing.ToString()).ToList(),
                     "StatusDiscrepancyStatus" => workItem.value.Where(w => w.fields.StatusDiscrepancyStatus == ResultEnum.Yes.ToString()).ToList(),
                     "TestCaseGapeStatus" => workItem.value.Where(w => w.fields.TestCaseGapeStatus == ResultEnum.Missing.ToString()).ToList(),
+                    "All" => workItem.value.ToList(),
                     _ => new List<Values>()
                 };
             }

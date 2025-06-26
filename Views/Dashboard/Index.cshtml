@@ -22,7 +22,7 @@
     </div>
     <div class="row">
         <div class="col-md-12 mb-2">
-            <label class="form-label header" style="float:right;font-size:20px">Total Work Items in Sprint : <span style="font-weight:bold">@Model.WorkItemData.count</span></label>
+            <label class="form-label header" style="float:right;font-size:20px;margin-bottom:10px">Total Work Items in Sprint : <a class="loadData" name="All" style="font-weight:bold;text-decoration:none;cursor:pointer">@Model.WorkItemData.count</a></label>
         </div>
     </div>
     <div class="row" id="tableChart">
@@ -79,11 +79,17 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        $('.loadData').click(function () {
-            let currentWorkType = $(this).attr('name');
+        loadGrid("All");
+    });
+
+    $('.loadData').click(function () {
+        let currentWorkType = $(this).attr('name');
+        loadGrid(currentWorkType);
+    });
+
+    function loadGrid(currentWorkType){
             $('#workItemsTable').html("");
             $("#loader").show();
-
             $.ajax({
                 url: '@Url.Action("GridLoad", "DashBoard")',
                 type: 'GET',
@@ -99,8 +105,7 @@
                     $("#loader").hide();
                 }
             });
-        });
-    });
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.loadData').forEach(card => {
