@@ -3,26 +3,26 @@
     ViewData["Title"] = "DashBoard";
 }
 <section id="dashboard" class="content">
-    <div class="header">ADO Item verification Dashboard</div>
+    <div class="header" style="font-weight:bold">ADO Work Items Verification Dashboard</div>
     <div class="row mb-3">
         <div class="col-md-12 d-flex flex-row">
             <div class="form-label">Select Sprint :</div>
         </div>
-            @using (Html.BeginForm("Index", "Dashboard", FormMethod.Get, new { @class = "col-md-12 d-flex flex-row" }))
-            {
-                <select id="sprintDashBoardFilter" name="selectedSprint" class="selectpicker form-control" onchange="this.form.submit();">
-                    @foreach (var sprint in Model.AllSprints)
-                    {
-                        <option value="@sprint" selected="@(sprint == Model.SelectedSprint ? "selected" : null)">
-                            @sprint
-                        </option>
-                    }
-                </select>
-            }
+        @using (Html.BeginForm("Index", "Dashboard", FormMethod.Get, new { @class = "col-md-12 d-flex flex-row" }))
+        {
+            <select id="sprintDashBoardFilter" name="selectedSprint" class="selectpicker form-control" onchange="this.form.submit();">
+                @foreach (var sprint in Model.AllSprints)
+                {
+                    <option value="@sprint" selected="@(sprint == Model.SelectedSprint ? "selected" : null)">
+                        @sprint
+                    </option>
+                }
+            </select>
+        }
     </div>
     <div class="row">
         <div class="col-md-12 mb-2">
-            <label class="form-label" style="float:right">Total Work Items in Sprint : <span style="font-weight:bold">@Model.WorkItemData.count</span></label>
+            <label class="form-label header" style="float:right;font-size:20px">Total Work Items in Sprint : <span style="font-weight:bold">@Model.WorkItemData.count</span></label>
         </div>
     </div>
     <div class="row" id="tableChart">
@@ -64,7 +64,7 @@
         <div class="col-md-4 mb-4">
             <div class="card">
                 <a class="loadData" name="TestCaseGapeStatus" style="text-decoration:none;cursor:pointer">
-                    <div class="card-body"><h3>Test Case Gaps</h3><p class="badge">@Model.WorkItemData.missingTestCaseCount</p></div>
+                    <div class="card-body"><h3>Test Case Discrepancy</h3><p class="badge">@Model.WorkItemData.missingTestCaseCount</p></div>
                 </a>
             </div>
         </div>

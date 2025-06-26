@@ -8,7 +8,7 @@
 }
 
 <section id="runChecks" class="content">
-    <div class="header">Run Checks</div>
+    <div class="header" style="font-weight:bold">Run Checks</div>
 
     <p>Click the button below to start verification checks on ADO items based on the last updated date.</p>
 
@@ -57,18 +57,18 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Work Item</th>
-                                <th style="width:10px">ADO Item ID</th>
+                                <th>Work Item Type</th>
+                                <th>ID</th>
                                 <th>Impact Assessment</th>
                                 <th>Root Cause</th>
                                 <th>Project Zero</th>
                                 <th>PR Lifecycle</th>
                                 <th>Status Discrepancy</th>
-                                <th>Test Case Gaps</th>
+                                <th>Test Case</th>
                                 <th>VTD</th>
                                 <th>VLBD/VED</th>
                                 <th>Assigned To</th>
-                                <th>ADO State</th>
+                                <th>State</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,7 +81,7 @@
                                     <td class="@project.fields.IAStatus">@project.fields.IAStatus</td>
                                     <td class="@project.fields.RootCauseStatus">@project.fields.RootCauseStatus</td>
                                     <td class="@project.fields.ProjectZeroStatus">
-                                        <span class ="@(project.fields.ProjectZeroStatus == "Missing" ? "clickable" : string.Empty)" projectZero="@project.fields.ProjectZeroStatus" why1="@project.fields.CustomRootCauseAnalysisWhy1" why2="@project.fields.CustomRootCauseAnalysisWhy2" why3="@project.fields.CustomRootCauseAnalysisWhy3" owner="@project.fields.CustomRemediationOwner">
+                                        <span class="@(project.fields.ProjectZeroStatus == "Missing" ? "clickable" : string.Empty)" projectZero="@project.fields.ProjectZeroStatus" why1="@project.fields.CustomRootCauseAnalysisWhy1" why2="@project.fields.CustomRootCauseAnalysisWhy2" why3="@project.fields.CustomRootCauseAnalysisWhy3" owner="@project.fields.CustomRemediationOwner">
                                             @project.fields.ProjectZeroStatus
                                         </span>
                                     </td>
