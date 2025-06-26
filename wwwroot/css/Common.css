@@ -22,8 +22,8 @@ body {
 }
 
 .sidebar {
-    width: 240px;
-    background-color: #2a72d5;
+    width: 245px;
+    background-color: #0b6dda;
     color: #fff;
     height: 100vh;
     transition: width 0.3s;
@@ -48,6 +48,11 @@ body {
     padding-left:10px;
 }
 
+.brand .noClass {
+    font-size: 20px;
+    padding-left:10px;
+}
+
 .brand .menu-icon {
     display: none;  
     padding-left:15px;
@@ -58,6 +63,10 @@ body {
 }
 
 .sidebar.collapsed .text-label {
+    display: none;
+}
+
+.sidebar.collapsed .noClass {
     display: none;
 }
 
@@ -87,7 +96,7 @@ body {
 .content {
     flex-grow: 1;
     transition: margin-left 0.3s;
-    margin-left: 250px;
+    margin-left: 245px;
 }
 
 .main {
@@ -98,7 +107,7 @@ body {
 .header {
     font-size: 24px;
     margin-bottom: 20px;
-    color: #2a72d5;
+    color: #0b6dda;
 }
 
 .cards {
@@ -125,16 +134,16 @@ body {
     .card p {
         font-size: 22px;
         margin: 0;
-        color: #2a72d5;
+        color: #0b6dda;
     }
     
 .card.active {
-background-color: #2a72d5;
+background-color: #0b6dda;
 color: white;
 }
 
 .card:hover {
-background-color: #2a72d5;
+background-color: #0b6dda;
 color: white;
 }
 
@@ -165,7 +174,7 @@ th, td {
 }
 
 th {
-    background-color: #2a72d5;
+    background-color: #0b6dda;
     color: white;
 }
 tbody tr:nth-child(even) {
@@ -259,5 +268,5 @@ i {
 }
 
 .icon-toggle.active {
-    color: #2a72d5; /* Highlight color */
+    color: #0b6dda; /* Highlight color */
 }

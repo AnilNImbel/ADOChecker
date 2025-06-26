@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ADOAnalyser</title>
+    <title>@ViewData["Title"]</title>
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
@@ -21,10 +21,13 @@
 <body>
     <div class="wrapper">
         <div class="sidebar" id="sidebar">
-            @* <div class="brand" onclick="toggleSidebar()"> *@
-            <div class="brand" style="cursor:default">
-                <h2 class="text-label">AutoSpot check</h2>
+            <div class="brand" onclick="toggleSidebar()">
+            @* <div class="brand" style="cursor:default"> *@
+                @* <h2 class="text-label">AutoSpot check</h2> *@
                 <span class="menu-icon"><i class="fas fa-bars"></i></span>
+                <div>
+                    <img src="/image/Logo.jpg" alt="ADO SpotCheck Logo" class="noClass" style="width: 200px; height: auto;">
+                </div>
             </div>
 
             <ul id="menu">
@@ -34,43 +37,37 @@
 
                 <li data-section="dashboard" class="nav-item @(currentController == "Dashboard" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fas fa-home"></i>
+                        <a class="fas fa-home" asp-area="" asp-controller="Dashboard" style="text-decoration:none;color:white" asp-action="Index" ></a>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                 </li>
-                <li data-section="application" style="display:none" class="nav-item @(currentController == "Application" ? "active" : "")">
-                    <span class="menu-icon">
-                        <i class="fas fa-home"></i>
-                    </span>
-                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Application" asp-action="Index">Application</a>
-                </li>
                 <li data-section="runChecks" class="nav-item @(currentController == "RunChecks" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fas fa-check-circle"></i>
+                        <a class="fas fa-check-circle" asp-area="" asp-controller="RunChecks" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="RunChecks" asp-action="Index">Run Checks</a>
                 </li>
                 <li data-section="reports" class="nav-item @(currentController == "Reports" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fas fa-chart-line"></i>
+                        <a class="fas fa-chart-line" asp-area="" asp-controller="Reports" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Reports" asp-action="Index">Reports</a>
                 </li>
                 <li data-section="graphs" class="nav-item @(currentController == "Graph" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fas fa-chart-bar"></i>
+                        <a class="fas fa-chart-bar" asp-area="" asp-controller="Graph" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Graph" asp-action="Index">AutoSpot Check Summary</a>
                 </li>
                 <li data-section="builds" class="nav-item @(currentController == "Build" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fa-solid fa-tools"></i>
+                        <a class="fa-solid fa-tools" asp-area="" asp-controller="Build" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Build" asp-action="Index">Builds</a>
                 </li>
                 <li data-section="notifications" class="nav-item @(currentController == "Notification" ? "active" : "")">
                     <span class="menu-icon">
-                        <i class="fa-solid fa-envelope"></i>
+                        <a class="fa-solid fa-envelope" asp-area="" asp-controller="Notification" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Notification" asp-action="Index">Notification</a>
                 </li>

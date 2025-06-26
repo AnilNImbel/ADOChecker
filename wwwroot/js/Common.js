@@ -29,9 +29,9 @@ function toggleSidebar() {
     sidebar.classList.toggle("collapsed");
 
     if (sidebar.classList.contains("collapsed")) {
-        content.style.marginLeft = "100px";
+        content.style.marginLeft = "95px";
     } else {
-        content.style.marginLeft = "250px";
+        content.style.marginLeft = "245px";
     }
 }
 
@@ -88,14 +88,7 @@ document.addEventListener("click", function (e) {
             }
         });
 
-
         const modal = new bootstrap.Modal(document.getElementById('projectZeroModal'));
-
-        //const modalDialog = document.getElementById('projectZeroModalDialog');
-        //modalDialog.style.position = 'absolute';
-        //modalDialog.style.top = `${e.clientY}px`;
-        //modalDialog.style.left = `${e.clientX}px`;
-
         modal.show();
     }
 });
@@ -123,14 +116,7 @@ document.addEventListener("click", function (e) {
             }
         });
 
-
         const modal = new bootstrap.Modal(document.getElementById('prLifeCycleModal'));
-
-        //const modalDialog = document.getElementById('projectZeroModalDialog');
-        //modalDialog.style.position = 'absolute';
-        //modalDialog.style.top = `${e.clientY}px`;
-        //modalDialog.style.left = `${e.clientX}px`;
-
         modal.show();
     }
 });

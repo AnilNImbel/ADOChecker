@@ -1,6 +1,6 @@
 ﻿@model List<ADOAnalyser.Controllers.GraphController.GraphDefinition>
 @{
-    ViewData["Title"] = "AutoSpot Check Summary Graph";
+    ViewData["Title"] = "AutoSpot Check Summary";
     var dateList = @Model.Select(a => a.Date).ToList();
     var missingList = @Model.Select(a => a.MissingCount).ToList();
     var passingList = @Model.Select(a => a.PassingCount).ToList();
