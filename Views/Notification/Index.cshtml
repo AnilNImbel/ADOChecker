@@ -28,7 +28,8 @@
                     <tr>
                         <th>Id</th>
                         <th>Email ID</th>
-                        <th>Active</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,10 +37,20 @@
                     {
                         foreach (var project in Model)
                         {
+                            string active = @project.IsActive ? "Active" : "InActive";
+                            string action = @project.IsActive ? "InActive" : "Active";
                             <tr>
                                 <td>@project.Id</td>
                                 <td>@project.EmailId</td>
-                                <td>@project.IsActive</td>
+                                <td>@active</td>
+                                <td>
+                                    <a asp-controller="Notification" asp-action="InActive" asp-route-id="@project.Id" asp-route-status="@project.IsActive" class="@(project.IsActive ? "btn btn-danger btn-sm mt-2" : "btn btn-success btn-sm mt-2")">
+                                        @action
+                                    </a>
+                                    <a asp-controller="Notification" asp-action="Delete" asp-route-id="@project.Id" class="btn btn-primary btn-sm mt-2" onclick="return confirm('Are you sure you want to delete this email?');">
+                                        Delete
+                                    </a>
+                                </td>
                             </tr>
                         }
                     }

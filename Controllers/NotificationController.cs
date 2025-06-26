@@ -43,8 +43,46 @@ namespace ADOAnalyser.Controllers
                 _dbContext.EmailConfig.Add(runResult);
                 _dbContext.SaveChanges();
             }
-            return RedirectToAction("Index"); // or return a view // return with validation errors
+            return RedirectToAction("Index"); 
         }
 
+        public IActionResult InActive(int id, bool status)
+        {
+            TempData["AlertEmail"] = null;
+            var emailData = _dbContext.EmailConfig.FirstOrDefault(a => a.Id == id);
+
+            if (emailData != null)
+            {
+                emailData.IsActive = status ? false : true;
+                emailData.ModifiedDate = DateTime.Now;
+                _dbContext.EmailConfig.Update(emailData);
+                _dbContext.SaveChanges();
+                TempData["AlertEmail"] = "Email Updated successfully.";
+            }
+            else
+            {
+                TempData["AlertEmail"] = "Unable to retrieve the data.";
+            }
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            TempData["AlertEmail"] = null;
+            var emailData = _dbContext.EmailConfig.FirstOrDefault(a => a.Id == id);
+
+            if (emailData != null)
+            {
+                _dbContext.EmailConfig.Remove(emailData);
+                _dbContext.SaveChanges();
+
+                TempData["AlertEmail"] = "Email Deleted successfully.";
+            }
+            else
+            {
+                TempData["AlertEmail"] = "Email not found.";
+            }
+            return RedirectToAction("Index");
+        }
     }
 }
