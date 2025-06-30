@@ -62,11 +62,15 @@ namespace ADOAnalyser.Controllers
                     }
                 }
             }
-
             var viewModel = new SprintViewModel
             {
                 SelectedSprint = sprintToUse,
-                AllSprints = allSprints.Select(s => s.FullPath).ToList(),
+                AllSprints = allSprints.Select(s => new SprintDropdownItem
+                {
+                    FullPath = s.FullPath,
+                    StartDate = s.Attributes.StartDate,
+                    EndDate = s.Attributes.FinishDate
+                }).ToList(),
                 WorkItemData = workData
             };
 

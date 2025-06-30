@@ -99,7 +99,7 @@ namespace ADOAnalyser
             var normalizedPaths = expectedPaths.Select(NormalizePath).ToList();
             var allIterations = FlattenIterationsWithPath(root.children, projectName.ToUpper());
             var today = DateTime.UtcNow.Date;
-
+       
             result.AllSprints = allIterations
                 .Where(i => normalizedPaths.Any(p => NormalizePath(i.FullPath).StartsWith(p)))
                 .OrderByDescending(i => i.Attributes.StartDate)

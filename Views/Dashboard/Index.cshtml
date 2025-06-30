@@ -13,8 +13,8 @@
             <select id="sprintDashBoardFilter" name="selectedSprint" class="selectpicker form-control" onchange="this.form.submit();">
                 @foreach (var sprint in Model.AllSprints)
                 {
-                    <option value="@sprint" selected="@(sprint == Model.SelectedSprint ? "selected" : null)">
-                        @sprint
+                    <option value="@sprint.FullPath" selected="@(sprint.FullPath == Model.SelectedSprint ? "selected" : null)">
+                        @sprint.DisplayName
                     </option>
                 }
             </select>
@@ -22,7 +22,7 @@
     </div>
     <div class="row">
         <div class="col-md-12 mb-2">
-            <label class="form-label header" style="float:right;font-size:20px;margin-bottom:10px">Total Work Items in Sprint : <a class="loadData" name="All" style="font-weight:bold;text-decoration:none;cursor:pointer">@Model.WorkItemData.count</a></label>
+            <label class="form-label header" style="float:right;font-size:20px;margin-bottom:10px">Total Work Items in Sprint : <a class="loadData" name="All" style="font-weight:bold;text-decoration:none;cursor:pointer">@(Model.WorkItemData?.value?.Count ?? 0)</a></label>
         </div>
     </div>
     <div class="row" id="tableChart">
@@ -69,12 +69,13 @@
             </div>
         </div>
     </div>
+
+    <div id="loader" style="display: none; justify-content: center; align-items: center; height: 100px;">
+        <div class="spinner"></div>
+    </div>
     <div id="workItemsTable">
     </div>
 
-    <div id="loader" style="display: none;justify-items:center">
-        <div class="spinner"></div>
-    </div>
 </section>
 
 <script type="text/javascript">
@@ -88,8 +89,8 @@
     });
 
     function loadGrid(currentWorkType){
-            $('#workItemsTable').html("");
             $("#loader").show();
+            $('#workItemsTable').html("");
             $.ajax({
                 url: '@Url.Action("GridLoad", "DashBoard")',
                 type: 'GET',
@@ -98,7 +99,6 @@
                     $('#workItemsTable').html(result);
                 },
                 error: function (xhr) {
-                    console.error(xhr.responseText);
                     alert('Error loading partial view.');
                 },
                 complete: function () {
@@ -117,3 +117,13 @@
     });
 
 </script>
+<style>
+
+    #loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+</style>
