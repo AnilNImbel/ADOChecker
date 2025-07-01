@@ -288,22 +288,22 @@ i {
     position: absolute;
     z-index: 1;
     bottom: 100%;
-    left: 50%;
+    left: 40%;
     transform: translateX(-50%);
     opacity: 0;
     transition: opacity 0.3s;
 }
 
-    .tooltip-text::after {
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: 50%;
-        margin-left: -5px;
-        border-width: 5px;
-        border-style: solid;
-        border-color: #333 transparent transparent transparent;
-    }
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 40%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
 
 .tooltip-container:hover .tooltip-text,
 .tooltip-container.show .tooltip-text {
