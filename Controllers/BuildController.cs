@@ -6,6 +6,7 @@ using System.Net.Http;
 using ADOAnalyser.Models.BuildsModel;
 using ADOAnalyser.Models.PipelineModel;
 using System.Globalization;
+using Mono.TextTemplating;
 
 namespace ADOAnalyser.Controllers
 {
@@ -37,7 +38,7 @@ namespace ADOAnalyser.Controllers
                         definitions.Add(new BuildDefinition
                         {
                             Id = pipeline.id,
-                            Name = pipeline.name
+                            Name = FormatName(pipeline.name)
                         });
                     }
                 }
@@ -58,19 +59,38 @@ namespace ADOAnalyser.Controllers
 
         public class BuildDefinition
         {
-            private string _name;
             public int Id { get; set; }
 
-            public string Name
+            public string Name { get; set; }
+
+        }
+
+        public  string FormatName(string input)
+        {
+            if (string.IsNullOrWhiteSpace(input))
+                return string.Empty;
+
+            string trimmed = input.Trim();
+
+            if (trimmed.Contains(" - "))
             {
-                get => _name;
-                set
+                string beforeHyphen = trimmed.Split(new[] { " - " }, StringSplitOptions.None)[0].Trim();
+
+                // Preserve mixed-case values like RFC-1222 as-is
+                if (beforeHyphen.Any(char.IsDigit) || beforeHyphen.Any(char.IsUpper))
                 {
-                    TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
-                    _name = textInfo.ToTitleCase(value.ToLower());
+                    return beforeHyphen;
+                }
+                else
+                {
+                    return beforeHyphen.ToUpper();
                 }
             }
-
+            else
+            {
+                // Capitalize only the first letter
+                return char.ToUpper(trimmed[0]) + trimmed.Substring(1).ToLower();
+            }
         }
 
     }
