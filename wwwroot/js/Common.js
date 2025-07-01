@@ -120,3 +120,15 @@ document.addEventListener("click", function (e) {
         modal.show();
     }
 });
+
+function toggleTooltip(element) {
+    element.classList.toggle("show");
+}
+
+// Optional: Hide tooltip when clicking outside
+document.addEventListener("click", function (event) {
+    const tooltip = document.querySelector(".tooltip-container");
+    if (!tooltip.contains(event.target)) {
+        tooltip.classList.remove("show");
+    }
+});

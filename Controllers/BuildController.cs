@@ -5,6 +5,7 @@ using Microsoft.Office.Interop.Outlook;
 using System.Net.Http;
 using ADOAnalyser.Models.BuildsModel;
 using ADOAnalyser.Models.PipelineModel;
+using System.Globalization;
 
 namespace ADOAnalyser.Controllers
 {
@@ -19,41 +20,29 @@ namespace ADOAnalyser.Controllers
             _workItem = workItem;
         }
 
-
-        public async Task<IActionResult> Index(string? selectedSprint = null)
+        public IActionResult Index()
         {
-
-            var pipelineJson = await _workItem.GetPipelinesAsync(ProjectName, FolderPath);
+            var pipelineJson = _workItem.GetPipelines(ProjectName, FolderPath);
+            var definitions = new List<BuildDefinition>();
             var pipelineData = JsonConvert.DeserializeObject<PipelineBuildModel>(pipelineJson);
-
-            if (pipelineData?.value == null || !pipelineData.value.Any())
-                return View(new List<BuildDefinition>());
-
-            var filteredPipelines = pipelineData.value
-            .Where(x => x.folder.Equals(FolderPath, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-            var buildTasks = filteredPipelines.Select(async pipeline =>
+            if (pipelineData?.value?.Any() == true)
             {
-                var buildsJson = await _workItem.GetBuildsAsync(ProjectName, pipeline.id);
-                var buildsData = JsonConvert.DeserializeObject<BuildModel>(buildsJson);
+                pipelineData.value = pipelineData.value.Where(x => x.folder.Equals(FolderPath)).ToList();
 
-                return buildsData?.value?.Any() == true
-                ? new BuildDefinition
+                if (pipelineData.value?.Any() == true)
                 {
-                    Id = pipeline.id,
-                    Name = pipeline.name,
-                    buildModels = buildsData.value
+                    foreach (var pipeline in pipelineData.value)
+                    {
+
+                        definitions.Add(new BuildDefinition
+                        {
+                            Id = pipeline.id,
+                            Name = pipeline.name
+                        });
+                    }
                 }
-                : null;
-            });
-
-            var definitions = (await Task.WhenAll(buildTasks))
-            .Where(def => def != null)
-            .ToList();
-
+            }
             return View(definitions);
-
         }
 
 
@@ -69,9 +58,19 @@ namespace ADOAnalyser.Controllers
 
         public class BuildDefinition
         {
+            private string _name;
             public int Id { get; set; }
-            public string Name { get; set; }
-            public List<ADOAnalyser.Models.BuildsModel.Value> buildModels { get; set; }
+
+            public string Name
+            {
+                get => _name;
+                set
+                {
+                    TextInfo textInfo = CultureInfo.CurrentCulture.TextInfo;
+                    _name = textInfo.ToTitleCase(value.ToLower());
+                }
+            }
+
         }
 
     }

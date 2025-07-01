@@ -5,8 +5,8 @@
         <table>
             <thead>
                 <tr>
-                    <th>Definition ID</th>
                     <th>Build ID</th>
+                    <th>Build Number</th>
                     <th>Source Branch</th>
                     <th>Result</th>
                     <th>Finish Time</th>
@@ -23,14 +23,13 @@
                             <td>@build.sourceBranch</td>
                             <td class="@build.result">@build.result</td>
                             <td>@build.finishTime</td>
-                            @* <td><a href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@project.id" target="_blank">@project.id</a></td> *@
                         </tr>
                     }
                 }
                 else
                 {
                     <tr>
-                        <td colspan="9" class="text-center">No work items found for this sprint.</td>
+                        <td colspan="5" class="text-center">No work items found for this sprint.</td>
                     </tr>
                 }
             </tbody>
