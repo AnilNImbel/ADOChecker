@@ -44,7 +44,7 @@ function loadGrid(definitionId){
     $("#loader").show();
     definitionId = definitionId;
     $.ajax({
-        url: '/Build/GetBuildDetails',
+        url: '@Url.Action("GetBuildDetails", "Build")',
         type: 'GET',
         data: { definitionId: definitionId },
         success: function (result) {
