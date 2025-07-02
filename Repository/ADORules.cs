@@ -10,7 +10,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace ADOAnalyser.Repository
 {
-    public class AutoSpotCheck
+    public class ADORules
     {
         #region variables
         private const string UserStory = "User Story";
@@ -327,7 +327,7 @@ namespace ADOAnalyser.Repository
             if (missingCount > 0)
             {
                 testBuilder.AppendFormat(
-                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<a href=\"{0}/TestCase/Index?workItemNumber={1}\" target=\"_blank\" style=\"text-decoration:none\">" +
                 "<span class=\"Missing\">Missing Details</span><br></a>",
                 baseUrl,
                 workItemNumber);
@@ -338,7 +338,7 @@ namespace ADOAnalyser.Repository
                 //string msg = countUpdated == totalCount ? "All fields updated." : "Updated Details";
                 string msg =  "All fields updated";
                 testBuilder.AppendFormat(
-                "<a href=\"{0}/TestedByRelationGrid/Index?workItemNumber={1}\" target=\"_blank\" style=\"text-decoration:none\">" +
+                "<a href=\"{0}/TestCase/Index?workItemNumber={1}\" target=\"_blank\" style=\"text-decoration:none\">" +
                 "<span class=\"Updated\">{2}</span><br></a>",
                 baseUrl, workItemNumber, msg);
             }

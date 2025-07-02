@@ -1,0 +1,176 @@
+﻿@model List<ADOAnalyser.Controllers.BuildController.BuildDefinition>
+@{
+    ViewData["Title"] = "Help";
+}
+<section id="helps" class="content">
+    <div class="header" style="font-weight:bold">System Rules Overview</div>
+    <p>
+        The rules are categorized based on the type of work item and its current system state, such as Active, Test, Resolved, or Closed. Each rule specifies the expected status of various fields and conditions that must be met.
+    </p>
+    <div class="row row mb-3">
+        <div class="col-md-12 table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Rule</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Work Item</td>
+                        <td>
+                            <ul>
+                                <li>A work item is considered valid if the system state is either <strong>Active, Test, Resolved, or Closed</strong>, and the <strong>Reproduce</strong> field is either blank or set to Yes.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Impact Assessment</td>
+                        <td>
+                            <ul>
+                                <li><strong>Attached Regex:</strong> The pattern <code>@@"https?://[^""""']*Assessment[^""""']*\.xlsx"</code> matches URLs with "Assessment" and .xlsx extension.</li>
+                                <li>If system state is Test, Resolved, or Closed: check if Impact Assessment is Attached or Missing.</li>
+                                <li>If system state is Active and dev status is Analysis &amp; Estimate: status should be Pending.</li>
+                                <li>If system state is Active and dev status is not Analysis &amp; Estimate: check if Attached or Missing.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Root Cause</td>
+                        <td>
+                            <ul>
+                                <li>For User Story: status should be Not Applicable.</li>
+                                <li>
+                                    For Bug or Production Defect:
+                                    <ul>
+                                        <li>If Active: status should be Pending.</li>
+                                        <li>If Test, Resolved, or Closed: check if Completed or Missing.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Project Zero</td>
+                        <td>
+                            <ul>
+                                <li>Fields: Why1, Why2, Why3, Remediation Owner.</li>
+                                <li>For User Story: status should be Not Applicable.</li>
+                                <li>
+                                    For Bug or Production Defect:
+                                    <ul>
+                                        <li>If Active: status should be Pending.</li>
+                                        <li>
+                                            If Test, Resolved, or Closed and RCA is Code:
+                                            <ul>
+                                                <li>If any field is empty: status is Missing.</li>
+                                                <li>If all fields filled: status is Completed.</li>
+                                            </ul>
+                                        </li>
+                                        <li>If RCA is not Code: status is Not Applicable.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>PR Life Cycle</td>
+                        <td>
+                            <ul>
+                                <li>Fields: PR Completed Demo, Signed Off By, PR Manual Unit Test Count, PR Impact Analysis Hours, PR Actual Effort Hours.</li>
+                                <li>
+                                    If Test, Resolved, or Closed:
+                                    <ul>
+                                        <li>If any field is empty: status is Missing.</li>
+                                        <li>If all fields filled: status is Completed.</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    If Active and dev status is PR Raised to DevOps:
+                                    <ul>
+                                        <li>If any field is empty: status is Missing.</li>
+                                        <li>If all fields filled: status is Completed.</li>
+                                    </ul>
+                                </li>
+                                <li>If Active and dev status is not PR Raised to DevOps: status is Pending.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Status Discrepancies</td>
+                        <td>
+                            <ul>
+                                <li>If system state is Active, Test, Resolved, or Closed and dev status is null: status is Yes.</li>
+                                <li>If system state is Test, Resolved, or Closed and QA or dev status is null: status is Yes.</li>
+                                <li>If system state is Test, Resolved, or Closed and both statuses are not null but dev status is not PR Raised to DevOps: status is Yes.</li>
+                                <li>Otherwise: status is No.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Test Case</td>
+                        <td>
+                            <ul>
+                                <li>Fields: Test Type, Test Phase, Test Level, Automation Status.</li>
+                                <li>If Active: status is In Progress.</li>
+                                <li>If Test, Resolved, or Closed and no test cases: status is No Test Case Attached.</li>
+                                <li>
+                                    If test cases attached:
+                                    <ul>
+                                        <li>If any field missing in some: status is Missing Details (with link).</li>
+                                        <li>If all fields completed in some: status is Completed Details (with link).</li>
+                                        <li>If all fields completed in all: status is All Fields Updated (with link).</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>VTD</td>
+                        <td>
+                            <ul>
+                                <li>
+                                    If Test, Resolved, or Closed:
+                                    <ul>
+                                        <li>If VTD is null: status is Missing.</li>
+                                        <li>If VTD present: status is Updated.</li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    If Active:
+                                    <ul>
+                                        <li>If dev status is Analysis &amp; Estimate: status is Pending.</li>
+                                        <li>
+                                            If dev status is not Analysis &amp; Estimate:
+                                            <ul>
+                                                <li>If VTD is null: status is Missing.</li>
+                                                <li>If VTD present: status is Updated.</li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>VLDB/VED</td>
+                        <td>
+                            <ul>
+                                <li>If VTD status is Pending: VLDB status is Pending.</li>
+                                <li>If VTD status is Missing: VLDB status is Missing.</li>
+                                <li>
+                                    If VTD status is Updated:
+                                    <ul>
+                                        <li>If VLDB/VED is null: status is Missing.</li>
+                                        <li>If VLDB/VED present: status is Updated.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

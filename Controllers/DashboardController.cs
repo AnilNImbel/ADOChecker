@@ -12,12 +12,12 @@ namespace ADOAnalyser.Controllers
     public class DashboardController : Controller
     {
         private readonly IWorkItem _workItem;
-        private readonly AutoSpotCheck _autoSpotCheck;
+        private readonly ADORules _autoSpotCheck;
 
         private const string TestRelation = "Microsoft.VSTS.Common.TestedBy-Forward";
         private const string ProjectName = "CE";
 
-        public DashboardController(IWorkItem workItem, AutoSpotCheck autoSpotCheck)
+        public DashboardController(IWorkItem workItem, ADORules autoSpotCheck)
         {
             _workItem = workItem;
             _autoSpotCheck = autoSpotCheck;
@@ -114,7 +114,7 @@ namespace ADOAnalyser.Controllers
                 if (relationIds?.Any() == true)
                 {
                     var testItemsJson = _workItem.GetWorkItem(string.Join(", ", relationIds.Take(200)));
-                    var testData = JsonConvert.DeserializeObject<TestedByModel>(testItemsJson);
+                    var testData = JsonConvert.DeserializeObject<TestCaseModel>(testItemsJson);
 
                     if (testData?.value?.Any() == true)
                     {

@@ -57,7 +57,7 @@
                     <span class="menu-icon">
                         <a class="fas fa-chart-bar" asp-area="" asp-controller="Graph" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
-                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Graph" asp-action="Index">AutoSpot Check Summary</a>
+                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Graph" asp-action="Index">ADOSpot Check Summary</a>
                 </li>
                 <li data-section="builds" class="nav-item @(currentController == "Build" ? "active" : "")">
                     <span class="menu-icon">
@@ -65,11 +65,17 @@
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Build" asp-action="Index">Builds</a>
                 </li>
-                <li data-section="notifications" class="nav-item @(currentController == "Notification" ? "active" : "")">
+                <li data-section="emailConfigurations" class="nav-item @(currentController == "EmailConfiguration" ? "active" : "")">
                     <span class="menu-icon">
-                        <a class="fa-solid fa-envelope" asp-area="" asp-controller="Notification" asp-action="Index" style="text-decoration:none;color:white"></a>
+                        <a class="fa-solid fa-envelope" asp-area="" asp-controller="EmailConfiguration" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
-                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Notification" asp-action="Index">Notification</a>
+                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="EmailConfiguration" asp-action="Index">Configure Email</a>
+                </li>
+                <li data-section="helps" class="nav-item @(currentController == "Help" ? "active" : "")">
+                    <span class="menu-icon">
+                        <a class="fa-solid fa-help" asp-area="" asp-controller="Help" asp-action="Index" style="text-decoration:none;color:white"></a>
+                    </span>
+                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Help" asp-action="Index">Help</a>
                 </li>
             </ul>
         </div>

@@ -91,9 +91,7 @@ document.addEventListener("click", function (e) {
         const modal = new bootstrap.Modal(document.getElementById('projectZeroModal'));
         modal.show();
     }
-});
 
-document.addEventListener("click", function (e) {
     if (e.target.getAttribute("prlifeCycle") === "Missing") {
         var Missing = "Missing";
         var Updated = "Updated";
@@ -128,7 +126,7 @@ function toggleTooltip(element) {
 // Optional: Hide tooltip when clicking outside
 document.addEventListener("click", function (event) {
     const tooltip = document.querySelector(".tooltip-container");
-    if (!tooltip.contains(event.target)) {
+    if (tooltip && !tooltip.contains(event.target)) {
         tooltip.classList.remove("show");
     }
 });

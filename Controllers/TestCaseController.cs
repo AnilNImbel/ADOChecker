@@ -7,16 +7,16 @@ using System.Linq;
 
 namespace ADOAnalyser.Controllers
 {
-    public class TestedByRelationGrid : Controller
+    public class TestCaseController : Controller
     {
         private readonly IWorkItem _workItem;
 
-        private readonly AutoSpotCheck autoSpotCheck;
+        private readonly ADORules autoSpotCheck;
 
         private string testRelation = "Microsoft.VSTS.Common.TestedBy-Forward";
 
 
-        public TestedByRelationGrid(IWorkItem workItem, AutoSpotCheck autoSpotChecks)
+        public TestCaseController(IWorkItem workItem, ADORules autoSpotChecks)
         {
             _workItem = workItem;
             autoSpotCheck = autoSpotChecks;
@@ -58,7 +58,7 @@ namespace ADOAnalyser.Controllers
                 if (relationIds?.Any() == true)
                 {
                     var getWorkItems = _workItem.GetWorkItem(string.Join(", ", relationIds.Take(200)));
-                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                    var testData = JsonConvert.DeserializeObject<TestCaseModel>(getWorkItems);
                     if (testData?.value?.Any() == true)
                     {
                         workData.value[i].testByRelationField = testData.value

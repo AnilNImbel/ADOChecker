@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ADOAnalyser.Controllers
 {
-    public class NotificationController : Controller
+    public class EmailConfigurationController : Controller
     {
 
         private readonly AppDbContext _dbContext;
 
-        public NotificationController(AppDbContext dbContext)
+        public EmailConfigurationController(AppDbContext dbContext)
         {
             _dbContext = dbContext;
         }

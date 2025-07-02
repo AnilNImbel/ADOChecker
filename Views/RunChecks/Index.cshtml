@@ -16,20 +16,20 @@
         <div class="row g-2 align-items-end">
             <div class="col-md-3">
                 <label for="fromDate" class="form-label">Last updated date from</label>
-                <input type="date" class="form-control form-control-sm" id="fromDate" name="fromDate" min="2000-01-01" required value="@ViewBag.FromDate" />
+                <input type="date" class="form-control form-control-sm" id="fromDate" name="fromDate" onkeydown="return false" min="2000-01-01" max="@DateTime.Now.ToString("yyyy-MM-dd")" required value="@ViewBag.FromDate" />
             </div>
 
             <div class="col-md-3">
                 <label for="toDate" class="form-label">Last updated date to</label>
-                <input type="date" class="form-control form-control-sm" id="toDate" name="toDate" min="2000-01-01" required value="@ViewBag.ToDate" />
+                <input type="date" class="form-control form-control-sm" id="toDate" name="toDate" onkeydown="return false" min="2000-01-01" max="@DateTime.Now.ToString("yyyy-MM-dd")" required value="@ViewBag.ToDate" />
             </div>
 
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary btn-sm mt-2">Run Checks</button>
+                <button type="submit" class="btn btn-primary btn-sm mt-2" style="width: 70px;">Run</button>
                 <div class="tooltip-container"  onclick="toggleTooltip(this)">
                     <i class="fa fa-info-circle" style="font-size:20px;padding: 13px"></i>
                     <div class="tooltip-text">
-                        You can download the results of the Run Checks from the Run Checks History menu!
+                        You can download the results from the Run Checks History menu!
                     </div>
                 </div>
             </div>

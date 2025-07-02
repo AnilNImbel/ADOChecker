@@ -11,11 +11,11 @@ namespace ADOAnalyser.Controllers
     {
         private readonly IWorkItem _workItem;
 
-        private readonly AutoSpotCheck autoSpotCheck;
+        private readonly ADORules autoSpotCheck;
 
         private readonly AppDbContext _dbContext;
 
-        public RunChecksController(IWorkItem workItem, AutoSpotCheck autoSpotChecks, AppDbContext dbContext)
+        public RunChecksController(IWorkItem workItem, ADORules autoSpotChecks, AppDbContext dbContext)
         {
             _workItem = workItem;
             autoSpotCheck = autoSpotChecks;

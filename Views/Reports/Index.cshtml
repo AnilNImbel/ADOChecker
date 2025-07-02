@@ -30,10 +30,10 @@
                             <td>@run.StartDate?.ToShortDateString() - @run.EndDate?.ToShortDateString()</td>
                             <td>@run.ResultSummary</td>
                             <td>
-                                <a asp-controller="Reports" asp-action="DownloadCsv" asp-route-runId="@run.RunId" class="btn btn-primary btn-sm mt-2">
+                                <a asp-controller="Reports" asp-action="DownloadCsv" asp-route-runId="@run.RunId" style="margin-right:5px" class="btn btn-primary btn-sm mt-2">
                                     Download CSV
                                 </a>
-                                <a asp-controller="Reports" asp-action="EmailSend" asp-route-runId="@run.RunId" class="btn btn-primary btn-sm mt-2">
+                                <a href="javascript:void(0);" class="btn btn-primary btn-sm mt-2 send-email-btn" data-runid="@run.RunId">
                                     Send Email
                                 </a>
                                 <div class="spinner-border text-primary csv-loader" style="display:none; width: 1rem; height: 1rem;" role="status"></div>
@@ -46,35 +46,27 @@
     </div>
 </section>
 <script type="text/javascript">
-    document.querySelectorAll('.download-csv').forEach(button => {
-            button.addEventListener('click', function () {
-                const runId = this.getAttribute('data-run-id');
-                const loader = this.nextElementSibling;
 
-                this.disabled = true;
-                loader.style.display = 'inline-block';
+$(document).ready(function () {
+        $('.send-email-btn').click(function () {
+            var runId = $(this).data('runid');
 
-                fetch(`/Reports/DownloadCsv?runId=${runId}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Failed to download CSV");
-                        }
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = `report_${runId}.csv`;
-                        document.body.appendChild(a);
-                        a.click();
-                        a.remove();
-                    })
-                    .catch(err => alert("Error: " + err.message))
-                    .finally(() => {
-                        loader.style.display = 'none';
-                        this.disabled = false;
-                    });
-            });
-    });
+            $.ajax({
+                url: '/Reports/EmailSend',
+                type: 'GET',
+                data: { runId: runId },
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("An error occurred while sending the email.");
+                }
+            });
+        });
+    });
+
 </script>

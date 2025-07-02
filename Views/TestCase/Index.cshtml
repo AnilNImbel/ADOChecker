@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tested By Grid - ADOAnalyser</title>
+    <title>Test Case Details</title>
     <link href="~/lib/twitter-bootstrap/css/bootstrap.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/Common.css" asp-append-version="true" />
@@ -17,6 +17,9 @@
 <body>
     <div class="wrapper">
         <div class="main">
+            <div class="row">
+                <span class="header" style="font-weight:bold">Test Case Details</span>
+            </div>
             <div class="row mb-3">
                 <span><a style="text-decoration:none" href="https://civica-cp.visualstudio.com/CE/_workitems/edit/@Model.id" target="_blank">@Model.fields.SystemWorkItemType  @Model.id </a> : @Model.fields.SystemTitle</span>
             </div>
@@ -26,10 +29,10 @@
                         <thead>
                             <tr>
                                 <th>Test Case Number</th>
-                                <th>Test Type Missing</th>
-                                <th>Test Level Missing</th>
-                                <th>Test Phase Missing</th>
-                                <th>Automation Status Missing</th>
+                                <th>Test Type</th>
+                                <th>Test Level</th>
+                                <th>Test Phase</th>
+                                <th>Automation Status</th>
                                 <th>Assigned To</th>
                                 <th>Test Case Status</th>
                             </tr>

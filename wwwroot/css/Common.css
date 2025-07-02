@@ -167,15 +167,15 @@ table {
 }
 
 th, td {
-    padding: 12px 15px;
+    padding: 12px 15px !important;
     border-bottom: 1px solid #eee;
     text-align: left;
     font-size: 14px;
 }
 
 th {
-    background-color: #0b6dda;
-    color: white;
+    background-color: #0b6dda !important;
+    color: white !important;
 }
 tbody tr:nth-child(even) {
     background-color: #f9f9f9;
@@ -298,7 +298,7 @@ i {
     content: "";
     position: absolute;
     top: 100%;
-    left: 40%;
+    left: 50%;
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;

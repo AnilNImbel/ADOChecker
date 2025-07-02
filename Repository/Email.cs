@@ -1,13 +1,13 @@
 ﻿using System.Net.Mail;
 using System.Net;
-using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using Microsoft.Extensions.Options;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.Office.Interop.Outlook;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using ADOAnalyser.Models;
 using ADOAnalyser.IRepository;
+using System.Text;
+using System;
 namespace ADOAnalyser.Repository
 {
     public class Email
@@ -18,9 +18,11 @@ namespace ADOAnalyser.Repository
 
         private readonly IRazorViewToStringRenderer _razorViewToStringRenderer;
 
-        private readonly string emailFrom; 
+        private readonly string emailFrom;
 
-        public Email(IOptions<EmailSetting> settings, IRazorViewToStringRenderer razorViewToStringRenderer)
+        private readonly ICommon _common;
+
+        public Email(IOptions<EmailSetting> settings, IRazorViewToStringRenderer razorViewToStringRenderer, ICommon common)
         {
             _settings = settings.Value;
             emailFrom = _settings.EmailFrom;
@@ -39,10 +41,11 @@ namespace ADOAnalyser.Repository
                 Credentials = new NetworkCredential(_settings.Username, _settings.Password),
                 Timeout = 30000
             };
+            _common = common;
         }
 
-        public void EmailSend(List<TestRunDetail> workItem, string ToEmail) {
-
+        public void EmailSend(List<TestRunDetail> workItem, string ToEmail, int runId) 
+        {
             try
             {
                 string emailBody = _razorViewToStringRenderer.RenderViewToString("EmailTemplate/Index", workItem);
@@ -50,12 +53,23 @@ namespace ADOAnalyser.Repository
                 var mailMessage = new MailMessage
                 {
                     From = new MailAddress(emailFrom),
-                    Subject = "Work Item Verification",
+                    Subject = "ADO Spot Check – Missing Information Identified",
                     Body = emailBody,
                     IsBodyHtml = true,
                 };
 
+                //CSV Creation 
+                var csvContent = _common.CreateCSV(workItem);
 
+                var fileName = $"TestRunDetails_{runId}_{DateTime.Now:yyyyMMddHHmmss}.csv";
+                byte[] byteArray = Encoding.UTF8.GetBytes(csvContent.ToString());
+                MemoryStream stream = new MemoryStream(byteArray);
+
+                //Attachment
+                System.Net.Mail.Attachment attachment = new System.Net.Mail.Attachment(stream, fileName, "text/csv");
+                mailMessage.Attachments.Add(attachment);
+
+                //recipients
                 var recipients = ToEmail
                          .Split(',', StringSplitOptions.RemoveEmptyEntries)
                          .Select(s => s.Trim())
@@ -69,7 +83,7 @@ namespace ADOAnalyser.Repository
 
                 smtpClient.Send(mailMessage);
             }
-            catch (System.Exception ex)
+            catch (System.Exception)
             {
                 throw ;
             }

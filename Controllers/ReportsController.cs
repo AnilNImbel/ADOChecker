@@ -1,4 +1,5 @@
 ﻿using ADOAnalyser.DBContext;
+using ADOAnalyser.IRepository;
 using ADOAnalyser.Models;
 using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
@@ -16,11 +17,13 @@ namespace ADOAnalyser.Controllers
     {
         private readonly AppDbContext _context;
         private readonly Email _email;
+        private readonly ICommon _common;
 
-        public ReportsController(AppDbContext context, Email email)
+        public ReportsController(AppDbContext context, Email email,ICommon common)
         {
             _context = context;
             _email =   email;
+            _common = common;
         }
 
         public IActionResult Index()
@@ -42,32 +45,7 @@ namespace ADOAnalyser.Controllers
             if (!details.Any())
                 return NotFound();
 
-            var csvBuilder = new StringBuilder();
-
-            // Write CSV header
-            csvBuilder.AppendLine("Work Item Type,Id,Call Reference,Impact Assessment,Root Cause Analysis,Project Zero,PR Lifecycle,Status Discrepancy,Test Case,State,Technical Lead Name,Assigned To");
-
-            // Write CSV rows
-            foreach (var d in details)
-            {
-                // Escape commas and quotes if necessary
-                string Escape(string s) => string.IsNullOrEmpty(s) ? "" : $"\"{s.Replace("\"", "\"\"")}\"";
-
-                csvBuilder.AppendLine(string.Join(",",
-                       Escape(d.WorkitemType ?? ""),
-                       Escape(d.AdoItemId ?? ""),
-                       Escape(d.CallReference ?? ""),
-                       Escape(d.ImpactAssessment ?? ""),
-                       Escape(d.RootCauseAnalysis ?? ""),
-                       Escape(d.ProjectZero ?? ""),
-                       Escape(d.PRLifecycle ?? ""),
-                       Escape(d.StatusDiscrepancy ?? ""),
-                       Escape(d.TestCaseGap ?? ""),
-                       Escape(d.CurrentStatus ?? ""),
-                       Escape(d.TechnicalLeadName ?? ""),
-                       Escape(d.AssignedTo ?? "")
-                    ));
-            }
+            var csvBuilder = _common.CreateCSV(details);
 
             var fileName = $"TestRunDetails_{runId}_{DateTime.Now:yyyyMMddHHmmss}.csv";
             var fileBytes = Encoding.UTF8.GetBytes(csvBuilder.ToString());
@@ -75,23 +53,11 @@ namespace ADOAnalyser.Controllers
             return File(fileBytes, "text/csv", fileName);
         }
 
+
         [HttpGet]
-        public IActionResult EmailSend(int runId)
+        public JsonResult EmailSend(int runId)
         {
             var approvedlist = ApprovedEmailList();
-            //var emailCollection = _context.TestRunDetails
-            //                         .Where(a => a.RunId == runId)
-            //                          .AsEnumerable() // Forces in-memory evaluation
-            //                                .GroupBy(a => a.TechnicalLeadName)
-            //                         .Select(g => new EmailCollectionModel
-            //                         {
-            //                             Email = string.IsNullOrEmpty(g.Key) ? null 
-            //                                    : g.Key.Substring(g.Key.IndexOf('<') + 1, g.Key.IndexOf('>') - g.Key.IndexOf('<') - 1),
-            //                             Body = string.Join(", ", g.Select(x => x.AdoItemId))
-            //                         })
-            //                         .ToList();
-
-
             var emailCollection =_context.TestRunDetails
                                      .Where(a => a.RunId == runId)
                                      .AsEnumerable()
@@ -121,8 +87,9 @@ namespace ADOAnalyser.Controllers
 
             if (!emailCollection.Any())
             {
-                TempData["AlertMessage"] = "No Data Found!";
+                return Json(new { success = false, message = "No Data Found!" });
             }
+
             try
             {
                 if (emailCollection.Any())
@@ -137,31 +104,30 @@ namespace ADOAnalyser.Controllers
                                                          ? ", " + string.Join(", ", EmailConfig.Select(a => a.EmailId))
                                                          : string.Empty);
 
-                            _email.EmailSend(GridData(email.workIds, runId),  allEmails);
+                            _email.EmailSend(GridData(email.workIds, runId),  allEmails, runId);
                         }
                         else
                         {
                             if (EmailConfig.Any())
                             {
-                                _email.EmailSend(GridData(email.workIds, runId), string.Join(", ", EmailConfig.Select(a => a.EmailId)));
+                                _email.EmailSend(GridData(email.workIds, runId), string.Join(", ", EmailConfig.Select(a => a.EmailId)), runId);
                             }
                             else
                             {
                                 if(emailCollection.Count == 1)
                                 {
-                                    TempData["AlertMessage"] = "No Email Found!";
+                                    return Json(new { success = false, message = "No Email Found!" });
                                 }
                             }
                         }
                     }
-                    TempData["AlertMessage"] = "Email Send Successfully.";
                 }
+                return Json(new { success = true, message = "Email sent successfully." });
             }
             catch(Exception ex)
             {
-                TempData["AlertMessage"] = ex.Message;
+                return Json(new { success = false, message = ex.Message });
             }
-            return RedirectToAction("Index", "Reports");
         }
 
         private List<string> ApprovedEmailList()

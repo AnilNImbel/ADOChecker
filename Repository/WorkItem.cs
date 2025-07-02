@@ -261,7 +261,7 @@ namespace ADOAnalyser
                 if (relationIds?.Any() == true)
                 {
                     var getWorkItems = GetWorkItem(string.Join(", ", relationIds.Take(200)));
-                    var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                    var testData = JsonConvert.DeserializeObject<TestCaseModel>(getWorkItems);
                     if (testData?.value?.Any() == true)
                     {
                         workData.value[i].testByRelationField = testData.value
@@ -432,7 +432,7 @@ namespace ADOAnalyser
                         try
                         {
                             var getWorkItems = await GetWorkItemAsync(idsBatch);
-                            var testData = JsonConvert.DeserializeObject<TestedByModel>(getWorkItems);
+                            var testData = JsonConvert.DeserializeObject<TestCaseModel>(getWorkItems);
 
                             if (testData?.value?.Any() == true)
                             {
@@ -450,7 +450,7 @@ namespace ADOAnalyser
                                      }).ToList();
                             }
                         }
-                        catch (System.Exception ex)
+                        catch (System.Exception)
                         {
                             throw;
                         }

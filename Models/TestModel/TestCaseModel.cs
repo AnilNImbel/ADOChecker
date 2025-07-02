@@ -88,7 +88,7 @@ namespace ADOAnalyser.Models.TestModel
         public Attributes attributes { get; set; }
     }
 
-    public class TestedByModel
+    public class TestCaseModel
     {
         public int count { get; set; }
         public List<Value> value { get; set; }
