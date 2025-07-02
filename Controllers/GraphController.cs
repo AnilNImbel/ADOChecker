@@ -20,7 +20,7 @@ namespace ADOAnalyser.Controllers
         public IActionResult Index()
         {
             var pipelineJson = _context.TestRunResults
-                  .OrderByDescending(r => r.RunDate).Take(5)
+                  .OrderByDescending(r => r.RunDate).Take(10)
                   .ToList();
             var definitions = new List<GraphDefinition>();
 

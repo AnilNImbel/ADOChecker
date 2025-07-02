@@ -21,12 +21,14 @@
                                 {
                                     label: 'Failed',
                                     data: [@Html.Raw(string.Join(",", missingList))],
-                                    backgroundColor: 'red'
+                                    backgroundColor: 'red',
+                                    barThickness: 30
                                 },
                                 {
                                     label: 'Passed',
                                     data: [@Html.Raw(string.Join(",", passingList))],
-                                    backgroundColor: 'green'
+                                    backgroundColor: 'green',
+                                    barThickness: 30
                                 }
                                 
                             ]
