@@ -41,6 +41,12 @@
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                 </li>
+                <li data-section="advanceSearch" style="display:none" class="nav-item @(currentController == "AdvanceSearch" ? "active" : "")">
+                    <span class="menu-icon">
+                        <a class="fas fa-home" asp-area="" asp-controller="AdvanceSearch" style="text-decoration:none;color:white" asp-action="Index"></a>
+                    </span>
+                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="AdvanceSearch" asp-action="Index">Advance Search</a>
+                </li>
                 <li data-section="runChecks" class="nav-item @(currentController == "RunChecks" ? "active" : "")">
                     <span class="menu-icon">
                         <a class="fas fa-check-circle" asp-area="" asp-controller="RunChecks" asp-action="Index" style="text-decoration:none;color:white"></a>

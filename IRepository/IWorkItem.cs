@@ -30,6 +30,8 @@ namespace ADOAnalyser
 
         string GetAllWiqlByType(string projectName, List<string> workItemType, string iterationPath, string filter = "");
 
+        string GetAllWiqlSearch(string projectName, List<string> workItemType, string filter = "");
+
         WorkItemModel GetAllWorkItemsByDateRange(DateTime fromDate, DateTime toDate);
 
         string GetWorkItemForReports(string projectName, string ids);

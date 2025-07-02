@@ -1,11 +1,4 @@
-﻿@if (TempData["AlertMessage"] != null)
-{
-    <script>
-        alert('@Html.Raw(TempData["AlertMessage"])');
-        TempData["AlertMessage"] = null;
-    </script>
-}
-@model List<ADOAnalyser.Models.TestRunResult>
+﻿@model List<ADOAnalyser.Models.TestRunResult>
 @{
     ViewData["Title"] = "Reports";
 }

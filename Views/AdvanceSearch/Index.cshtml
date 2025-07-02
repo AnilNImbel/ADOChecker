@@ -1,0 +1,100 @@
+﻿@{
+    ViewData["Title"] = "Advance Search";
+}
+<section id="advanceSearch" class="content">
+    <div class="header" style="font-weight:bold">Advance Search</div>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form id="advancedSearchForm" class="p-4 border rounded bg-light">
+                <div class="row mb-3">
+                    <!-- Work Item Type Dropdown -->
+                    <div class="col-md-3">
+                        <label for="workItemType" class="form-label">Work Item Type</label>
+                        <select class="form-select" name="workItemType">
+                            <option>All</option>
+                            <option>User Story</option>
+                            <option>Production Defect</option>
+                            <option>Bug</option>
+                        </select>
+                    </div>
+
+                    <!-- ADO ID Textbox -->
+                    <div class="col-md-3">
+                        <label for="adoId" class="form-label">ADO Number</label>
+                        <input type="number" class="form-control" name="adoNumber" placeholder="Enter ADO Number">
+                    </div>
+
+                    <!-- Assigned To Textbox -->
+                    <div class="col-md-3">
+                        <label for="assignedTo" class="form-label">Assigned To</label>
+                        <input type="text" class="form-control" name="assignedTo" placeholder="Enter name" pattern="[a-zA-Z0-9 ]+">
+                    </div>
+
+                    <!-- State Dropdown -->
+                    <div class="col-md-3">
+                        <label for="state" class="form-label">State</label>
+                        <select class="form-select" name="state">
+                            <option>All</option>
+                            <option>Closed</option>
+                            <option>Resolved</option>
+                            <option>Test</option>
+                            <option>Active</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Buttons -->
+                <div class="row">
+                    <div class="col-md-12 text-end">
+                        <button type="submit" class="btn btn-primary me-2">Search</button>
+                        <button type="reset" class="btn btn-secondary">Reset</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+    <div id="loader" style="display: none; justify-content: center; align-items: center; height: 100px;">
+        <div class="spinner"></div>
+    </div>
+    <div id="workItemsTable">
+    </div>
+</section>
+<script type="text/javascript">
+    $('#advancedSearchForm').on('submit', function (e) {
+      e.preventDefault(); // Prevent form from submitting normally
+      $("#loader").show();
+       $('#workItemsTable').html("");
+      $.ajax({
+        url: '@Url.Action("Search", "AdvanceSearch")',
+        type: 'GET',
+        data: $(this).serialize(), // Serialize form data
+        success: function (result) {
+           $('#workItemsTable').html(result);
+        },
+        error: function (xhr) {
+            alert('Error loading partial view.');
+        },
+        complete: function () {
+            $("#loader").hide();
+        }
+      });
+    });
+
+    document.querySelector('.btn-secondary').addEventListener('click', function () {
+        document.getElementById('advancedSearchForm').reset();
+
+        // Optional: Clear the results container
+        document.getElementById('searchResults').innerHTML = '';
+     });
+
+</script>
+<style>
+
+    #loader {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+</style>

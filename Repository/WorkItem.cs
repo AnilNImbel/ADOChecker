@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
+using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -105,6 +106,27 @@ namespace ADOAnalyser
                         AND ({iterationFilter})
                         {filter}
                      order by [System.CreatedDate] desc"
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(query), Encoding.UTF8, "application/json");
+            return _Utility.PostDataSync(Url, content);
+        }
+
+        public string GetAllWiqlSearch(string projectName, List<string> workItemType, string filter = "")
+        {
+            string types = string.Join(",", workItemType.Select(t => $"'{t}'"));
+            string Url = string.Format("{0}/_apis/wit/wiql?api-version=7.1-preview.2", projectName);
+
+            var query = new
+            {
+                query = $@"SELECT [System.Id]
+                         FROM WorkItems
+                        Where 
+                        [System.ChangedDate] >= '2015-01-01T00:00:00.0000000'
+                        [System.WorkItemType] IN ({types})
+                        AND [System.TeamProject] = '{projectName}'
+                        {filter}
+                        ORDER BY [System.CreatedDate] desc"
             };
 
             var content = new StringContent(JsonConvert.SerializeObject(query), Encoding.UTF8, "application/json");
