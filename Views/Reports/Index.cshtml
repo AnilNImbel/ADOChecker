@@ -52,7 +52,7 @@ $(document).ready(function () {
             var runId = $(this).data('runid');
 
             $.ajax({
-                url: '/Reports/EmailSend',
+                url: '@Url.Action("EmailSend", "Reports")',
                 type: 'GET',
                 data: { runId: runId },
                 success: function (response) {
