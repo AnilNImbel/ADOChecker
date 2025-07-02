@@ -44,10 +44,10 @@
                                 <td>@project.EmailId</td>
                                 <td>@active</td>
                                 <td>
-                                    <a asp-controller="EmailConfiguration" asp-action="InActive" asp-route-id="@project.Id" style="margin-right:5px" asp-route-status="@project.IsActive" class="@(project.IsActive ? "btn btn-danger btn-sm" : "btn btn-success btn-sm")">
+                                    <a asp-controller="EmailConfiguration" asp-action="InActive" asp-route-id="@project.Id" style="margin-right:5px;min-width:80px; text-align:center;" asp-route-status="@project.IsActive" class="@(project.IsActive ? "btn btn-danger btn-sm" : "btn btn-success btn-sm")">
                                         @action
                                     </a>
-                                    <a asp-controller="EmailConfiguration" asp-action="Delete" asp-route-id="@project.Id" class="btn btn-primary btn-sm" onclick="return confirm('Are you sure you want to delete this email?');">
+                                    <a asp-controller="EmailConfiguration" asp-action="Delete" asp-route-id="@project.Id" style="min-width:80px; text-align:center;"  class="btn btn-primary btn-sm" onclick="return confirm('Are you sure you want to delete this email?');">
                                         Delete
                                     </a>
                                 </td>
