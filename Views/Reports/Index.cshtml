@@ -30,10 +30,10 @@
                             <td>@run.StartDate?.ToShortDateString() - @run.EndDate?.ToShortDateString()</td>
                             <td>@run.ResultSummary</td>
                             <td>
-                                <a asp-controller="Reports" asp-action="DownloadCsv" asp-route-runId="@run.RunId" style="margin-right:5px" class="btn btn-primary btn-sm mt-2">
+                                <a asp-controller="Reports" asp-action="DownloadCsv" asp-route-runId="@run.RunId" style="margin-right:5px" class="btn btn-primary btn-sm">
                                     Download CSV
                                 </a>
-                                <a href="javascript:void(0);" class="btn btn-primary btn-sm mt-2 send-email-btn" data-runid="@run.RunId">
+                                <a href="javascript:void(0);" class="btn btn-primary btn-sm send-email-btn" data-runid="@run.RunId">
                                     Send Email
                                 </a>
                                 <div class="spinner-border text-primary csv-loader" style="display:none; width: 1rem; height: 1rem;" role="status"></div>
