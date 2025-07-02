@@ -283,10 +283,12 @@ namespace ADOAnalyser
 
         public async Task<WorkItemModel> GetAllWorkItemsByDateRangeAsync(DateTime fromDate, DateTime toDate)
         {
+            DateTime toDateTime = toDate.Date.AddDays(1);
+
             var model = new WorkItemModel { value = new List<Values>() };
             var projectList = new List<string> { "CE", "ConnectALL", "VIEW-Portal" };
             string from = fromDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
-            string to = toDate.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
+            string to = toDateTime.ToString("yyyy-MM-ddTHH:mm:ss.0000000");
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(new TimeSpan(24, 0, 9));
@@ -299,7 +301,7 @@ namespace ADOAnalyser
                         FROM WorkItems
                         WHERE 
                             [System.TeamProject] = '{project}' AND
-                            [System.ChangedDate] > '{from}' AND 
+                            [System.ChangedDate] >= '{from}' AND 
                             [System.ChangedDate] < '{to}' AND 
                             [System.WorkItemType] IN ('Production Defect', 'Bug', 'User Story') AND
                             [System.State] <> 'New' AND
