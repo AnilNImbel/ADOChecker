@@ -22,6 +22,9 @@ namespace ADOAnalyser.Models
         public int missingVLDBCount { get; set; }
         public int passingCount { get; set; }
         public int dashboardCount { get; set; }
+        public bool showCSV { get; set; }
+        public bool showTotalCount { get; set; }
+        public string? controllerName { get; set; }
     }
 
     public class Fields

@@ -1,11 +1,6 @@
-﻿using ADOAnalyser.Enum;
-using ADOAnalyser.Models.TestModel;
-using ADOAnalyser.Models;
+﻿using ADOAnalyser.Models;
 using ADOAnalyser.Repository;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.ComponentModel;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace ADOAnalyser.Controllers
 {
@@ -13,8 +8,6 @@ namespace ADOAnalyser.Controllers
     {
         private readonly IWorkItem _workItem;
         private readonly ADORules _autoSpotCheck;
-
-        private const string TestRelation = "Microsoft.VSTS.Common.TestedBy-Forward";
         private const string ProjectName = "CE";
 
         public AdvanceSearchController(IWorkItem workItem, ADORules autoSpotCheck)
@@ -25,110 +18,94 @@ namespace ADOAnalyser.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            IterationResult iterationData = _workItem.GetSprint(ProjectName);
+            var allSprints = iterationData.AllSprints;
+
+            var viewModel = new SprintViewModel
+            {
+                AllSprints = allSprints.Select(s => new SprintDropdownItem
+                {
+                    FullPath = s.FullPath,
+                    StartDate = s.Attributes.StartDate,
+                    EndDate = s.Attributes.FinishDate
+                }).ToList(),
+            };
+
+            return View(viewModel);
         }
 
 
         [HttpGet]
-        public IActionResult Search(string workItemType, int? adoNumber, string assignedTo, string state)
+        public async Task<IActionResult> SearchAsync(string workItemType, int? adoNumber, string assignedTo, string state, string sprint)
         {
             var workItemTypes = new List<string> { "Bug", "User Story", "Production Defect" };
-            //var systemState = new List<string> { "Closed", "Resolved", "Test", "Active"};
-            string filter = string.Empty;
-            string systemState = @" AND [System.State] <> 'New' AND [System.State] <> 'Approved'";
+            string systemStateFilter = " AND [System.State] <> 'New' AND [System.State] <> 'Approved'";
+            string sprintFilter = string.Empty;
+            string additionalFilter = string.Empty;
 
-            bool isDefaultSearch =
-            (string.IsNullOrEmpty(workItemType) || workItemType == "All") &&
-            !adoNumber.HasValue &&
-            string.IsNullOrEmpty(assignedTo) &&
-            (string.IsNullOrEmpty(state) || state == "All");
-
-            if (isDefaultSearch)
+            // Sprint filter
+            if (sprint == "All")
             {
-                return Content("Please select at least one filter to perform a search.");
+                var iterationData = _workItem.GetSprint(ProjectName);
+                var allSprints = iterationData.AllSprints;
+
+                var sprintConditions = allSprints
+                    .Select(i => $"[System.IterationPath] = '{i.FullPath.Replace("'", "''")}'");
+
+                sprintFilter = " AND (" + string.Join(" OR ", sprintConditions) + ")";
+            }
+            else
+            {
+                sprintFilter = $" AND [System.IterationPath] = '{sprint}'";
             }
 
+            // Work item type filter
             if (workItemType != "All")
             {
-                workItemTypes = workItemTypes.Where(a => a.Equals(workItemType)).ToList();
+                workItemTypes = workItemTypes
+                    .Where(type => type.Equals(workItemType, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
             }
 
+            // State filter
             if (state != "All")
             {
-                systemState += $" AND [System.State] = '{state}'";
+                systemStateFilter += $" AND [System.State] = '{state}'";
             }
 
+            // ADO number filter
 
-            if(adoNumber != null)
+            if (adoNumber.HasValue)
             {
-                filter = $" AND [System.Id] = '{adoNumber}'";
+                systemStateFilter += $" AND [System.Id] = {adoNumber.Value}";
             }
+
+
+            // AssignedTo filter
             if (!string.IsNullOrWhiteSpace(assignedTo))
             {
-                filter += $" AND [System.AssignedTo] CONTAINS '{assignedTo}'";
+                additionalFilter += $" AND [System.AssignedTo] CONTAINS '{assignedTo}'";
             }
 
-            var workData = new WorkItemModel();
+            // Final WIQL filter query
+            string filterQuery = additionalFilter + systemStateFilter + sprintFilter;
 
-            var wiqlJson = _workItem.GetAllWiqlSearch(ProjectName, workItemTypes, filter += systemState);
-            var wiqlData = JsonConvert.DeserializeObject<WiqlModel>(wiqlJson);
+            // Fetch work items
+            var workItemModel = await Task.Run(() =>
+                _workItem.GetAllWiqlSearchAsync(ProjectName, workItemTypes, filterQuery));
 
-            var idList = wiqlData?.workItems?.Select(w => w.id).ToList();
-            if (idList?.Any() == true)
+            if (workItemModel?.value != null)
             {
-                var workItemsJson = _workItem.GetWorkItem(ProjectName, string.Join(", ", idList.Take(200)));
-                workData = JsonConvert.DeserializeObject<WorkItemModel>(workItemsJson);
-
-                if (workData?.value?.Any() == true)
-                {
-                    workData.value = workData.value
-                    .Where(w => string.IsNullOrEmpty(w.fields.CivicaAgileReproducible) ||
-                    w.fields.CivicaAgileReproducible.Equals("YES", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
-                    if (workData.value.Count > 0)
-                    {
-                        AddTestRelationFilterData(workData);
-                        _autoSpotCheck.CheckMissingData(workData);
-                        _autoSpotCheck.SetCountForMissing(workData);
-                    }
-                }
+                await _autoSpotCheck.CheckMissingDataAsync(workItemModel);
             }
 
-            return PartialView("_WorkItemGrid", workData);
-        }
+            // Set view flags
+            workItemModel.showCSV = true;
+            workItemModel.showTotalCount = true;
+            workItemModel.controllerName = "AdvanceSearch";
 
-        private void AddTestRelationFilterData(WorkItemModel workData)
-        {
-            foreach (var item in workData.value)
-            {
-                var relationIds = item.relations?
-                .Where(r => r.rel == TestRelation)
-                .Select(r => int.Parse(r.url.Split('/').Last()))
-                .ToList();
+            return PartialView("_WorkItemGrid", workItemModel);
 
-                if (relationIds?.Any() == true)
-                {
-                    var testItemsJson = _workItem.GetWorkItem(string.Join(", ", relationIds.Take(200)));
-                    var testData = JsonConvert.DeserializeObject<TestCaseModel>(testItemsJson);
-
-                    if (testData?.value?.Any() == true)
-                    {
-                        item.testByRelationField = testData.value
-                        .Where(v => v.fields != null)
-                        .Select(v => new TestByRelationField
-                        {
-                            TestId = v.id,
-                            SystemState = v.fields.SystemState,
-                            SystemAssignedTo = v.fields.SystemAssignedTo,
-                            CustomAutomation = v.fields.MicrosoftVSTSTCMAutomationStatus,
-                            CivicaAgileTestLevel = v.fields.CivicaAgileTestLevel,
-                            CivicaAgileTestPhase = v.fields.CivicaAgileTestPhase,
-                            CustomTestType = v.fields.CustomTestType
-                        }).ToList();
-                    }
-                }
-            }
         }
     }
 }

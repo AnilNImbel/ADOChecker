@@ -155,13 +155,11 @@ namespace ADOAnalyser.Repository
 
                         if (allFieldsPresent)
                         {
-                            values.fields.TestCaseGapeStatus = ResultEnum.Updated.ToString();
                             testCase.TestCaseUpdated = ResultEnum.Updated.ToString();
                         }
                     }
                 }
             }
-
             values.fields.TestCaseGapeHTML = HTMLString(values);
         }
 

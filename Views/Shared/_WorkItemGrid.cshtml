@@ -1,7 +1,29 @@
 ﻿@model ADOAnalyser.Models.WorkItemModel
+
+@if (Model.value != null && Model.value.Any() && (Model.showCSV || Model.showTotalCount))
+{
+    <div class="row mb-2">
+        @if (Model.showTotalCount)
+        {
+            <div class="col-md-6">
+                <label class="form-label header" style="margin-bottom:10px;font-size:20px">Total Work Items : @Model.count</label>
+            </div>
+        }
+        @if (Model.showCSV)
+        {
+            string controllerName = @Model.controllerName ?? "test";
+            <div class="@(Model.showTotalCount ? "col-md-6" : "col-md-12")">
+                <a onclick="downloadWorkItmeAsCSV('workItemTable','@controllerName')" style="margin-right:5px;float: right;" class="btn btn-primary btn-sm">
+                Download CSV
+            </a>
+        </div>
+        }
+    </div>
+}
+
 <div class="row">
     <div class="col-md-12 table-responsive">
-        <table class="table table-hover">
+        <table id="workItemTable" class="table table-hover">
             <thead>
                 <tr>
                     <th>Work Item Type</th>
@@ -54,8 +76,56 @@
                         <td colspan="12" class="text-center">No work items found for this sprint.</td>
                     </tr>
                 }
+           
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+       function downloadWorkItmeAsCSV(tableId, controllerName) {
+        const table = document.getElementById(tableId);
+        let csv = [];
+
+        for (let row of table.rows) {
+            let rowData = [];
+            for (let cell of row.cells) {
+                let cellText = cell.innerText;
+
+                // Replace logic based on field name and value
+                const header = table.rows[0].cells[cell.cellIndex].innerText.trim();
+                if (header === "Test Case") {
+                    if (cellText.trim() === "No Test case Attached") {
+                        cellText = "Missing";
+                    } else if (cellText.trim() === "Missing Details") {
+                        cellText = "Missing";
+                    }
+                    else if(cellText.trim() === "All fields updated"){
+                         cellText = "Updated";
+                    }
+                }
+
+                rowData.push('"' + cellText.replace(/"/g, '""') + '"');
+            }
+            csv.push(rowData.join(','));
+        }
+
+        const csvContent = csv.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+
+        const now = new Date();
+        const timestamp = now.toISOString().replace(/[-:T.Z]/g, '').slice(0, 14); // yyyyMMddHHmmss
+        const filename = controllerName +`_${timestamp}.csv`;
+
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+</script>
+
 

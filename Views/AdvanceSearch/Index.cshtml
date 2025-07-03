@@ -1,4 +1,5 @@
-﻿@{
+﻿@model ADOAnalyser.Models.SprintViewModel
+@{
     ViewData["Title"] = "Advance Search";
 }
 <section id="advanceSearch" class="content">
@@ -6,6 +7,21 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <form id="advancedSearchForm" class="p-4 border rounded bg-light">
+                <div class="row mb-3">
+                    <!-- Work Item Type Dropdown -->
+                    <div class="col-md-12">
+                        <label for="sprint" class="form-label">Select Sprint</label>
+                        <select class="form-select" name="sprint">
+                            <option>All</option>
+                            @foreach (var sprint in Model.AllSprints)
+                            {
+                                <option value="@sprint.FullPath">
+                                    @sprint.DisplayName
+                                </option>
+                            }
+                        </select>
+                    </div>
+                </div>
                 <div class="row mb-3">
                     <!-- Work Item Type Dropdown -->
                     <div class="col-md-3">
