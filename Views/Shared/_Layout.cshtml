@@ -59,11 +59,11 @@
                     </span>
                     <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Reports" asp-action="Index">Run Checks History</a>
                 </li>
-                <li data-section="graphs" class="nav-item @(currentController == "Graph" ? "active" : "")">
+                <li data-section="charts" class="nav-item @(currentController == "Chart" ? "active" : "")">
                     <span class="menu-icon">
-                        <a class="fas fa-chart-bar" asp-area="" asp-controller="Graph" asp-action="Index" style="text-decoration:none;color:white"></a>
+                        <a class="fas fa-chart-bar" asp-area="" asp-controller="Chart" asp-action="Index" style="text-decoration:none;color:white"></a>
                     </span>
-                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Graph" asp-action="Index">ADOSpot Check Summary</a>
+                    <a class="text-label navbar-brand stretched-link" asp-area="" asp-controller="Chart" asp-action="Index">Charts</a>
                 </li>
                 <li data-section="builds" class="nav-item @(currentController == "Build" ? "active" : "")">
                     <span class="menu-icon">

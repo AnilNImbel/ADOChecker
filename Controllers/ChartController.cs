@@ -9,11 +9,11 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ADOAnalyser.Controllers
 {
-    public class GraphController : Controller
+    public class ChartController : Controller
     {
         private readonly AppDbContext _context;
 
-        public GraphController(AppDbContext context)
+        public ChartController(AppDbContext context)
         {
             _context = context;            
         }
@@ -22,7 +22,7 @@ namespace ADOAnalyser.Controllers
             var pipelineJson = _context.TestRunResults
                   .OrderByDescending(r => r.RunDate).Take(10)
                   .ToList();
-            var definitions = new List<GraphDefinition>();
+            var definitions = new List<ChartDefinition>();
 
 
 
@@ -34,7 +34,7 @@ namespace ADOAnalyser.Controllers
 
                     if (matches.Count >= 3)
                     {   
-                        definitions.Add(new GraphDefinition
+                        definitions.Add(new ChartDefinition
                         {
                             Date = pipeline.StartDate?.ToShortDateString() + "-" + pipeline.EndDate?.ToShortDateString(),
                             MissingCount = int.Parse(matches[2].Value),
@@ -48,7 +48,7 @@ namespace ADOAnalyser.Controllers
             return View(definitions);
         }
 
-        public class GraphDefinition
+        public class ChartDefinition
         {
             public string Date { get; set; }
             public int MissingCount { get; set; }

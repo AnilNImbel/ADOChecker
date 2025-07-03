@@ -13,7 +13,7 @@
         {
             string controllerName = @Model.controllerName ?? "test";
             <div class="@(Model.showTotalCount ? "col-md-6" : "col-md-12")">
-                <a onclick="downloadWorkItmeAsCSV('workItemTable','@controllerName')" style="margin-right:5px;float: right;" class="btn btn-primary btn-sm">
+                <a onclick="downloadWorkItmeAsCSV('adoItemTable','@controllerName')" style="margin-right:5px;float: right;" class="btn btn-primary btn-sm">
                 Download CSV
             </a>
         </div>
@@ -23,7 +23,7 @@
 
 <div class="row">
     <div class="col-md-12 table-responsive">
-        <table id="workItemTable" class="table table-hover">
+        <table id="adoItemTable" class="table table-hover">
             <thead>
                 <tr>
                     <th>Work Item Type</th>

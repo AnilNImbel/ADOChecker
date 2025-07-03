@@ -1,12 +1,12 @@
-﻿@model List<ADOAnalyser.Controllers.GraphController.GraphDefinition>
+﻿@model List<ADOAnalyser.Controllers.ChartController.ChartDefinition>
 @{
-    ViewData["Title"] = "ADOSpot Check Summary";
+    ViewData["Title"] = "Charts";
     var dateList = @Model.Select(a => a.Date).ToList();
     var missingList = @Model.Select(a => a.MissingCount).ToList();
     var passingList = @Model.Select(a => a.PassingCount).ToList();
 }
-<section id="graphs" class="content">
-    <div class="header" style="font-weight:bold">ADOSpot Check Summary Graph</div>
+<section id="charts" class="content">
+    <div class="header" style="font-weight:bold">ADO Spot Run Check Trends</div>
     <p>This graph provides a clear comparison between entries that passed and those that were missing in the run check history.</p>
     <div class="row">
         <div class="col-md-12">
