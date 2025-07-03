@@ -73,7 +73,6 @@ namespace ADOAnalyser.Controllers
                 }).ToList(),
                 WorkItemData = workData
             };
-
             HttpContext.Session.SetString("workItemModel", JsonConvert.SerializeObject(workData));
             return View(viewModel);
         }
@@ -99,6 +98,9 @@ namespace ADOAnalyser.Controllers
                 };
             }
 
+            filteredData.showCSV = AppSettingsReader.GetValue("DashBoard", "ShowCsv") == string.Empty ? false : Convert.ToBoolean(AppSettingsReader.GetValue("DashBoard", "ShowCsv"));
+            filteredData.showTotalCount = AppSettingsReader.GetValue("DashBoard", "ShowCount") == string.Empty ? false : Convert.ToBoolean(AppSettingsReader.GetValue("DashBoard", "ShowCount"));
+            filteredData.controllerName = "Dashboard";
             return PartialView("_WorkItemGrid", filteredData);
         }
 

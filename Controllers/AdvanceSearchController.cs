@@ -100,8 +100,8 @@ namespace ADOAnalyser.Controllers
             }
 
             // Set view flags
-            workItemModel.showCSV = true;
-            workItemModel.showTotalCount = true;
+            workItemModel.showCSV = AppSettingsReader.GetValue("AdvanceSearch", "ShowCsv") == string.Empty ? false : Convert.ToBoolean(AppSettingsReader.GetValue("AdvanceSearch", "ShowCsv"));
+            workItemModel.showTotalCount = AppSettingsReader.GetValue("AdvanceSearch", "ShowCount") == string.Empty ? false : Convert.ToBoolean(AppSettingsReader.GetValue("AdvanceSearch", "ShowCount"));
             workItemModel.controllerName = "AdvanceSearch";
 
             return PartialView("_WorkItemGrid", workItemModel);
